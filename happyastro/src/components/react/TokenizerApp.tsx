@@ -5,6 +5,7 @@ import {
   isEncodingType,
 } from "../../utils/modelEncodings";
 import { TokenDisplay } from "./TokenDisplay";
+import { Footer } from "../Footer";
 import styles from "../../styles/components/TokenizerApp.module.css";
 
 const DEFAULT_ESSAY = `HappyTokenizer by happytoolin represents a new approach to understanding and optimizing AI context windows. As developers increasingly work with Large Language Models, the efficient management of token usage has become crucial for both cost optimization and model performance. HappyTokenizer provides precise token counting and visualization tools that help developers understand exactly how their text is being processed by models like GPT-4o and GPT-3.5.
@@ -379,6 +380,7 @@ export function TokenizerApp() {
           error={error}
         />
       </main>
+      <Footer />
     </div>
   );
 }
