@@ -13,5 +13,5 @@
     </filter>
   </defs>
 
-  <circle cx="64" cy="64" r="12" fill="#ff6600" filter="url(#glow)"/>
+  <circle cx="64" cy="64" r="20" fill="#ff6600" filter="url(#glow)"/>
 </svg>

@@ -98,7 +98,6 @@ export function TokenizerApp() {
     setText("");
   };
 
-  
   return (
     <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[900px]:grid-cols-1 max-[900px]:p-4">
       {/* --- CONTROL DECK (Sidebar) --- */}
