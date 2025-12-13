@@ -6,8 +6,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .header {
@@ -72,7 +78,7 @@
   border: 1px solid var(--c-black);
   min-height: 400px;
   position: relative;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.03); /* Debossed feel */
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03); /* Debossed feel */
 }
 
 /* --- STATS FOOTER --- */
@@ -106,7 +112,8 @@
   color: var(--c-black);
 }
 
-.empty, .error {
+.empty,
+.error {
   padding: 40px;
   text-align: center;
   font-family: var(--font-mono);
@@ -139,12 +146,12 @@
   filter: brightness(0.95);
   z-index: 1;
   position: relative;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .inlineTokenNumber {
   font-size: 9px;
-  color: rgba(0,0,0,0.4);
+  color: rgba(0, 0, 0, 0.4);
   margin-right: 4px;
   user-select: none;
 }

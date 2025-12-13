@@ -1,11 +1,11 @@
 .container {
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 40px;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 350px 1fr;
-  gap: 24px;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
   align-items: start;
 }
 
@@ -13,42 +13,77 @@
 .controlDeck {
   background: var(--c-white);
   border: 1px solid var(--c-black);
-  padding: 24px;
   position: sticky;
   top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+  justify-content: space-between;
+  /* Visual: Hard Shadow */
+  box-shadow: 6px 6px 0px var(--c-black);
+  height: auto;
+  min-height: 650px;
 }
 
 .brand {
-  border-bottom: 2px solid var(--c-black);
-  padding-bottom: 16px;
+  padding: 24px;
+  border-bottom: 1px solid var(--c-black);
+  background: var(--c-black);
+  color: var(--c-white);
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 8px;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  background: var(--c-orange); /* Happy/Energy Color */
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--c-orange);
 }
 
 .title {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 24px;
+  font-size: 20px;
   text-transform: uppercase;
   margin: 0;
-  line-height: 0.9;
   letter-spacing: -0.02em;
-  color: var(--c-black);
+  color: var(--c-white);
 }
 
-.badge {
-  display: inline-block;
-  background: var(--c-orange);
-  color: var(--c-white);
+.metaRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.versionBadge {
   font-family: var(--font-mono);
   font-size: 10px;
+  color: #888;
+}
+
+.ownerBadge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--c-white);
+  color: var(--c-black);
   padding: 2px 6px;
-  margin-top: 4px;
-  text-transform: uppercase;
   font-weight: 700;
+}
+
+.scrollableControls {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .controlGroup {
@@ -59,36 +94,53 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  color: #888;
+  color: #666;
   font-weight: 600;
   letter-spacing: 0.05em;
+  display: flex;
+  justify-content: space-between;
 }
 
-/* --- FORM ELEMENTS --- */
+/* Custom Select */
+.selectWrapper {
+  position: relative;
+}
+
 .select {
+  width: 100%;
   appearance: none;
   background: var(--c-paper);
   border: 1px solid var(--c-black);
-  border-radius: var(--radius-xs);
+  border-radius: 0;
   padding: 12px;
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 13px;
   color: var(--c-black);
   cursor: pointer;
-  transition: all 0.2s var(--ease-mechanical);
+  transition: all 0.2s;
 }
 
 .select:hover {
-  background: #EAEAEA;
+  background: #eaeaea;
 }
 
 .select:focus {
   outline: none;
-  border-color: var(--c-orange);
-  box-shadow: 0 0 0 1px var(--c-orange);
+  background: var(--c-black);
+  color: var(--c-white);
+}
+
+.selectArrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  pointer-events: none;
+  color: var(--c-orange);
 }
 
 .buttonGrid {
@@ -98,36 +150,71 @@
 }
 
 .button {
-  background: var(--c-black);
-  color: var(--c-white);
-  border: none;
-  border-radius: var(--radius-xs);
+  background: var(--c-orange);
+  color: var(--c-black);
+  border: 1px solid var(--c-black);
+  border-radius: 0;
   padding: 12px 16px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform 0.1s var(--ease-mechanical), background 0.2s;
-}
-
-.button:active {
-  transform: scale(0.98);
+  transition: all 0.1s;
 }
 
 .button:hover {
-  background: var(--c-orange);
-  color: var(--c-black);
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0px var(--c-black);
+}
+
+.button:active {
+  transform: translate(0, 0);
+  box-shadow: none;
 }
 
 .buttonSecondary {
   background: transparent;
-  border: 1px solid var(--c-black);
-  color: var(--c-black);
+  border: 1px solid #ccc;
+  color: #666;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .buttonSecondary:hover {
-  background: var(--c-black);
-  color: var(--c-white);
+  border-color: var(--c-black);
+  color: var(--c-black);
+}
+
+/* Footer in Sidebar */
+.footer {
+  padding: 24px;
+  border-top: 1px solid #eee;
+  background: var(--c-paper);
+}
+
+.footerLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.footerLink {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--c-black);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+  color: var(--c-orange);
 }
 
 /* --- RIGHT PANEL: WORKSPACE --- */
@@ -137,15 +224,37 @@
   gap: 24px;
 }
 
-.inputWrapper {
-  position: relative;
+.editorSection {
+  background: var(--c-white);
+  border: 1px solid var(--c-black);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+}
+
+.editorHeader {
+  display: flex;
+  border-bottom: 1px solid var(--c-black);
+  background: var(--c-paper);
+}
+
+.tabActive {
+  padding: 8px 16px;
+  background: var(--c-white);
+  border-right: 1px solid var(--c-black);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tabInactive {
+  padding: 8px 16px;
+  color: #999;
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 
 .textarea {
   width: 100%;
-  background: var(--c-white);
-  border: 1px solid var(--c-black); /* Thin precise border */
-  border-radius: 0;
+  border: none;
   padding: 24px;
   font-family: var(--font-mono);
   font-size: 14px;
@@ -153,57 +262,101 @@
   color: var(--c-black);
   resize: vertical;
   min-height: 200px;
-  transition: border 0.2s;
 }
 
 .textarea:focus {
   outline: none;
-  border-left: 4px solid var(--c-orange);
-  padding-left: 21px; /* Compensate for border width */
+  background: #fafafa;
 }
 
 .metaBar {
   display: flex;
-  justify-content: space-between;
-  border-top: 1px solid #ddd;
-  background: var(--c-white);
-  border: 1px solid var(--c-black);
-  border-top: none;
+  gap: 24px;
+  border-top: 1px solid var(--c-black);
   padding: 8px 16px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: #666;
+  background: var(--c-white);
 }
 
-/* --- LOADING STATE --- */
+.metaItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.metaLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #999;
+  font-weight: 700;
+}
+
+.metaValue {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Loading States */
+.processingState {
+  background: #fcfcfc;
+  padding: 12px;
+  border: 1px solid #eee;
+}
+
 .progressBar {
   height: 4px;
   background: #eee;
   width: 100%;
+  margin-top: 8px;
   position: relative;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background: var(--c-orange);
-  transition: width 0.3s var(--ease-mechanical);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--c-orange),
+    var(--c-orange) 10px,
+    #ff8533 10px,
+    #ff8533 20px
+  );
+  animation: stripeMove 1s linear infinite;
+  transition: width 0.3s ease;
+}
+
+@keyframes stripeMove {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 28px 0;
+  }
+}
+
+.processingMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #888;
+  margin-top: 4px;
+  text-align: right;
 }
 
 @media (max-width: 900px) {
   .container {
     grid-template-columns: 1fr;
-    padding: 20px;
+    padding: 16px;
   }
 
   .controlDeck {
-    position: static;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    position: relative;
+    top: 0;
+    height: auto;
+    min-height: auto;
     box-shadow: none;
   }
 
   .brand {
-    grid-column: span 2;
+    border-right: none;
   }
 }

@@ -234,7 +234,7 @@ export function VirtualizedInlineTokenDisplay({
                     style={{
                       // Use background opacity for the "Highlighter" effect
                       backgroundColor: item.color + "33", // 20% opacity hex
-                      borderBottom: `2px solid ${item.color}` // Underline style instead of full border
+                      borderBottom: `2px solid ${item.color}`, // Underline style instead of full border
                     }}
                     title={`Token ${item.id + 1}: ${item.tokenId}`}
                   >

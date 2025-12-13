@@ -1,20 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 
 :root {
   /* --- PALETTE: Industrial Utility --- */
-  --c-orange: #FF6600;
-  --c-neon: #00FF00;
-  --c-black: #1A1A1A;
+  --c-orange: #ff6600;
+  --c-neon: #00ff00;
+  --c-black: #1a1a1a;
   --c-steel: #252525;
-  --c-paper: #F2F2F0; /* Recycled paper tone */
-  --c-white: #FFFFFF;
-  --c-concrete: #E5E5E5;
+  --c-paper: #f2f2f0; /* Recycled paper tone */
+  --c-white: #ffffff;
+  --c-concrete: #e5e5e5;
   --c-ink: #000000;
 
   /* --- TYPOGRAPHY --- */
-  --font-display: 'Archivo', sans-serif; /* Simulating Druk Wide */
-  --font-body: 'Inter', sans-serif;      /* Simulating Geist Sans */
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: "Archivo", sans-serif; /* Simulating Druk Wide */
+  --font-body: "Inter", sans-serif; /* Simulating Geist Sans */
+  --font-mono: "JetBrains Mono", monospace;
 
   /* --- PHYSICS & SHAPE --- */
   --ease-mechanical: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -23,9 +23,9 @@
   --radius-sm: 4px;
 
   /* --- UI TOKENS --- */
-  --border-thin: 1px solid rgba(0,0,0,0.1);
+  --border-thin: 1px solid rgba(0, 0, 0, 0.1);
   --border-heavy: 2px solid var(--c-black);
-  --shadow-lift: 0 4px 20px rgba(0,0,0,0.05);
+  --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.05);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -43,8 +43,7 @@ body {
   color: var(--c-black);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  background-image:
-    radial-gradient(var(--c-concrete) 1px, transparent 1px);
+  background-image: radial-gradient(var(--c-concrete) 1px, transparent 1px);
   background-size: 24px 24px; /* Dot grid texture */
   min-width: 320px;
   min-height: 100vh;

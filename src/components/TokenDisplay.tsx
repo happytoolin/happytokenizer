@@ -88,7 +88,12 @@ export function TokenDisplay({
   }, [tokens, wordsList]);
 
   if (error) return <div className={styles.error}>ERR: {error}</div>;
-  if (!text || tokens.length === 0) return <div className={styles.empty}>// NO DATA STREAM</div>;
+  if (!text || tokens.length === 0)
+    return (
+      <div className={styles.empty}>
+        // HAPPYTOKENIZER: WAITING FOR INPUT STREAM
+      </div>
+    );
 
   return (
     <div className={styles.container}>
@@ -98,15 +103,33 @@ export function TokenDisplay({
           <span className={styles.countBadge}>{tokens.length}</span>
         </div>
         <div className={styles.viewToggle}>
-          <button className={`${styles.viewButton} ${viewMode === "inline" ? styles.active : ""}`} onClick={() => setViewMode("inline")}>TXT</button>
-          <button className={`${styles.viewButton} ${viewMode === "compact" ? styles.active : ""}`} onClick={() => setViewMode("compact")}>GRD</button>
-          <button className={`${styles.viewButton} ${viewMode === "detailed" ? styles.active : ""}`} onClick={() => setViewMode("detailed")}>LST</button>
+          <button
+            className={`${styles.viewButton} ${viewMode === "inline" ? styles.active : ""}`}
+            onClick={() => setViewMode("inline")}
+          >
+            TXT
+          </button>
+          <button
+            className={`${styles.viewButton} ${viewMode === "compact" ? styles.active : ""}`}
+            onClick={() => setViewMode("compact")}
+          >
+            GRD
+          </button>
+          <button
+            className={`${styles.viewButton} ${viewMode === "detailed" ? styles.active : ""}`}
+            onClick={() => setViewMode("detailed")}
+          >
+            LST
+          </button>
         </div>
       </div>
 
       <div className={styles.tokensContainer}>
         {viewMode === "inline" && (
-          <VirtualizedInlineTokenDisplay items={tokenItems} containerHeight={CONTAINER_HEIGHT} />
+          <VirtualizedInlineTokenDisplay
+            items={tokenItems}
+            containerHeight={CONTAINER_HEIGHT}
+          />
         )}
         {viewMode === "compact" && (
           <VirtualizedCompactTokenDisplay
@@ -119,7 +142,11 @@ export function TokenDisplay({
           />
         )}
         {viewMode === "detailed" && (
-          <VirtualTokenDisplay items={tokenItems} containerHeight={CONTAINER_HEIGHT} estimatedItemHeight={40} />
+          <VirtualTokenDisplay
+            items={tokenItems}
+            containerHeight={CONTAINER_HEIGHT}
+            estimatedItemHeight={40}
+          />
         )}
       </div>
 
@@ -134,11 +161,15 @@ export function TokenDisplay({
         </div>
         <div className={styles.stat}>
           <span className={styles.statLabel}>Est. Cost (Input)</span>
-          <span className={styles.statValue}>${((tokens.length / 1000) * 0.005).toFixed(4)}</span>
+          <span className={styles.statValue}>
+            ${((tokens.length / 1000) * 0.005).toFixed(4)}
+          </span>
         </div>
         <div className={styles.stat}>
           <span className={styles.statLabel}>Density</span>
-          <span className={styles.statValue}>{(text.length / tokens.length).toFixed(2)}</span>
+          <span className={styles.statValue}>
+            {(text.length / tokens.length).toFixed(2)}
+          </span>
         </div>
       </div>
     </div>
