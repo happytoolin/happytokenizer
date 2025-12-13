@@ -350,16 +350,17 @@ export function TokenizerApp() {
           </div>
         </div>
 
-        {/* Footer in Sidebar */}
         <div className="p-6 border-t border-gray-200 bg-brand-paper">
-          <span className="font-mono text-xxs text-gray-300 uppercase mb-1 text-center block">
-            Resources
-          </span>
+          <div className="font-mono text-xxs text-gray-300 uppercase mb-1 text-center block">
+            Open Source Software
+          </div>
           <a
-            href="/models"
+            href="https://github.com/happytoolin/happytokenizer"
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors hover:underline"
           >
-            View All Models →
+            github.com/happytoolin
           </a>
         </div>
       </aside>
