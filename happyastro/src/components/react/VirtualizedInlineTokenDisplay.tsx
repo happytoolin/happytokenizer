@@ -209,10 +209,10 @@ export function VirtualizedInlineTokenDisplay({
   const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
-    <div className={styles.virtualContainer}>
+    <div className="virtualized-token-display">
       <div
         ref={parentRef}
-        className={styles.scrollContainer}
+        className="scroll-container"
         style={{ height: containerHeight }}
       >
         <div
@@ -229,7 +229,7 @@ export function VirtualizedInlineTokenDisplay({
             return (
               <div
                 key={virtualItem.key}
-                className={styles.tokenLine}
+                className="token-line"
                 style={{
                   position: "absolute",
                   top: 0,
@@ -244,7 +244,7 @@ export function VirtualizedInlineTokenDisplay({
                 {line.tokens.map((item) => (
                   <span
                     key={item.id}
-                    className={styles.token}
+                    className="token"
                     style={{
                       // Use background opacity for the "Highlighter" effect
                       backgroundColor: item.color + "33", // 20% opacity hex
@@ -252,7 +252,7 @@ export function VirtualizedInlineTokenDisplay({
                     }}
                     data-tooltip={`ID: ${item.tokenId}`}
                   >
-                    <span className={styles.tokenId}>{item.tokenId}</span>
+                    <span className="token-id">{item.tokenId}</span>
                     {item.text}
                   </span>
                 ))}
@@ -263,7 +263,7 @@ export function VirtualizedInlineTokenDisplay({
       </div>
 
       {items.length > 0 && lineBreaks.length > 0 && virtualItems.length > 0 && (
-        <div className={styles.scrollIndicator}>
+        <div className="scroll-indicator">
           {lineBreaks[virtualItems[0].index]?.startIndex + 1 || 1}-
           {Math.min(
             lineBreaks[virtualItems[virtualItems.length - 1].index]?.endIndex +

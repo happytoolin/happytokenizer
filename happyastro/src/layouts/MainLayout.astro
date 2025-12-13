@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 export interface Props {
 	title: string;
 	description: string;
@@ -80,9 +82,6 @@ const structuredData = {
 		<!-- Preload fonts for performance -->
 		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
-
-		<!-- Global styles -->
-		<link rel="stylesheet" href="/styles/global.css" />
 
 		<title>{title}</title>
 	</head>
