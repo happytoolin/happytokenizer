@@ -1,10 +1,14 @@
 import { encode, decode } from "gpt-tokenizer";
-import { encode as encodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
-import { decode as decodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
+import { encode as encodeCl100k, decode as decodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
+import { encode as encodeP50k, decode as decodeP50k } from "gpt-tokenizer/encoding/p50k_base";
+import { encode as encodeP50kEdit, decode as decodeP50kEdit } from "gpt-tokenizer/encoding/p50k_edit";
+import { encode as encodeR50k, decode as decodeR50k } from "gpt-tokenizer/encoding/r50k_base";
+
+export type EncodingType = "o200k_base" | "cl100k_base" | "p50k_base" | "p50k_edit" | "r50k_base";
 
 export interface TokenizerMessage {
   text: string;
-  model?: "o200k_base" | "cl100k_base";
+  model?: EncodingType;
   chunkSize?: number;
 }
 
@@ -66,14 +70,30 @@ function splitIntoChunks(text: string, chunkSize: number = 1000): string[] {
 }
 
 // Decode individual tokens to their text representation
-function decodeTokens(
-  tokens: number[],
-  model: "o200k_base" | "cl100k_base",
-): string[] {
+function decodeTokens(tokens: number[], model: EncodingType): string[] {
   return tokens.map((token) => {
     try {
-      const decoded =
-        model === "cl100k_base" ? decodeCl100k([token]) : decode([token]);
+      let decoded: string;
+
+      switch (model) {
+        case "cl100k_base":
+          decoded = decodeCl100k([token]);
+          break;
+        case "p50k_base":
+          decoded = decodeP50k([token]);
+          break;
+        case "p50k_edit":
+          decoded = decodeP50kEdit([token]);
+          break;
+        case "r50k_base":
+          decoded = decodeR50k([token]);
+          break;
+        case "o200k_base":
+        default:
+          decoded = decode([token]);
+          break;
+      }
+
       return decoded;
     } catch (error) {
       // Fallback for special tokens or decoding errors
@@ -85,12 +105,32 @@ function decodeTokens(
 // Tokenize text with chunking for better performance on large documents
 async function tokenizeWithChunks(
   text: string,
-  model: "o200k_base" | "cl100k_base",
+  model: EncodingType,
   onProgress?: (progress: ChunkProgressResponse) => void,
 ): Promise<{ tokens: number[]; tokenTexts: string[] }> {
   // For small texts, use direct tokenization
   if (text.length <= 5000) {
-    const tokens = model === "cl100k_base" ? encodeCl100k(text) : encode(text);
+    let tokens: number[];
+
+    switch (model) {
+      case "cl100k_base":
+        tokens = encodeCl100k(text);
+        break;
+      case "p50k_base":
+        tokens = encodeP50k(text);
+        break;
+      case "p50k_edit":
+        tokens = encodeP50kEdit(text);
+        break;
+      case "r50k_base":
+        tokens = encodeR50k(text);
+        break;
+      case "o200k_base":
+      default:
+        tokens = encode(text);
+        break;
+    }
+
     const tokenTexts = decodeTokens(tokens, model);
     return { tokens, tokenTexts };
   }
@@ -115,8 +155,26 @@ async function tokenizeWithChunks(
       const chunk = chunks[j];
 
       // Tokenize this chunk
-      const chunkTokens =
-        model === "cl100k_base" ? encodeCl100k(chunk) : encode(chunk);
+      let chunkTokens: number[];
+
+      switch (model) {
+        case "cl100k_base":
+          chunkTokens = encodeCl100k(chunk);
+          break;
+        case "p50k_base":
+          chunkTokens = encodeP50k(chunk);
+          break;
+        case "p50k_edit":
+          chunkTokens = encodeP50kEdit(chunk);
+          break;
+        case "r50k_base":
+          chunkTokens = encodeR50k(chunk);
+          break;
+        case "o200k_base":
+        default:
+          chunkTokens = encode(chunk);
+          break;
+      }
 
       allTokens.push(...chunkTokens);
     }
@@ -169,15 +227,27 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
     } else {
       // Direct tokenization for small texts
       let tokens: number[];
-      let tokenTexts: string[];
 
-      if (model === "cl100k_base") {
-        tokens = encodeCl100k(text);
-        tokenTexts = decodeTokens(tokens, model);
-      } else {
-        tokens = encode(text);
-        tokenTexts = decodeTokens(tokens, model);
+      switch (model) {
+        case "cl100k_base":
+          tokens = encodeCl100k(text);
+          break;
+        case "p50k_base":
+          tokens = encodeP50k(text);
+          break;
+        case "p50k_edit":
+          tokens = encodeP50kEdit(text);
+          break;
+        case "r50k_base":
+          tokens = encodeR50k(text);
+          break;
+        case "o200k_base":
+        default:
+          tokens = encode(text);
+          break;
       }
+
+      const tokenTexts = decodeTokens(tokens, model);
 
       self.postMessage({
         tokens,

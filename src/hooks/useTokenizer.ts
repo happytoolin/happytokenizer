@@ -5,7 +5,7 @@ import type {
   ChunkProgressResponse,
 } from "../workers/tokenizer.worker";
 
-export type ModelType = "o200k_base" | "cl100k_base";
+export type ModelType = "o200k_base" | "cl100k_base" | "p50k_base" | "p50k_edit" | "r50k_base";
 
 export interface TokenizerProgress {
   chunkIndex: number;

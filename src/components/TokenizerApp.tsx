@@ -102,8 +102,11 @@ export function TokenizerApp() {
                 onChange={handleModelChange}
                 className={styles.select}
               >
-                <option value="o200k_base">GPT-4o (Omni)</option>
-                <option value="cl100k_base">GPT-3.5/4 (Turbo)</option>
+                <option value="o200k_base">GPT-4o / o1 / o3 (o200k_base)</option>
+                <option value="cl100k_base">GPT-3.5/4 Turbo (cl100k_base)</option>
+                <option value="p50k_base">Text-Davinci-003/002 (p50k_base)</option>
+                <option value="p50k_edit">Code-Davinci-Edit (p50k_edit)</option>
+                <option value="r50k_base">Text-Davinci-001 / Legacy (r50k_base)</option>
               </select>
               <div className={styles.selectArrow}>↓</div>
             </div>
