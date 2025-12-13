@@ -1,5 +1,6 @@
-import { encode } from "gpt-tokenizer";
+import { encode, decode } from "gpt-tokenizer";
 import { encode as encodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
+import { decode as decodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
 
 export interface TokenizerMessage {
   text: string;
@@ -11,6 +12,7 @@ export interface TokenizerResponse {
   tokens: number[];
   count: number;
   model: string;
+  tokenTexts?: string[];
   chunkProgress?: {
     current: number;
     total: number;
@@ -63,15 +65,34 @@ function splitIntoChunks(text: string, chunkSize: number = 1000): string[] {
   return chunks;
 }
 
+// Decode individual tokens to their text representation
+function decodeTokens(
+  tokens: number[],
+  model: "o200k_base" | "cl100k_base",
+): string[] {
+  return tokens.map((token) => {
+    try {
+      const decoded =
+        model === "cl100k_base" ? decodeCl100k([token]) : decode([token]);
+      return decoded;
+    } catch (error) {
+      // Fallback for special tokens or decoding errors
+      return `[${token}]`;
+    }
+  });
+}
+
 // Tokenize text with chunking for better performance on large documents
 async function tokenizeWithChunks(
   text: string,
   model: "o200k_base" | "cl100k_base",
   onProgress?: (progress: ChunkProgressResponse) => void,
-): Promise<number[]> {
+): Promise<{ tokens: number[]; tokenTexts: string[] }> {
   // For small texts, use direct tokenization
   if (text.length <= 5000) {
-    return model === "cl100k_base" ? encodeCl100k(text) : encode(text);
+    const tokens = model === "cl100k_base" ? encodeCl100k(text) : encode(text);
+    const tokenTexts = decodeTokens(tokens, model);
+    return { tokens, tokenTexts };
   }
 
   const chunkSize = 20000; // Increased to 20k for better performance
@@ -117,7 +138,8 @@ async function tokenizeWithChunks(
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
-  return allTokens;
+  const tokenTexts = decodeTokens(allTokens, model);
+  return { tokens: allTokens, tokenTexts };
 }
 
 self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
@@ -129,30 +151,39 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
 
     if (shouldChunk) {
       // Process with chunks and report progress
-      const tokens = await tokenizeWithChunks(text, model, (progress) => {
-        self.postMessage(progress as ChunkProgressResponse);
-      });
+      const { tokens, tokenTexts } = await tokenizeWithChunks(
+        text,
+        model,
+        (progress) => {
+          self.postMessage(progress as ChunkProgressResponse);
+        },
+      );
 
       // Send final result
       self.postMessage({
         tokens,
         count: tokens.length,
         model,
+        tokenTexts,
       } as TokenizerResponse);
     } else {
       // Direct tokenization for small texts
       let tokens: number[];
+      let tokenTexts: string[];
 
       if (model === "cl100k_base") {
         tokens = encodeCl100k(text);
+        tokenTexts = decodeTokens(tokens, model);
       } else {
         tokens = encode(text);
+        tokenTexts = decodeTokens(tokens, model);
       }
 
       self.postMessage({
         tokens,
         count: tokens.length,
         model,
+        tokenTexts,
       } as TokenizerResponse);
     }
   } catch (error) {
@@ -161,6 +192,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       tokens: [],
       count: 0,
       model,
+      tokenTexts: [],
     } as TokenizerResponse);
   }
 };

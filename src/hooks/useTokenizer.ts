@@ -15,6 +15,7 @@ export interface TokenizerProgress {
 
 export interface TokenizerResult {
   tokens: number[];
+  tokenTexts: string[];
   count: number;
   model: ModelType;
   isLoading: boolean;
@@ -25,6 +26,7 @@ export interface TokenizerResult {
 export function useTokenizer() {
   const [result, setResult] = useState<TokenizerResult>({
     tokens: [],
+    tokenTexts: [],
     count: 0,
     model: "o200k_base",
     isLoading: false,
@@ -69,6 +71,7 @@ export function useTokenizer() {
         setResult((prev) => ({
           ...prev,
           tokens: tokenizerResponse.tokens,
+          tokenTexts: tokenizerResponse.tokenTexts || [],
           count: tokenizerResponse.tokens.length,
           model: tokenizerResponse.model as ModelType,
           isLoading: false,

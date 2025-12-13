@@ -7,6 +7,7 @@ import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 interface TokenDisplayProps {
   text: string;
   tokens: number[];
+  tokenTexts: string[];
   isLoading?: boolean;
   error?: string | null;
 }
@@ -28,6 +29,7 @@ const CONTAINER_HEIGHT = 500;
 export function TokenDisplay({
   text,
   tokens,
+  tokenTexts,
   isLoading,
   error,
 }: TokenDisplayProps) {
@@ -35,23 +37,11 @@ export function TokenDisplay({
     "inline",
   );
 
-  // Memoize word splitting so it doesn't run on every render
-  const wordsList = useMemo(() => {
-    if (!text) return [];
-    return text.split(/\s+/).filter(Boolean);
-  }, [text]);
-
-  // Highly optimized token item generation
+  // Highly optimized token item generation using actual decoded token texts
   const tokenItems = useMemo(() => {
     if (tokens.length === 0) return [];
 
     const result = new Array(tokens.length);
-    const wordsCount = wordsList.length;
-
-    // Estimate tokens per word for distribution
-    const tokensPerWord =
-      wordsCount > 0 ? Math.max(1, tokens.length / wordsCount) : 1;
-
     const colorsLen = TOKEN_COLORS.length;
 
     for (let i = 0; i < tokens.length; i++) {
@@ -59,21 +49,18 @@ export function TokenDisplay({
       // Fast modulo
       const color = TOKEN_COLORS[i % colorsLen];
 
-      // Calculate approximate word context
-      // Math.floor is faster than parseInt
-      const wordIndex = Math.floor(i / tokensPerWord);
+      // Use the actual decoded text for this token if available
+      // This shows what each token actually represents, fixing the duplicate issue
+      let displayText = tokenTexts[i] || `[${tokenId}]`;
 
-      let displayText = `Token ${i + 1}`;
+      // Clean up whitespace-only tokens for better display
+      if (displayText.trim() === "") {
+        displayText = `[${tokenId}]`;
+      }
 
-      if (wordIndex < wordsCount) {
-        const word = wordsList[wordIndex];
-        // Hard truncation for performance and display consistency
-        // This matches the math in VirtualizedInlineTokenDisplay
-        if (word.length > 15) {
-          displayText = word.substring(0, 15) + "...";
-        } else {
-          displayText = word;
-        }
+      // Truncate very long tokens for display
+      if (displayText.length > 20) {
+        displayText = displayText.substring(0, 20) + "...";
       }
 
       result[i] = {
@@ -85,7 +72,7 @@ export function TokenDisplay({
     }
 
     return result;
-  }, [tokens, wordsList]);
+  }, [tokens, tokenTexts]);
 
   if (error) return <div className={styles.error}>ERR: {error}</div>;
   if (!text || tokens.length === 0)

@@ -38,7 +38,8 @@ export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
   const [model, setModel] = useState<ModelType>("o200k_base");
   const [debouncedText, setDebouncedText] = useState("");
-  const { tokens, isLoading, error, progress, tokenize } = useTokenizer();
+  const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
+    useTokenizer();
 
   // Debounce text input
   useEffect(() => {
@@ -155,6 +156,11 @@ export function TokenizerApp() {
           )}
         </div>
 
+        <div className={styles.privacySection}>
+          <span className={styles.privacyLabel}>Client-Side Processing</span>
+          <span className={styles.privacyDesc}>No data sent to servers</span>
+        </div>
+
         <div className={styles.footer}>
           <div className={styles.footerLabel}>Open Source Software</div>
           <a href="#" className={styles.footerLink}>
@@ -206,6 +212,7 @@ export function TokenizerApp() {
         <TokenDisplay
           text={debouncedText}
           tokens={tokens}
+          tokenTexts={tokenTexts}
           isLoading={isLoading}
           error={error}
         />
