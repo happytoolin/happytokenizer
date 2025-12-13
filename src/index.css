@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif:wght@400;500;700&display=swap");
 
 :root {
   /* --- PALETTE: Industrial Utility --- */
@@ -12,9 +12,19 @@
   --c-ink: #000000;
 
   /* --- TYPOGRAPHY --- */
-  --font-display: "Archivo", sans-serif; /* Simulating Druk Wide */
-  --font-body: "Inter", sans-serif; /* Simulating Geist Sans */
-  --font-mono: "JetBrains Mono", monospace;
+  --font-display:
+    "Archivo", "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
+    "Noto Sans Arabic", "Impact", "Arial Black", system-ui, sans-serif; /* Simulating Druk Wide with comprehensive language support */
+  --font-body:
+    "Inter", "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
+    "Noto Sans Arabic", "Noto Serif", "Georgia", "Times New Roman",
+    "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji",
+    "Noto Color Emoji", system-ui, sans-serif; /* Comprehensive multilingual support */
+  --font-mono:
+    "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas",
+    "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP",
+    "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS",
+    "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace;
 
   /* --- PHYSICS & SHAPE --- */
   --ease-mechanical: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -43,10 +53,170 @@ body {
   color: var(--c-black);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-image: radial-gradient(var(--c-concrete) 1px, transparent 1px);
   background-size: 24px 24px; /* Dot grid texture */
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* Comprehensive language support */
+
+/* Arabic and RTL text support */
+[lang="ar"],
+[dir="rtl"],
+.arabic-text {
+  font-family: "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", sans-serif;
+  direction: rtl;
+  text-align: right;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Chinese (Simplified) support */
+[lang="zh"],
+[lang="zh-CN"],
+[lang="zh-Hans"],
+.chinese-text {
+  font-family:
+    "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "SimSun",
+    "Source Han Sans SC", sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Chinese (Traditional) support */
+[lang="zh-TW"],
+[lang="zh-HK"],
+[lang="zh-Hant"],
+.chinese-traditional-text {
+  font-family:
+    "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "SimSun",
+    "Source Han Sans TC", sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Japanese support */
+[lang="ja"],
+.japanese-text {
+  font-family:
+    "Noto Sans JP", "Hiragino Kaku Gothic Pro", "Meiryo", "Yu Gothic",
+    "Yu Mincho", "MS Gothic", "Source Han Sans J", sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* Korean support */
+[lang="ko"],
+.korean-text {
+  font-family:
+    "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", "Source Han Sans K",
+    sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Hebrew support */
+[lang="he"],
+[lang="iw"],
+.hebrew-text {
+  font-family:
+    "Noto Sans Hebrew", "Arial Hebrew", "David", "Tahoma", sans-serif;
+  direction: rtl;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Thai support */
+[lang="th"],
+.thai-text {
+  font-family: "Noto Sans Thai", "Sukhumvit Set", "Tahoma", sans-serif;
+  line-height: 1.8;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Hindi/Devanagari support */
+[lang="hi"],
+[lang="dev"],
+.hindi-text {
+  font-family:
+    "Noto Sans Devanagari", "Mangal", "Nirmala UI", "Gargi", sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Cyrillic support (Russian, Ukrainian, etc.) */
+[lang="ru"],
+[lang="uk"],
+[lang="bg"],
+[lang="be"],
+[lang="sr"],
+.cyrillic-text {
+  font-family:
+    "Noto Sans", "PT Sans", "DejaVu Sans", "Arial Unicode MS", sans-serif;
+  font-weight: 400;
+}
+
+/* Enhanced French and European language support */
+[lang="fr"],
+[lang="de"],
+[lang="es"],
+[lang="it"],
+[lang="pt"],
+[lang="nl"],
+[lang="sv"],
+[lang="no"],
+[lang="da"],
+.european-text {
+  font-family:
+    "Inter", "Noto Sans", "Helvetica Neue", "Arial", "Segoe UI", "Roboto",
+    sans-serif;
+  font-weight: 400;
+  hyphens: auto;
+  line-height: 1.5;
+}
+
+/* Vietnamese support */
+[lang="vi"],
+.vietnamese-text {
+  font-family:
+    "Inter", "Noto Sans Vietnamese", "Segoe UI", "Roboto", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Emoji and special Unicode characters */
+.emoji-text,
+.symbol-text {
+  font-family:
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "EmojiOne Color",
+    emoji;
+}
+
+/* Math symbols and technical Unicode */
+.math-text,
+.technical-text {
+  font-family:
+    "Cambria Math", "Latin Modern Math", "STIX Two Math", "Arial Unicode MS",
+    "DejaVu Sans", serif;
+}
+
+/* Unicode fallback for any text that needs it */
+.unicode-text {
+  font-family: var(--font-body);
+}
+
+/* Monospace for code with multilingual support */
+.code-text,
+.token-text {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  letter-spacing: 0;
 }
 
 #root {

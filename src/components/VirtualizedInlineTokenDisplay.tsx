@@ -60,13 +60,14 @@ export function VirtualizedInlineTokenDisplay({
       const ctx = canvas.getContext("2d");
       if (ctx) {
         // Measure ID font (10px)
-        ctx.font = '10px "JetBrains Mono", "Fira Code", "Consolas", monospace';
+        ctx.font =
+          '10px "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP", "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace';
         const m1 = ctx.measureText("0");
         if (m1.width > 0) charWidthId = m1.width;
 
         // Measure Text font (12px 500 weight)
         ctx.font =
-          '500 12px "JetBrains Mono", "Fira Code", "Consolas", monospace';
+          '500 12px "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP", "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace';
         const m2 = ctx.measureText("M");
         if (m2.width > 0) charWidthText = m2.width;
       }

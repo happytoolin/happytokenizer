@@ -98,7 +98,7 @@ export function TokenizerApp() {
             <div className={styles.selectWrapper}>
               <select
                 value={model}
-                onChange={(e) => setModel(e.target.value as ModelType)}
+                onChange={handleModelChange}
                 className={styles.select}
               >
                 <option value="o200k_base">GPT-4o (Omni)</option>
@@ -194,7 +194,7 @@ export function TokenizerApp() {
               <span
                 className={styles.metaValue}
                 style={{
-                  color: isLoading ? "var(--c-orange)" : "var(--c-neon)",
+                  color: isLoading ? "var(--c-orange)" : "var(--c-steel)",
                 }}
               >
                 {isLoading ? "BUSY" : "READY"}
