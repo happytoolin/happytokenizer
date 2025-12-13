@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import {
   getEncodingForModel,
@@ -44,6 +44,12 @@ export function TokenizerApp() {
   const [model, setModel] = useState<string>("gpt-4o"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
 
+  // --- TAB STATE ---
+  const [activeTab, setActiveTab] = useState<"input" | "upload">("input");
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Get encoding for the current model - if model is an encoding itself, use it directly
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
@@ -53,7 +59,7 @@ export function TokenizerApp() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedText(text);
-    }, 300); // 300ms debounce
+    }, 150); // Faster debounce for better UX
 
     return () => clearTimeout(timer);
   }, [text]);
@@ -64,6 +70,55 @@ export function TokenizerApp() {
       tokenize(debouncedText, encoding);
     }
   }, [debouncedText, encoding, tokenize]);
+
+  // --- FILE HANDLERS ---
+  const processFile = (file: File) => {
+    setUploadError(null);
+
+    // Basic validation
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      setUploadError("File is too large (Max 5MB)");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result;
+      if (typeof content === "string") {
+        setText(content);
+        setActiveTab("input"); // Switch back to editor view to see content
+      }
+    };
+    reader.onerror = () => setUploadError("Failed to read file");
+
+    // Attempt to read as text (covers txt, md, json, code files)
+    reader.readAsText(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processFile(e.target.files[0]);
+    }
+  };
 
   const handleClear = () => {
     setText("");
@@ -266,13 +321,13 @@ export function TokenizerApp() {
             <label className={styles.label}>Input Source</label>
             <div className={styles.buttonGrid}>
               <button
-                onClick={() => setText(SAMPLE_TEXT)}
+                onClick={() => { setText(SAMPLE_TEXT); setActiveTab('input'); }}
                 className={styles.buttonSecondary}
               >
                 Sample
               </button>
               <button
-                onClick={() => setText(LARGE_SAMPLE_TEXT)}
+                onClick={() => { setText(LARGE_SAMPLE_TEXT); setActiveTab('input'); }}
                 className={styles.buttonSecondary}
               >
                 Large Sample
@@ -330,16 +385,30 @@ export function TokenizerApp() {
       <main className={styles.workspace}>
         <section className={styles.editorSection}>
           <div className={styles.editorHeader}>
-            <span className={styles.tabActive}>Input Stream</span>
-            <span className={styles.tabInactive}>Upload File (Beta)</span>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'input' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('input')}
+            >
+              Input Stream
+            </button>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'upload' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('upload')}
+            >
+              Upload File
+            </button>
           </div>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Enter your text here to see how it gets tokenized..."
-            className={styles.textarea}
-          />
-          <div className={styles.metaBar}>
+
+          {/* TAB CONTENT: INPUT */}
+          {activeTab === 'input' && (
+            <>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Enter your text here to see how it gets tokenized..."
+                className={styles.textarea}
+              />
+              <div className={styles.metaBar}>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>CHARS</span>
               <span className={styles.metaValue}>{text.length}</span>
@@ -370,6 +439,43 @@ export function TokenizerApp() {
               </span>
             </div>
           </div>
+            </>
+          )}
+
+          {/* TAB CONTENT: UPLOAD */}
+          {activeTab === 'upload' && (
+            <div className={styles.uploadContainer}>
+              <div
+                className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className={styles.fileInput}
+                  onChange={handleFileSelect}
+                  accept=".txt,.md,.json,.js,.ts,.tsx,.csv,.py"
+                />
+
+                {/* Upload Icon SVG */}
+                <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+
+                <div style={{textAlign: 'center'}}>
+                  <div className={styles.uploadTitle}>Drop File Here</div>
+                  <div className={styles.uploadSub}>
+                    Supports .txt, .md, .json, .js, .py (Max 5MB)
+                  </div>
+                </div>
+              </div>
+
+              {uploadError && <div className={styles.errorMsg}>⚠️ {uploadError}</div>}
+            </div>
+          )}
         </section>
 
         {/* --- TOKEN DISPLAY --- */}
