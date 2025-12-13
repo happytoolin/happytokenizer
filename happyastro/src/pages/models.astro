@@ -1,0 +1,215 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout
+  title="Supported GPT Models - HappyTokenizer"
+  description="Complete list of all GPT models supported by HappyTokenizer including encodings, token limits, and use cases. Find the right model for your needs."
+>
+  <div class="models-page">
+    <div class="models-container">
+      <div class="models-header">
+        <h1>Supported GPT Models</h1>
+        <p class="models-description">
+          HappyTokenizer supports all major OpenAI models with their specific encodings.
+          Each model uses a different tokenization strategy optimized for its intended use case.
+        </p>
+      </div>
+
+      <div class="model-sections">
+        <section class="model-section" id="o200k-base">
+          <div class="section-header">
+            <h2>🚀 Modern Models (o200k_base)</h2>
+            <p class="encoding-info">
+              Encoding: <strong>o200k_base</strong> - Latest encoding for modern models
+            </p>
+          </div>
+          <div class="models-grid">
+            <div class="model-card">
+              <div class="model-name">GPT-4o</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">GPT-4o Mini</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">O1</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">O1 Mini</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">O3</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">GPT-5</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="model-section" id="cl100k-base">
+          <div class="section-header">
+            <h2>💬 Chat Models (cl100k_base)</h2>
+            <p class="encoding-info">
+              Encoding: <strong>cl100k_base</strong> - Standard encoding for chat models
+            </p>
+          </div>
+          <div class="models-grid">
+            <div class="model-card">
+              <div class="model-name">GPT-4</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">GPT-4 Turbo</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">GPT-3.5 Turbo</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">text-embedding-3-large</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">text-embedding-3-small</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">text-embedding-ada-002</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="model-section" id="legacy-models">
+          <div class="section-header">
+            <h2>🏛️ Legacy Models</h2>
+            <p class="encoding-info">
+              Support for older GPT-3 models with various encodings
+            </p>
+          </div>
+          <div class="models-grid">
+            <div class="model-card">
+              <div class="model-name">text-davinci-003</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">text-curie-001</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">text-babbage-001</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">text-ada-001</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .models-page {
+      min-height: 100vh;
+      background: var(--c-paper);
+      padding: 40px;
+    }
+
+    .models-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .models-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .models-header h1 {
+      font-family: var(--font-display);
+      font-size: var(--fs-xxxxl);
+      color: var(--c-black);
+      margin-bottom: 16px;
+    }
+
+    .models-description {
+      font-family: var(--font-body);
+      font-size: var(--fs-lg);
+      color: var(--c-steel);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .model-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    .model-section {
+      background: var(--c-white);
+      border: 1px solid var(--c-black);
+      box-shadow: 4px 4px 0px var(--c-black);
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 24px;
+      background: var(--c-black);
+      color: var(--c-white);
+    }
+
+    .section-header h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      margin: 0 0 8px 0;
+    }
+
+    .encoding-info {
+      font-family: var(--font-mono);
+      font-size: var(--fs-sm);
+      opacity: 0.8;
+      margin: 0;
+    }
+
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .model-card {
+      background: var(--c-paper);
+      border: 1px solid var(--c-black);
+      padding: 16px;
+      transition: all 0.2s var(--ease-mechanical);
+    }
+
+    .model-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 2px 2px 0px var(--c-black);
+    }
+
+    .model-name {
+      font-family: var(--font-mono);
+      font-size: var(--fs-base);
+      font-weight: 600;
+      color: var(--c-black);
+    }
+
+    @media (max-width: 968px) {
+      .models-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .models-page {
+        padding: 24px;
+      }
+
+      .models-header h1 {
+        font-size: var(--fs-xxl);
+      }
+
+      .models-description {
+        font-size: var(--fs-base);
+      }
+    }
+  </style>
+</MainLayout>
