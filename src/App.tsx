@@ -1,8 +1,8 @@
-import { TokenizerApp } from './components/TokenizerApp'
-import './App.css'
+import { TokenizerApp } from "./components/TokenizerApp";
+import "./App.css";
 
 function App() {
-  return <TokenizerApp />
+  return <TokenizerApp />;
 }
 
-export default App
+export default App;

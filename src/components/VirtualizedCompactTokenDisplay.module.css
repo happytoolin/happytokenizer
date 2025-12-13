@@ -38,16 +38,8 @@
   font-size: 10px;
   font-weight: 500;
   color: #fff;
-  cursor: pointer;
-  transition: all 0.1s ease;
   text-align: center;
   user-select: none;
-}
-
-.compactToken:hover {
-  transform: scale(1.1);
-  z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .scrollIndicator {
