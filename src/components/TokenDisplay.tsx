@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { TanStackVirtualTokenDisplay } from "./TanStackVirtualTokenDisplay";
+import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
 import styles from "./TokenDisplay.module.css";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
@@ -206,7 +206,7 @@ export function TokenDisplay({
             gap={4}
           />
         ) : (
-          <TanStackVirtualTokenDisplay
+          <VirtualTokenDisplay
             items={tokenItems}
             containerHeight={CONTAINER_HEIGHT}
             estimatedItemHeight={ITEM_HEIGHT}

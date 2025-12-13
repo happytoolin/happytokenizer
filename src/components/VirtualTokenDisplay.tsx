@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
-import styles from "./TanStackVirtualTokenDisplay.module.css";
+import styles from "./VirtualTokenDisplay.module.css";
 
 interface TokenItem {
   id: number;
@@ -9,17 +9,17 @@ interface TokenItem {
   text: string;
 }
 
-interface TanStackVirtualTokenDisplayProps {
+interface VirtualTokenDisplayProps {
   items: TokenItem[];
   containerHeight: number;
   estimatedItemHeight: number;
 }
 
-export function TanStackVirtualTokenDisplay({
+export function VirtualTokenDisplay({
   items,
   containerHeight,
   estimatedItemHeight,
-}: TanStackVirtualTokenDisplayProps) {
+}: VirtualTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
