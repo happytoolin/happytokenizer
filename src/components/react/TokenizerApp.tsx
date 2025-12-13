@@ -108,7 +108,7 @@ export function TokenizerApp() {
       <aside className="sticky top-10 min-h-[650px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:min-h-0 max-[900px]:shadow-none">
         <div className="p-6 border-b border-brand-black bg-brand-black text-white">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
+            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_6px_var(--color-brand-orange)]"></div>
             <a
               href="https://happytokenizer.com"
               target="_blank"
