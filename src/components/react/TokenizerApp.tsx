@@ -108,7 +108,7 @@ export function TokenizerApp() {
       <aside className="sticky top-10 min-h-[650px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:min-h-0 max-[900px]:shadow-none">
         <div className="p-6 border-b border-brand-black bg-brand-black text-white">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_6px_var(--color-brand-orange)]"></div>
+            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
             <a
               href="https://happytokenizer.com"
               target="_blank"
@@ -305,19 +305,19 @@ export function TokenizerApp() {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => handleSample(SAMPLE_TEXT)}
-                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase shadow-hard-sm transition-all duration-100 ease-mechanical hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+                className="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-3 font-mono text-xs font-bold uppercase shadow-sm transition-all duration-100 ease-mechanical hover:bg-gray-200 hover:border-gray-400 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
               >
                 Sample
               </button>
               <button
                 onClick={() => handleSample(LARGE_SAMPLE_TEXT)}
-                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase shadow-hard-sm transition-all duration-100 ease-mechanical hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+                className="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-3 font-mono text-xs font-bold uppercase shadow-sm transition-all duration-100 ease-mechanical hover:bg-gray-200 hover:border-gray-400 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
               >
                 Large Sample
               </button>
               <button
                 onClick={handleClear}
-                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase shadow-hard-sm transition-all duration-100 ease-mechanical hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none col-span-2"
+                className="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-3 font-mono text-xs font-bold uppercase shadow-sm transition-all duration-100 ease-mechanical hover:bg-gray-200 hover:border-gray-400 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none col-span-2"
               >
                 Clear
               </button>
