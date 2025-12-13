@@ -98,10 +98,7 @@ export function TokenizerApp() {
     setText("");
   };
 
-  const handleSample = (sample: string) => {
-    setText(sample);
-  };
-
+  
   return (
     <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[900px]:grid-cols-1 max-[900px]:p-4">
       {/* --- CONTROL DECK (Sidebar) --- */}
@@ -297,27 +294,40 @@ export function TokenizerApp() {
             </span>
           </div>
 
-          {/* Sample Text Buttons */}
           <div className="flex flex-col gap-3">
             <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
-              Sample Text
+              Input Source
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => handleSample(SAMPLE_TEXT)}
-                className="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-3 font-mono text-xs font-bold uppercase shadow-sm transition-all duration-100 ease-mechanical hover:bg-gray-200 hover:border-gray-400 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+                onClick={() => {
+                  setText(SAMPLE_TEXT);
+                  setActiveTab("input");
+                }}
+                className="bg-transparent border border-gray-300 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
                 Sample
               </button>
               <button
-                onClick={() => handleSample(LARGE_SAMPLE_TEXT)}
-                className="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-3 font-mono text-xs font-bold uppercase shadow-sm transition-all duration-100 ease-mechanical hover:bg-gray-200 hover:border-gray-400 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+                onClick={() => {
+                  setText(LARGE_SAMPLE_TEXT);
+                  setActiveTab("input");
+                }}
+                className="bg-transparent border border-gray-300 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
                 Large Sample
               </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setText(DEFAULT_ESSAY)}
+                className="bg-transparent border border-gray-300 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
+              >
+                Essay
+              </button>
               <button
                 onClick={handleClear}
-                className="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-3 font-mono text-xs font-bold uppercase shadow-sm transition-all duration-100 ease-mechanical hover:bg-gray-200 hover:border-gray-400 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none col-span-2"
+                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
               >
                 Clear
               </button>
