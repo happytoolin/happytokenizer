@@ -1,3 +1,4 @@
+import { VERSION } from "../utils/version";
 import styles from "./Footer.module.css";
 
 export function Footer() {
@@ -40,7 +41,7 @@ export function Footer() {
         </a>
       </div>
 
-      <div className={styles.version}>v2.0</div>
+      <div className={styles.version}>{VERSION}</div>
     </footer>
   );
 }

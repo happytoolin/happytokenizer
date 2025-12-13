@@ -169,7 +169,7 @@ export function VirtualizedInlineTokenDisplay({
   useEffect(() => {
     if (!parentRef.current) return;
 
-    let timeoutId: number;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     resizeObserverRef.current = new ResizeObserver(() => {
       // Clear existing timeout to debounce

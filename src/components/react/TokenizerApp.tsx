@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
+import styles from "../../styles/components/TokenizerApp.module.css";
 import {
   getEncodingForModel,
   isEncodingType,
 } from "../../utils/modelEncodings";
-import { TokenDisplay } from "./TokenDisplay";
+import { VERSION } from "../../utils/version";
 import { Footer } from "../Footer";
-import styles from "../../styles/components/TokenizerApp.module.css";
+import { TokenDisplay } from "./TokenDisplay";
 
 const DEFAULT_ESSAY = `HappyTokenizer by happytoolin represents a new approach to understanding and optimizing AI context windows. As developers increasingly work with Large Language Models, the efficient management of token usage has become crucial for both cost optimization and model performance. HappyTokenizer provides precise token counting and visualization tools that help developers understand exactly how their text is being processed by models like GPT-4o and GPT-3.5.
 
@@ -133,7 +134,7 @@ export function TokenizerApp() {
           <div className={styles.logoRow}>
             <div className={styles.statusDot}></div>
             <a
-              href="https://happytoolin.com"
+              href="https://happytokenizer.com"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.titleLink}
@@ -142,8 +143,14 @@ export function TokenizerApp() {
             </a>
           </div>
           <div className={styles.metaRow}>
-            <span className={styles.versionBadge}>v0.0.1</span>
-            <span className={styles.ownerBadge}>by happytoolin</span>
+            <span className={styles.versionBadge}>{VERSION}</span>
+            <a
+              href="https://happytoolin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className={styles.ownerBadge}>by happytoolin</span>
+            </a>
           </div>
         </div>
 

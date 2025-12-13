@@ -41,7 +41,7 @@ export function useTokenizer() {
   });
 
   const workerRef = useRef<Worker | null>(null);
-  const debounceTimeoutRef = useRef<number | null>(null);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize worker
   useEffect(() => {
