@@ -76,7 +76,8 @@ export function TokenizerApp() {
     setUploadError(null);
 
     // Basic validation
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
       setUploadError("File is too large (Max 5MB)");
       return;
     }
@@ -321,13 +322,19 @@ export function TokenizerApp() {
             <label className={styles.label}>Input Source</label>
             <div className={styles.buttonGrid}>
               <button
-                onClick={() => { setText(SAMPLE_TEXT); setActiveTab('input'); }}
+                onClick={() => {
+                  setText(SAMPLE_TEXT);
+                  setActiveTab("input");
+                }}
                 className={styles.buttonSecondary}
               >
                 Sample
               </button>
               <button
-                onClick={() => { setText(LARGE_SAMPLE_TEXT); setActiveTab('input'); }}
+                onClick={() => {
+                  setText(LARGE_SAMPLE_TEXT);
+                  setActiveTab("input");
+                }}
                 className={styles.buttonSecondary}
               >
                 Large Sample
@@ -386,21 +393,21 @@ export function TokenizerApp() {
         <section className={styles.editorSection}>
           <div className={styles.editorHeader}>
             <button
-              className={`${styles.tabButton} ${activeTab === 'input' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('input')}
+              className={`${styles.tabButton} ${activeTab === "input" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("input")}
             >
               Input Stream
             </button>
             <button
-              className={`${styles.tabButton} ${activeTab === 'upload' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('upload')}
+              className={`${styles.tabButton} ${activeTab === "upload" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("upload")}
             >
               Upload File
             </button>
           </div>
 
           {/* TAB CONTENT: INPUT */}
-          {activeTab === 'input' && (
+          {activeTab === "input" && (
             <>
               <textarea
                 value={text}
@@ -409,44 +416,44 @@ export function TokenizerApp() {
                 className={styles.textarea}
               />
               <div className={styles.metaBar}>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>CHARS</span>
-              <span className={styles.metaValue}>{text.length}</span>
-            </div>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>WORDS</span>
-              <span className={styles.metaValue}>
-                {
-                  text
-                    .trim()
-                    .split(/\s+/)
-                    .filter((w) => w.length > 0).length
-                }
-              </span>
-            </div>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>STATUS</span>
-              <span className={styles.metaValue}>
-                {error ? (
-                  <span style={{ color: "var(--c-red)" }}>
-                    Processing Error
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>CHARS</span>
+                  <span className={styles.metaValue}>{text.length}</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>WORDS</span>
+                  <span className={styles.metaValue}>
+                    {
+                      text
+                        .trim()
+                        .split(/\s+/)
+                        .filter((w) => w.length > 0).length
+                    }
                   </span>
-                ) : isLoading ? (
-                  "Processing..."
-                ) : (
-                  <span style={{ color: "var(--c-orange)" }}>READY</span>
-                )}
-              </span>
-            </div>
-          </div>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>STATUS</span>
+                  <span className={styles.metaValue}>
+                    {error ? (
+                      <span style={{ color: "var(--c-red)" }}>
+                        Processing Error
+                      </span>
+                    ) : isLoading ? (
+                      "Processing..."
+                    ) : (
+                      <span style={{ color: "var(--c-orange)" }}>READY</span>
+                    )}
+                  </span>
+                </div>
+              </div>
             </>
           )}
 
           {/* TAB CONTENT: UPLOAD */}
-          {activeTab === 'upload' && (
+          {activeTab === "upload" && (
             <div className={styles.uploadContainer}>
               <div
-                className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ''}`}
+                className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ""}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -461,11 +468,21 @@ export function TokenizerApp() {
                 />
 
                 {/* Upload Icon SVG */}
-                <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                <svg
+                  className={styles.uploadIcon}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                  />
                 </svg>
 
-                <div style={{textAlign: 'center'}}>
+                <div style={{ textAlign: "center" }}>
                   <div className={styles.uploadTitle}>Drop File Here</div>
                   <div className={styles.uploadSub}>
                     Supports .txt, .md, .json, .js, .py (Max 5MB)
@@ -473,7 +490,9 @@ export function TokenizerApp() {
                 </div>
               </div>
 
-              {uploadError && <div className={styles.errorMsg}>⚠️ {uploadError}</div>}
+              {uploadError && (
+                <div className={styles.errorMsg}>⚠️ {uploadError}</div>
+              )}
             </div>
           )}
         </section>
