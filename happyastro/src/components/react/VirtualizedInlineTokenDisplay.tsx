@@ -2,7 +2,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../../styles/components/VirtualizedInlineTokenDisplay.module.css";
 
-
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
 

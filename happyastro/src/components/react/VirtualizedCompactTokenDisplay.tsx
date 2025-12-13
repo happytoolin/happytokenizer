@@ -1,6 +1,6 @@
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { useMemo, useRef, useState, useEffect } from "react";
-
+import styles from "../../styles/components/VirtualizedCompactTokenDisplay.module.css";
 
 interface TokenItem {
   id: number;

@@ -101,19 +101,19 @@ export function TokenDisplay({
         </div>
         <div className={styles.viewToggle}>
           <button
-            className={`${styles.viewButton} ${viewMode === "inline" ? "active" : ""}`}
+            className={`${styles.viewButton} ${viewMode === "inline" ? styles.active : ""}`}
             onClick={() => setViewMode("inline")}
           >
             TXT
           </button>
           <button
-            className={`${styles.viewButton} ${viewMode === "compact" ? "active" : ""}`}
+            className={`${styles.viewButton} ${viewMode === "compact" ? styles.active : ""}`}
             onClick={() => setViewMode("compact")}
           >
             GRD
           </button>
           <button
-            className={`${styles.viewButton} ${viewMode === "detailed" ? "active" : ""}`}
+            className={`${styles.viewButton} ${viewMode === "detailed" ? styles.active : ""}`}
             onClick={() => setViewMode("detailed")}
           >
             LST

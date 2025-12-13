@@ -57,7 +57,7 @@ export function VirtualTokenDisplay({
             return (
               <div
                 key={virtualItem.key}
-                className=""
+                className={styles.tokenItem}
                 style={{
                   position: "absolute",
                   top: 0,
@@ -68,18 +68,16 @@ export function VirtualTokenDisplay({
                   willChange: "transform", // Performance optimization
                 }}
               >
-                <div className={styles.tokenItem}>
+                <div className={styles.token}>
                   {/* Mechanical color bar indicator */}
                   <div
                     className={styles.colorIndicator}
                     style={{ backgroundColor: item.color }}
                   />
-                  <div className={styles.token}>
-                    <span className={styles.tokenId}>
-                      {item.id + 1}. #{item.tokenId}
-                    </span>
-                    <span className={styles.tokenText}>{item.text}</span>
-                  </div>
+                  <span className={styles.tokenId}>
+                    {item.id + 1}. #{item.tokenId}
+                  </span>
+                  <span className={styles.tokenText}>{item.text}</span>
                 </div>
               </div>
             );
