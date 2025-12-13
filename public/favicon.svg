@@ -10,8 +10,5 @@
     </filter>
   </defs>
 
-  <circle cx="8" cy="16" r="3" fill="#ff6600" filter="url(#glow)"/>
-
-  <!-- H Letter -->
-  <text x="14" y="21" font-family="Archivo, Arial Black, sans-serif" font-size="14" font-weight="900" fill="white" letter-spacing="0">H</text>
+  <circle cx="16" cy="16" r="3" fill="#ff6600" filter="url(#glow)"/>
 </svg>
