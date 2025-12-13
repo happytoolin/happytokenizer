@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
-import styles from "../../styles/components/TokenizerApp.module.css";
 import {
   getEncodingForModel,
   isEncodingType,
@@ -99,42 +98,52 @@ export function TokenizerApp() {
     setText("");
   };
 
+  const handleSample = (sample: string) => {
+    setText(sample);
+  };
+
   return (
-    <div className={styles.container}>
+    <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[900px]:grid-cols-1 max-[900px]:p-4">
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className={styles.controlDeck}>
-        <div className={styles.brand}>
-          <div className={styles.logoRow}>
-            <div className={styles.statusDot}></div>
+      <aside className="sticky top-10 min-h-[650px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:min-h-0 max-[900px]:shadow-none">
+        <div className="p-6 border-b border-brand-black bg-brand-black text-white">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
             <a
               href="https://happytokenizer.com"
               target="_blank"
               rel="noopener noreferrer"
-              className={styles.titleLink}
+              className="no-underline inline-block"
             >
-              <h1 className={styles.title}>HappyTokenizer</h1>
+              <h1 className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
+                HappyTokenizer
+              </h1>
             </a>
           </div>
-          <div className={styles.metaRow}>
-            <span className={styles.versionBadge}>{VERSION}</span>
+          <div className="flex gap-2 items-center">
+            <span className="font-mono text-xxs text-gray-400">{VERSION}</span>
             <a
               href="https://happytoolin.com"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className={styles.ownerBadge}>by happytoolin</span>
+              <span className="font-mono text-xxs bg-white text-brand-black px-1 py-0.5 font-bold">
+                by happytoolin
+              </span>
             </a>
           </div>
         </div>
 
-        <div className={styles.scrollableControls}>
-          <div className={styles.controlGroup}>
-            <label className={styles.label}>Model Selection</label>
-            <div className={styles.selectWrapper}>
+        <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical">
+          <div className="flex flex-col gap-3">
+            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
+              Model Selection
+            </label>
+            <div className="relative">
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className={styles.select}
+                className="w-full appearance-none bg-brand-paper border border-brand-black rounded-none p-3 font-body font-semibold text-sm text-brand-black cursor-pointer transition-all hover:bg-gray-200 focus:outline-none focus:bg-brand-black focus:text-white"
               >
                 <optgroup label="🚀 Modern Models (o200k_base)">
                   <option value="gpt-4o">GPT-4o</option>
@@ -248,243 +257,242 @@ export function TokenizerApp() {
                   <option value="dall-e-3">DALL-E 3</option>
                   <option value="gpt-audio">GPT Audio</option>
                   <option value="gpt-audio-mini">GPT Audio Mini</option>
-                  <option value="gpt-image-1">GPT Image 1</option>
-                  <option value="gpt-realtime">GPT Realtime</option>
-                  <option value="gpt-realtime-mini">GPT Realtime Mini</option>
-                  <option value="sora-2">Sora 2</option>
-                  <option value="sora-2-pro">Sora 2 Pro</option>
+                  <option value="sora">Sora</option>
                 </optgroup>
 
-                <optgroup label="🧪 Open Source (o200k_harmony)">
-                  <option value="gpt-oss-20b">GPT-OSS 20B</option>
-                  <option value="gpt-oss-120b">GPT-OSS 120B</option>
-                </optgroup>
-
-                <optgroup label="📊 Embeddings (cl100k_base)">
-                  <option value="text-embedding-3-small">
-                    Text Embedding 3 Small
+                <optgroup label="🎵 OpenAI OSS (o200k_harmony)">
+                  <option value="gpt-4o-mini-audiopreview">
+                    GPT-4o Mini AudioPreview
                   </option>
-                  <option value="text-embedding-3-large">
-                    Text Embedding 3 Large
+                  <option value="gpt-4o-audiopreview">
+                    GPT-4o AudioPreview
                   </option>
-                  <option value="text-embedding-ada-002">
-                    Text Embedding Ada 002
+                  <option value="gpt-4o-realtime-preview">
+                    GPT-4o Realtime Preview
                   </option>
-                </optgroup>
-
-                <optgroup label="🛡️ Moderation (o200k_base)">
-                  <option value="text-moderation-stable">
-                    Text Moderation Stable
+                  <option value="gpt-4o-mini-realtime-preview">
+                    GPT-4o Mini Realtime Preview
                   </option>
-                  <option value="text-moderation-latest">
-                    Text Moderation Latest
+                  <option value="chatgpt-4o-latest-audiopreview">
+                    ChatGPT-4o Latest AudioPreview
                   </option>
-                  <option value="text-moderation-007">
-                    Text Moderation 007
-                  </option>
-                  <option value="omni-moderation-latest">
-                    Omni Moderation Latest
+                  <option value="realtime-model-preview-2024-10-01">
+                    Realtime Model Preview 2024-10-01
                   </option>
                 </optgroup>
               </select>
-              <div className={styles.selectArrow}>↓</div>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xxs pointer-events-none text-brand-orange">
+                ▼
+              </span>
             </div>
           </div>
 
-          <div className={styles.controlGroup}>
-            <div className={styles.modelInfo}>
-              <span className={styles.modelInfoLabel}>Current Encoding:</span>
-              <span className={styles.modelInfoValue}>{encoding}</span>
-            </div>
+          {/* Model Info */}
+          <div className="flex justify-between items-center p-2 bg-brand-paper border border-gray-300 rounded-sm">
+            <span className="font-mono text-xxs text-gray-400 uppercase">
+              Encoding
+            </span>
+            <span className="font-mono text-xs text-brand-black font-semibold">
+              {encoding}
+            </span>
           </div>
 
-          <div className={styles.controlGroup}>
-            <label className={styles.label}>Input Source</label>
-            <div className={styles.buttonGrid}>
+          {/* Sample Text Buttons */}
+          <div className="flex flex-col gap-3">
+            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
+              Sample Text
+            </label>
+            <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => {
-                  setText(SAMPLE_TEXT);
-                  setActiveTab("input");
-                }}
-                className={styles.buttonSecondary}
+                onClick={() => handleSample(SAMPLE_TEXT)}
+                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase shadow-hard-sm transition-all duration-100 ease-mechanical hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
               >
                 Sample
               </button>
               <button
-                onClick={() => {
-                  setText(LARGE_SAMPLE_TEXT);
-                  setActiveTab("input");
-                }}
-                className={styles.buttonSecondary}
+                onClick={() => handleSample(LARGE_SAMPLE_TEXT)}
+                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase shadow-hard-sm transition-all duration-100 ease-mechanical hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
               >
                 Large Sample
               </button>
-            </div>
-            <div className={styles.buttonGrid}>
               <button
-                onClick={() => setText(DEFAULT_ESSAY)}
-                className={styles.buttonSecondary}
+                onClick={handleClear}
+                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase shadow-hard-sm transition-all duration-100 ease-mechanical hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none col-span-2"
               >
-                Essay
-              </button>
-              <button onClick={handleClear} className={styles.button}>
                 Clear
               </button>
             </div>
           </div>
 
-          {isLoading && (
-            <div className={styles.processingState}>
-              <div className={styles.label}>Processing Stream</div>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{ width: `${progress ? progress.percentage : 100}%` }}
-                />
-              </div>
-              <div className={styles.processingMeta}>
-                {progress
-                  ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
-                  : "Calculating..."}
-              </div>
-            </div>
-          )}
+          {/* Privacy Section */}
+          <div className="flex flex-col items-center gap-0.5 p-1.5 m-2 text-center">
+            <span className="font-mono text-xxs text-gray-400 uppercase leading-none mb-1">
+              Privacy
+            </span>
+            <a
+              href="https://github.com/happytokenizer/happytokenizer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs text-brand-black no-underline font-semibold leading-none hover:text-brand-orange transition-colors"
+            >
+              100% Client-Side
+            </a>
+          </div>
         </div>
 
-        <div className={styles.privacySection}>
-          <span className={styles.privacyLabel}>Client-Side Processing</span>
-          <span className={styles.privacyDesc}>No data sent to servers</span>
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.footerLabel}>Open Source Software</div>
+        {/* Footer in Sidebar */}
+        <div className="p-6 border-t border-gray-200 bg-brand-paper">
+          <span className="font-mono text-xxs text-gray-300 uppercase mb-1 text-center block">
+            Resources
+          </span>
           <a
-            href="https://github.com/happytoolin/happytokenizer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.footerLink}
+            href="/models"
+            className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors hover:underline"
           >
-            github.com/happytoolin
+            View All Models →
           </a>
         </div>
       </aside>
 
-      <main className={styles.workspace}>
-        <section className={styles.editorSection}>
-          <div className={styles.editorHeader}>
+      {/* --- RIGHT PANEL: WORKSPACE --- */}
+      <div className="flex flex-col gap-6">
+        {/* Editor Section */}
+        <div className="bg-white border border-brand-black shadow-hard">
+          <div className="flex border-b border-brand-black bg-brand-paper">
             <button
-              className={`${styles.tabButton} ${activeTab === "input" ? styles.tabActive : ""}`}
               onClick={() => setActiveTab("input")}
+              className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/[0.02] ${
+                activeTab === "input"
+                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                  : "text-gray-500"
+              }`}
             >
               Input Stream
             </button>
             <button
-              className={`${styles.tabButton} ${activeTab === "upload" ? styles.tabActive : ""}`}
               onClick={() => setActiveTab("upload")}
+              className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/[0.02] ${
+                activeTab === "upload"
+                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                  : "text-gray-500"
+              }`}
             >
               Upload File
             </button>
           </div>
 
-          {/* TAB CONTENT: INPUT */}
-          {activeTab === "input" && (
-            <>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Enter your text here to see how it gets tokenized..."
-                className={styles.textarea}
-              />
-              <div className={styles.metaBar}>
-                <div className={styles.metaItem}>
-                  <span className={styles.metaLabel}>CHARS</span>
-                  <span className={styles.metaValue}>{text.length}</span>
-                </div>
-                <div className={styles.metaItem}>
-                  <span className={styles.metaLabel}>WORDS</span>
-                  <span className={styles.metaValue}>
-                    {
-                      text
-                        .trim()
-                        .split(/\s+/)
-                        .filter((w) => w.length > 0).length
-                    }
-                  </span>
-                </div>
-                <div className={styles.metaItem}>
-                  <span className={styles.metaLabel}>STATUS</span>
-                  <span className={styles.metaValue}>
-                    {error ? (
-                      <span style={{ color: "var(--c-red)" }}>
-                        Processing Error
-                      </span>
-                    ) : isLoading ? (
-                      "Processing..."
-                    ) : (
-                      <span style={{ color: "var(--c-orange)" }}>READY</span>
-                    )}
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* TAB CONTENT: UPLOAD */}
-          {activeTab === "upload" && (
-            <div className={styles.uploadContainer}>
+          {activeTab === "input" ? (
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste or type your text here to see how it gets tokenized..."
+              className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50"
+            />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px]">
               <div
-                className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ""}`}
+                className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
+                  isDragging || isDragging
+                    ? "border-brand-orange bg-brand-orange/[0.02] scale-[0.98]"
+                    : "hover:border-brand-orange hover:bg-brand-orange/[0.02]"
+                }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className={styles.fileInput}
-                  onChange={handleFileSelect}
-                  accept=".txt,.md,.json,.js,.ts,.tsx,.csv,.py"
-                />
-
-                {/* Upload Icon SVG */}
                 <svg
-                  className={styles.uploadIcon}
-                  viewBox="0 0 24 24"
+                  className={`w-12 h-12 transition-colors ${
+                    isDragging || isDragging
+                      ? "text-brand-orange"
+                      : "text-gray-400"
+                  }`}
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                   />
                 </svg>
-
-                <div style={{ textAlign: "center" }}>
-                  <div className={styles.uploadTitle}>Drop File Here</div>
-                  <div className={styles.uploadSub}>
+                <div className="text-center">
+                  <p className="font-display font-bold text-base text-brand-black">
+                    Drop File Here
+                  </p>
+                  <p className="font-mono text-xs text-gray-500 max-w-[250px] text-center leading-6">
                     Supports .txt, .md, .json, .js, .py (Max 5MB)
-                  </div>
+                  </p>
                 </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.py,.html,.css"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
               </div>
-
               {uploadError && (
-                <div className={styles.errorMsg}>⚠️ {uploadError}</div>
+                <p className="text-red-500 font-mono text-xs mt-4">
+                  {uploadError}
+                </p>
               )}
             </div>
           )}
-        </section>
 
-        {/* --- TOKEN DISPLAY --- */}
-        <TokenDisplay
-          text={debouncedText}
-          tokens={tokens}
-          tokenTexts={tokenTexts}
-          error={error}
-        />
-      </main>
+          {/* Meta Bar */}
+          <div className="flex gap-6 border-t border-brand-black p-2 bg-white">
+            <div className="flex gap-2 items-center">
+              <span className="font-mono text-xxs text-gray-400 font-bold">
+                CH
+              </span>
+              <span className="font-mono text-xs font-medium">
+                {text.length}
+              </span>
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="font-mono text-xxs text-gray-400 font-bold">
+                WORD
+              </span>
+              <span className="font-mono text-xs font-medium">
+                {text.split(/\s+/).filter((w) => w).length}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Token Display */}
+        {isLoading && (
+          <div className="bg-gray-50 p-3 border border-gray-200">
+            <div className="h-1 bg-gray-200 w-full mt-2 relative overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+            <p className="font-mono text-xxs text-gray-400 mt-1 text-right">
+              Processing... {Math.round(progress * 100)}%
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 p-4 rounded-sm">
+            <p className="font-mono text-sm text-red-600">Error: {error}</p>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <TokenDisplay
+            text={debouncedText}
+            tokens={tokens || []}
+            tokenTexts={tokenTexts || []}
+            encoding={encoding!}
+          />
+        )}
+      </div>
     </div>
   );
 }

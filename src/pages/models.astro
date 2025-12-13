@@ -80,281 +80,53 @@ const MODEL_CATEGORIES = [
   title="System Manifest - HappyTokenizer"
   description="Complete system manifest of all GPT models supported by HappyTokenizer with their encodings and technical specifications."
 >
-  <div class="pageContainer">
-    <header class="header">
-      <div class="headerLeft">
-        <a href="/" class="backButton">← BACK</a>
-        <h1 class="pageTitle">System Manifest</h1>
+  <div class="max-w-6xl mx-auto p-5">
+    <header class="flex justify-between items-center mb-10 py-5 border-b-2 border-brand-black max-md:flex-col max-md:gap-5 max-md:items-start">
+      <div class="flex items-center gap-5">
+        <a href="/" class="bg-transparent border-none text-sm font-medium text-brand-orange cursor-pointer no-underline px-4 py-2 rounded-xs transition-all duration-200 ease-mechanical hover:text-brand-steel hover:underline">← BACK</a>
+        <h1 class="text-xxxl font-bold m-0 font-display">System Manifest</h1>
       </div>
-      <div class="searchWrapper">
-        <span class="searchIcon">⚡</span>
-        <input type="text" id="model-search" placeholder="FILTER MODELS..." class="searchInput" />
+      <div class="flex items-center bg-white border-2 border-brand-black rounded-sm px-4 py-2 min-w-[300px] max-md:w-full max-md:min-w-0">
+        <span class="mr-3 text-base">⚡</span>
+        <input type="text" id="model-search" placeholder="FILTER MODELS..." class="border-none bg-transparent text-sm font-medium outline-none w-full font-body placeholder:text-brand-steel" />
       </div>
     </header>
 
-    <div class="grid" id="model-grid">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6" id="model-grid">
       {MODEL_CATEGORIES.map((cat) => (
-        <div class="card model-category" data-keywords={`${cat.title} ${cat.encoding}`}>
-          <div class="cardHeader" style={`border-bottom: 2px solid ${cat.color}`}>
-            <div class="cardTitleRow">
-              <span class="icon">{cat.icon}</span>
-              <h2 class="cardTitle">{cat.title}</h2>
+        <div class="bg-white border-2 border-brand-black rounded-sm overflow-hidden model-category" data-keywords={`${cat.title} ${cat.encoding}`}>
+          <div class="px-5 py-4 flex justify-between items-center bg-white" style={`border-bottom: 2px solid ${cat.color}`}>
+            <div class="flex items-center gap-3">
+              <span class="text-xl">{cat.icon}</span>
+              <h2 class="text-lg font-bold m-0 font-display">{cat.title}</h2>
             </div>
-            <div class="encodingBadge">{cat.encoding}</div>
+            <div class="text-xs font-semibold bg-brand-concrete px-2 py-1 rounded-xs font-mono">{cat.encoding}</div>
           </div>
 
-          <div class="cardMeta">
-            <span class="desc">{cat.description}</span>
-            <span class="count">{cat.models.length} MODELS</span>
+          <div class="px-5 py-3 flex justify-between items-center bg-brand-paper border-b border-brand-concrete">
+            <span class="text-xs text-brand-steel font-medium">{cat.description}</span>
+            <span class="text-xxs font-semibold text-brand-black font-mono">{cat.models.length} MODELS</span>
           </div>
 
-          <div class="modelList">
+          <div class="max-h-[300px] overflow-y-auto p-2 scrollbar-mechanical">
             {cat.models.map((model) => (
-              <div class="modelItem" data-name={model}>
-                <div class="modelBullet" style={`background: ${cat.color}`}></div>
-                <span class="modelName">{model}</span>
+              <div class="flex items-center gap-3 px-3 py-2 rounded-xs mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem" data-name={model}>
+                <div class="w-2 h-2 rounded-full flex-shrink-0" style={`background: ${cat.color}`}></div>
+                <span class="text-xs font-medium font-mono break-words">{model}</span>
               </div>
             ))}
             {cat.models.length === 0 && (
-              <div class="empty">No matches in this category</div>
+              <div class="text-center p-5 text-brand-steel text-xs font-medium">No matches in this category</div>
             )}
           </div>
         </div>
       ))}
 
-      <div class="noResults" style="display: none;">
+      <div class="col-span-full text-center p-10 text-base font-medium text-brand-steel noResults" style="display: none;">
         No models found matching "<span id="search-term"></span>"
       </div>
     </div>
   </div>
-
-  <style>
-    /* Inline styles for this page to avoid CSS module dependencies */
-    .pageContainer {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
-      padding: 20px 0;
-      border-bottom: 2px solid var(--c-black);
-    }
-
-    .headerLeft {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .backButton {
-      background: none;
-      border: none;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--c-orange);
-      cursor: pointer;
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: var(--radius-xs);
-      transition: all 0.2s var(--ease-mechanical);
-    }
-
-    .backButton:hover {
-      color: var(--c-steel);
-      text-decoration: underline;
-    }
-
-    .pageTitle {
-      font-size: 32px;
-      font-weight: 700;
-      margin: 0;
-      font-family: var(--font-display);
-    }
-
-    .searchWrapper {
-      display: flex;
-      align-items: center;
-      background: var(--c-white);
-      border: 2px solid var(--c-black);
-      border-radius: var(--radius-sm);
-      padding: 8px 16px;
-      min-width: 300px;
-    }
-
-    .searchIcon {
-      margin-right: 12px;
-      font-size: 16px;
-    }
-
-    .searchInput {
-      border: none;
-      background: none;
-      font-size: 14px;
-      font-weight: 500;
-      outline: none;
-      width: 100%;
-      font-family: inherit;
-    }
-
-    .searchInput::placeholder {
-      color: var(--c-steel);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 24px;
-    }
-
-    .card {
-      background: var(--c-white);
-      border: 2px solid var(--c-black);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-
-    .cardHeader {
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--c-white);
-    }
-
-    .cardTitleRow {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .icon {
-      font-size: 20px;
-    }
-
-    .cardTitle {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 0;
-      font-family: var(--font-display);
-    }
-
-    .encodingBadge {
-      font-size: 11px;
-      font-weight: 600;
-      background: var(--c-concrete);
-      padding: 4px 8px;
-      border-radius: var(--radius-xs);
-      font-family: var(--font-mono);
-    }
-
-    .cardMeta {
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--c-paper);
-      border-bottom: 1px solid var(--c-concrete);
-    }
-
-    .desc {
-      font-size: 12px;
-      color: var(--c-steel);
-      font-weight: 500;
-    }
-
-    .count {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--c-black);
-      font-family: var(--font-mono);
-    }
-
-    .modelList {
-      max-height: 300px;
-      overflow-y: auto;
-      padding: 8px;
-    }
-
-    .modelList::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .modelList::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .modelList::-webkit-scrollbar-thumb {
-      background: var(--c-black);
-      border-radius: var(--radius-xs);
-    }
-
-    .modelItem {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 12px;
-      border-radius: var(--radius-xs);
-      margin-bottom: 4px;
-      transition: background-color 0.2s var(--ease-mechanical);
-    }
-
-    .modelItem:hover {
-      background-color: var(--c-concrete);
-    }
-
-    .modelBullet {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .modelName {
-      font-size: 12px;
-      font-weight: 500;
-      font-family: var(--font-mono);
-      word-break: break-all;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 20px;
-      color: var(--c-steel);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .noResults {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 40px;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--c-steel);
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        gap: 20px;
-        align-items: flex-start;
-      }
-
-      .searchWrapper {
-        width: 100%;
-        min-width: unset;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
 
   <script is:inline>
     // Simple vanilla JS filter
