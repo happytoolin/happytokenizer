@@ -14,36 +14,29 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 2px 4px;
+  margin: 1px 1px;
+  border-radius: 2px;
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: 500;
   color: var(--c-black);
-  cursor: pointer;
+  height: 24px;
+  white-space: pre; /* Preserve spaces */
   transition: all 0.15s var(--ease-mechanical);
-  border-radius: 2px;
-  user-select: none;
+  cursor: pointer;
   position: relative;
-  padding: 1px 8px; /* Decreased vertical, increased horizontal */
-  margin: 0 2px; /* Adjusted margin */
-  white-space: pre;
-  height: 20px; /* Decreased height */
-  border-bottom: 2px solid;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .compactToken:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 0px var(--c-black);
-  z-index: 10;
   filter: brightness(0.9);
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 2px 0px var(--c-black);
+  transform: translateY(-1px);
 }
 
 .compactToken:hover::after {
-  content: attr(title);
+  content: attr(data-tooltip);
   position: absolute;
   bottom: 100%;
   left: 50%;
@@ -59,7 +52,6 @@
   margin-bottom: 4px;
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
   z-index: 100;
-  max-width: 200px;
 }
 
 .scrollIndicator {

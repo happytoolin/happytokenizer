@@ -115,7 +115,7 @@ export function VirtualizedCompactTokenDisplay({
           }}
         >
           {visibleItems.map(({ token, virtualRow, colIndex }) => (
-            <div
+            <span
               key={token.id}
               className={styles.compactToken}
               style={{
@@ -123,14 +123,13 @@ export function VirtualizedCompactTokenDisplay({
                 top: virtualRow.start,
                 left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
                 width: itemWidth,
-                height: itemHeight,
-                backgroundColor: token.color + "33", // Match TXT opacity (20%)
-                borderBottom: `2px solid ${token.color}`, // Underline style like TXT
-                title: token.text,
+                backgroundColor: token.color + "33", // 20% opacity hex
+                borderBottom: `2px solid ${token.color}`, // Underline style instead of full border
               }}
+              data-tooltip={token.text}
             >
               {token.tokenId}
-            </div>
+            </span>
           ))}
         </div>
       </div>
