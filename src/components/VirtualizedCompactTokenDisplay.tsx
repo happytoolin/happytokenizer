@@ -1,5 +1,5 @@
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { useMemo, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import styles from "./VirtualizedCompactTokenDisplay.module.css";
 
 interface TokenItem {
@@ -29,6 +29,7 @@ export function VirtualizedCompactTokenDisplay({
   const parentRef = useRef<HTMLDivElement>(null);
   const rowCount = Math.ceil(items.length / tokensPerRow);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
@@ -41,7 +42,7 @@ export function VirtualizedCompactTokenDisplay({
   const visibleItems = useMemo(() => {
     const result: Array<{
       token: TokenItem;
-      virtualRow: any;
+      virtualRow: VirtualItem;
       colIndex: number;
     }> = [];
 
