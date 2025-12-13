@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./VirtualizedInlineTokenDisplay.module.css";
 
 interface TokenItem {
@@ -26,155 +26,180 @@ export function VirtualizedInlineTokenDisplay({
   containerHeight,
 }: VirtualizedInlineTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
   const [lineBreaks, setLineBreaks] = useState<LineInfo[]>([]);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  // Measure tokens and calculate natural line breaks
+  // Configuration matching CSS styles
+  // .token { padding: 6px 10px; border: 1px solid; gap: 8px }
+  // .tokenLine { gap: 6px }
+  const CONSTANTS = {
+    PADDING_X: 20, // 10px left + 10px right
+    BORDER: 2, // 1px left + 1px right
+    INNER_GAP: 8, // Gap between ID and Text
+    TOKEN_GAP: 6, // Gap between tokens in a line
+    LINE_HEIGHT: 46, // Height of a row
+
+    // Fallback widths if calibration fails
+    DEFAULT_CHAR_WIDTH_ID: 6, // approx for 10px mono
+    DEFAULT_CHAR_WIDTH_TEXT: 7.2, // approx for 12px mono
+  };
+
   const measureLineBreaks = useCallback(() => {
-    if (!measureRef.current || !parentRef.current || items.length === 0) {
+    if (!parentRef.current || items.length === 0) {
       setLineBreaks([]);
       return;
     }
 
-    const measureContainer = measureRef.current;
-    const scrollContainer = parentRef.current;
-    const containerWidth = scrollContainer.offsetWidth - 16; // Account for padding
+    const containerWidth = parentRef.current.clientWidth - 16; // Subtract scrollbar/padding safety
     if (containerWidth <= 0) return;
 
-    // Set width for measurement (matching scroll container padding)
-    measureContainer.style.width = `${containerWidth}px`;
+    // 1. Calibrate Font Metrics (Fast, run once per measure)
+    // We create a temporary canvas to get the EXACT width of a character
+    // since we are using a Monospace font.
+    let charWidthId = CONSTANTS.DEFAULT_CHAR_WIDTH_ID;
+    let charWidthText = CONSTANTS.DEFAULT_CHAR_WIDTH_TEXT;
 
-    // Clear and rebuild measurement tokens
-    measureContainer.innerHTML = "";
+    try {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        // Measure ID font (10px)
+        ctx.font = '10px "JetBrains Mono", "Fira Code", "Consolas", monospace';
+        const m1 = ctx.measureText("0");
+        if (m1.width > 0) charWidthId = m1.width;
 
-    const tokenElements: HTMLElement[] = [];
-    items.forEach((item) => {
-      const tokenSpan = document.createElement("span");
-      tokenSpan.className = styles.token;
-      tokenSpan.style.cssText = `
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid ${item.color};
-        border-radius: 4px;
-        padding: 6px 10px;
-        font-size: 12px;
-        font-weight: 500;
-        background-color: ${item.color}20;
-        white-space: nowrap;
-        flex-shrink: 0;
-      `;
+        // Measure Text font (12px 500 weight)
+        ctx.font =
+          '500 12px "JetBrains Mono", "Fira Code", "Consolas", monospace';
+        const m2 = ctx.measureText("M");
+        if (m2.width > 0) charWidthText = m2.width;
+      }
+    } catch (error) {
+      console.error("Font measurement failed:", error);
+      // Fallback to defaults if canvas fails
+    }
 
-      const tokenIdSpan = document.createElement("span");
-      tokenIdSpan.className = styles.tokenId;
-      tokenIdSpan.textContent = String(item.tokenId);
-      tokenIdSpan.style.cssText =
-        "opacity: 0.7; font-size: 10px; flex-shrink: 0;";
-
-      const tokenTextSpan = document.createElement("span");
-      tokenTextSpan.className = styles.tokenText;
-      tokenTextSpan.textContent = item.text;
-      tokenTextSpan.style.cssText =
-        "white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;";
-
-      tokenSpan.appendChild(tokenIdSpan);
-      tokenSpan.appendChild(tokenTextSpan);
-      measureContainer.appendChild(tokenSpan);
-      tokenElements.push(tokenSpan);
-    });
-
-    // Force reflow to get accurate measurements
-    void measureContainer.offsetHeight;
-
-    // Calculate line breaks based on actual positions
+    // 2. Calculate Lines (Pure Math, No DOM)
     const lines: LineInfo[] = [];
     let currentLine: TokenItem[] = [];
+    let currentLineWidth = 0;
     let currentLineStartIndex = 0;
-    let currentTop = -1;
-    let lineHeight = 0;
 
-    tokenElements.forEach((tokenEl, index) => {
-      const rect = tokenEl.getBoundingClientRect();
-      const tokenTop = rect.top;
+    // Constant overhead per token: padding + border + inner gap between ID and Text
+    const tokenBaseWidth =
+      CONSTANTS.PADDING_X + CONSTANTS.BORDER + CONSTANTS.INNER_GAP;
 
-      if (currentTop === -1) {
-        currentTop = tokenTop;
-        lineHeight = rect.height;
-      }
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
 
-      // Check if token wrapped to a new line (with tolerance for rounding errors)
-      if (Math.abs(tokenTop - currentTop) > 3) {
-        // Token wrapped, save previous line
-        if (currentLine.length > 0) {
-          lines.push({
-            tokens: currentLine,
-            startIndex: currentLineStartIndex,
-            endIndex: currentLineStartIndex + currentLine.length - 1,
-            height: lineHeight,
-          });
-        }
-        currentLine = [items[index]];
-        currentLineStartIndex = index;
-        currentTop = tokenTop;
-        lineHeight = rect.height;
+      // Calculate ID width: number of digits * char width
+      // Optimization: Get digit count without converting to string for small numbers
+      const idDigits =
+        item.tokenId < 10
+          ? 1
+          : item.tokenId < 100
+            ? 2
+            : item.tokenId < 1000
+              ? 3
+              : item.tokenId < 10000
+                ? 4
+                : item.tokenId < 100000
+                  ? 5
+                  : 6;
+
+      const idWidth = idDigits * charWidthId;
+
+      // Calculate Text width: char length * char width
+      // item.text is already truncated to max 15 chars + "..." in TokenDisplay
+      const textWidth = item.text.length * charWidthText;
+
+      // Total token width
+      // We use Math.ceil to avoid sub-pixel rounding issues causing wrap early
+      const itemWidth = Math.ceil(tokenBaseWidth + idWidth + textWidth);
+
+      // Check if adding this token exceeds container width
+      // Note: First item in a line is always added even if it's too wide
+      const gap = currentLine.length > 0 ? CONSTANTS.TOKEN_GAP : 0;
+
+      if (
+        currentLine.length > 0 &&
+        currentLineWidth + gap + itemWidth > containerWidth
+      ) {
+        // Wrap to new line
+        lines.push({
+          tokens: currentLine,
+          startIndex: currentLineStartIndex,
+          endIndex: i - 1,
+          height: CONSTANTS.LINE_HEIGHT,
+        });
+
+        currentLine = [item];
+        currentLineWidth = itemWidth;
+        currentLineStartIndex = i;
       } else {
-        currentLine.push(items[index]);
-        lineHeight = Math.max(lineHeight, rect.height);
+        // Add to current line
+        currentLine.push(item);
+        currentLineWidth += gap + itemWidth;
       }
-    });
+    }
 
-    // Add the last line
+    // Add the final line
     if (currentLine.length > 0) {
       lines.push({
         tokens: currentLine,
         startIndex: currentLineStartIndex,
-        endIndex: currentLineStartIndex + currentLine.length - 1,
-        height: lineHeight || 36,
+        endIndex: items.length - 1,
+        height: CONSTANTS.LINE_HEIGHT,
       });
     }
 
     setLineBreaks(lines);
   }, [items]);
 
-  // Set up ResizeObserver to recalculate on container resize
+  // Handle Resize with Debounce
   useEffect(() => {
     if (!parentRef.current) return;
 
+    let timeoutId: number;
+
     resizeObserverRef.current = new ResizeObserver(() => {
-      // Debounce measurements
-      setTimeout(measureLineBreaks, 50);
+      // Clear existing timeout to debounce
+      if (timeoutId) clearTimeout(timeoutId);
+
+      // Wait 100ms after resize stops before recalculating
+      timeoutId = setTimeout(() => {
+        measureLineBreaks();
+      }, 100);
     });
 
     resizeObserverRef.current.observe(parentRef.current);
 
     return () => {
+      if (timeoutId) clearTimeout(timeoutId);
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
       }
     };
   }, [measureLineBreaks]);
 
-  // Initial measurement and remeasure when items change
+  // Initial measurement
   useEffect(() => {
-    measureLineBreaks();
+    // Small delay to ensure container has rendered width
+    const timer = setTimeout(measureLineBreaks, 0);
+    return () => clearTimeout(timer);
   }, [measureLineBreaks]);
 
-  // Use the same virtualization approach as detailed view but virtualize by calculated lines
-  const virtualizer = useVirtualizer({
+  const rowVirtualizer = useVirtualizer({
     count: lineBreaks.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: (index) => lineBreaks[index]?.height || 36,
+    estimateSize: () => CONSTANTS.LINE_HEIGHT,
     overscan: 5,
   });
 
-  const virtualItems = virtualizer.getVirtualItems();
+  const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
     <div className={styles.virtualContainer}>
-      {/* Hidden measurement container */}
-      <div ref={measureRef} className={styles.measureContainer} />
-
       <div
         ref={parentRef}
         className={styles.scrollContainer}
@@ -182,14 +207,14 @@ export function VirtualizedInlineTokenDisplay({
       >
         <div
           style={{
-            height: `${virtualizer.getTotalSize()}px`,
+            height: `${rowVirtualizer.getTotalSize()}px`,
             width: "100%",
             position: "relative",
           }}
         >
           {virtualItems.map((virtualItem) => {
-            const lineInfo = lineBreaks[virtualItem.index];
-            if (!lineInfo) return null;
+            const line = lineBreaks[virtualItem.index];
+            if (!line) return null;
 
             return (
               <div
@@ -202,9 +227,11 @@ export function VirtualizedInlineTokenDisplay({
                   width: "100%",
                   height: `${virtualItem.size}px`,
                   transform: `translateY(${virtualItem.start}px)`,
+                  // optimization: hint browser for GPU layering
+                  willChange: "transform",
                 }}
               >
-                {lineInfo.tokens.map((item) => (
+                {line.tokens.map((item) => (
                   <span
                     key={item.id}
                     className={styles.token}
@@ -224,14 +251,11 @@ export function VirtualizedInlineTokenDisplay({
         </div>
       </div>
 
-      {items.length > 0 && lineBreaks.length > 0 && (
+      {items.length > 0 && lineBreaks.length > 0 && virtualItems.length > 0 && (
         <div className={styles.scrollIndicator}>
-          {virtualItems[0]
-            ? lineBreaks[virtualItems[0].index]?.startIndex + 1 || 0
-            : 0}
-          -
+          {lineBreaks[virtualItems[0].index]?.startIndex + 1 || 1}-
           {Math.min(
-            lineBreaks[virtualItems[virtualItems.length - 1]?.index]?.endIndex +
+            lineBreaks[virtualItems[virtualItems.length - 1].index]?.endIndex +
               1 || items.length,
             items.length,
           )}{" "}

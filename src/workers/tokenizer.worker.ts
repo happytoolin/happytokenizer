@@ -121,7 +121,7 @@ async function tokenizeWithChunks(
 }
 
 self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
-  const { text, model = "o200k_base", chunkSize } = e.data;
+  const { text, model = "o200k_base" } = e.data;
 
   try {
     // Check if we should use chunked processing
@@ -130,10 +130,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
     if (shouldChunk) {
       // Process with chunks and report progress
       const tokens = await tokenizeWithChunks(text, model, (progress) => {
-        self.postMessage({
-          type: "progress",
-          ...progress,
-        } as ChunkProgressResponse);
+        self.postMessage(progress as ChunkProgressResponse);
       });
 
       // Send final result

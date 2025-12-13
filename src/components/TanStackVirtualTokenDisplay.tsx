@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { useRef } from "react";
 import styles from "./TanStackVirtualTokenDisplay.module.css";
 
 interface TokenItem {
@@ -26,8 +26,12 @@ export function TanStackVirtualTokenDisplay({
     count: items.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimatedItemHeight,
-    overscan: 5,
+    // Overscan determines how many items to render outside the visible area.
+    // Increasing this slightly (e.g., to 10) prevents white flickers during fast scrolling.
+    overscan: 10,
   });
+
+  const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
     <div className={styles.virtualContainer}>
@@ -43,7 +47,7 @@ export function TanStackVirtualTokenDisplay({
             position: "relative",
           }}
         >
-          {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+          {virtualItems.map((virtualItem) => {
             const item = items[virtualItem.index];
             return (
               <div
@@ -56,6 +60,7 @@ export function TanStackVirtualTokenDisplay({
                   width: "100%",
                   height: `${virtualItem.size}px`,
                   transform: `translateY(${virtualItem.start}px)`,
+                  willChange: "transform", // Performance optimization
                 }}
               >
                 <span
@@ -74,13 +79,11 @@ export function TanStackVirtualTokenDisplay({
         </div>
       </div>
 
-      {items.length > 0 && (
+      {items.length > 0 && virtualItems.length > 0 && (
         <div className={styles.scrollIndicator}>
-          {rowVirtualizer.getVirtualItems()[0]?.index + 1 || 0}-
+          {virtualItems[0].index + 1}-
           {Math.min(
-            rowVirtualizer.getVirtualItems()[
-              rowVirtualizer.getVirtualItems().length - 1
-            ]?.index + 1 || 0,
+            virtualItems[virtualItems.length - 1].index + 1,
             items.length,
           )}{" "}
           of {items.length} tokens

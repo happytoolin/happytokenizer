@@ -65,9 +65,11 @@ export function useTokenizer() {
       } else {
         // This is the final tokenization result
         const tokenizerResponse = message as TokenizerResponse;
+
         setResult((prev) => ({
           ...prev,
-          ...tokenizerResponse,
+          tokens: tokenizerResponse.tokens,
+          count: tokenizerResponse.tokens.length,
           model: tokenizerResponse.model as ModelType,
           isLoading: false,
           error: null,
@@ -115,7 +117,7 @@ export function useTokenizer() {
       debounceTimeoutRef.current = setTimeout(() => {
         const message: TokenizerMessage = { text, model };
         workerRef.current?.postMessage(message);
-      }, 100); // Reduced debounce for faster response
+      }, 150);
     },
     [],
   );

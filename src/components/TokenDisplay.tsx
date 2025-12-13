@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { TanStackVirtualTokenDisplay } from "./TanStackVirtualTokenDisplay";
+import styles from "./TokenDisplay.module.css";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
-import styles from "./TokenDisplay.module.css";
 
 interface TokenDisplayProps {
   text: string;
@@ -43,6 +43,58 @@ export function TokenDisplay({
     "inline",
   );
 
+  // Memoize word splitting so it doesn't run on every render
+  const wordsList = useMemo(() => {
+    if (!text) return [];
+    return text.split(/\s+/).filter(Boolean);
+  }, [text]);
+
+  // Highly optimized token item generation
+  const tokenItems = useMemo(() => {
+    if (tokens.length === 0) return [];
+
+    const result = new Array(tokens.length);
+    const wordsCount = wordsList.length;
+
+    // Estimate tokens per word for distribution
+    const tokensPerWord =
+      wordsCount > 0 ? Math.max(1, tokens.length / wordsCount) : 1;
+
+    const colorsLen = TOKEN_COLORS.length;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const tokenId = tokens[i];
+      // Fast modulo
+      const color = TOKEN_COLORS[i % colorsLen];
+
+      // Calculate approximate word context
+      // Math.floor is faster than parseInt
+      const wordIndex = Math.floor(i / tokensPerWord);
+
+      let displayText = `Token ${i + 1}`;
+
+      if (wordIndex < wordsCount) {
+        const word = wordsList[wordIndex];
+        // Hard truncation for performance and display consistency
+        // This matches the math in VirtualizedInlineTokenDisplay
+        if (word.length > 15) {
+          displayText = word.substring(0, 15) + "...";
+        } else {
+          displayText = word;
+        }
+      }
+
+      result[i] = {
+        id: i,
+        tokenId,
+        color,
+        text: displayText,
+      };
+    }
+
+    return result;
+  }, [tokens, wordsList]);
+
   if (error) {
     return <div className={styles.error}>Error: {error}</div>;
   }
@@ -55,41 +107,7 @@ export function TokenDisplay({
     return <div className={styles.empty}>Enter text above to see tokens</div>;
   }
 
-  const words = text.split(/\s+/).filter(Boolean);
   const shouldUseVirtualization = tokens.length > VIRTUALIZATION_THRESHOLD;
-
-  // Create token items for virtualized display
-  const tokenItems = useMemo(() => {
-    const wordsList = text.split(/\s+/).filter(Boolean);
-    const tokensPerWord = Math.max(
-      1,
-      Math.ceil(tokens.length / wordsList.length),
-    );
-
-    return tokens.map((tokenId, index) => {
-      const colorIndex = index % TOKEN_COLORS.length;
-      const color = TOKEN_COLORS[colorIndex];
-
-      // Try to get text context for this token
-      const maxTokenLength = 15;
-      let displayText = `Token ${index + 1}`;
-
-      const wordIndex = Math.floor(index / tokensPerWord);
-      if (wordsList[wordIndex]) {
-        displayText = wordsList[wordIndex].substring(0, maxTokenLength);
-        if (wordsList[wordIndex].length > maxTokenLength) {
-          displayText += "...";
-        }
-      }
-
-      return {
-        id: index,
-        tokenId,
-        color,
-        text: displayText,
-      };
-    });
-  }, [tokens, text]);
 
   return (
     <div className={styles.container}>
@@ -124,19 +142,18 @@ export function TokenDisplay({
 
       <div className={styles.tokensContainer}>
         {viewMode === "inline" ? (
-          // Inline view - use virtualization for large token lists
           shouldUseVirtualization ? (
             <VirtualizedInlineTokenDisplay
               items={tokenItems}
               containerHeight={CONTAINER_HEIGHT}
             />
           ) : (
-            // Original inline word-based display for smaller token lists
+            // Fallback for very small text (original logic)
             <div className={styles.inlineContainer}>
-              {words.map((word, wordIndex) => {
+              {wordsList.map((word, wordIndex) => {
                 const tokensPerWord = Math.max(
                   1,
-                  Math.ceil(tokens.length / words.length),
+                  Math.ceil(tokens.length / wordsList.length),
                 );
                 const startTokenIndex = wordIndex * tokensPerWord;
                 const endTokenIndex = Math.min(
@@ -147,10 +164,12 @@ export function TokenDisplay({
                 return (
                   <span key={wordIndex}>
                     {Array.from(
-                      { length: endTokenIndex - startTokenIndex },
+                      { length: Math.max(0, endTokenIndex - startTokenIndex) },
                       (_, tokenIndex) => {
                         const globalIndex = startTokenIndex + tokenIndex;
                         const item = tokenItems[globalIndex];
+                        if (!item) return null;
+
                         return (
                           <span
                             key={globalIndex}
@@ -178,7 +197,6 @@ export function TokenDisplay({
             </div>
           )
         ) : viewMode === "compact" ? (
-          // Virtualized compact grid view
           <VirtualizedCompactTokenDisplay
             items={tokenItems}
             containerHeight={CONTAINER_HEIGHT}
@@ -188,7 +206,6 @@ export function TokenDisplay({
             gap={4}
           />
         ) : (
-          // Detailed virtualized list view
           <TanStackVirtualTokenDisplay
             items={tokenItems}
             containerHeight={CONTAINER_HEIGHT}
@@ -208,17 +225,17 @@ export function TokenDisplay({
         </div>
         <div className={styles.stat}>
           <span className={styles.statLabel}>Words:</span>
-          <span className={styles.statValue}>{words.length}</span>
+          <span className={styles.statValue}>{wordsList.length}</span>
         </div>
         {shouldUseVirtualization && (
           <div className={styles.stat}>
             <span className={styles.statLabel}>View:</span>
             <span className={styles.statValue}>
               {viewMode === "inline"
-                ? "Inline (text flow)"
+                ? "Inline (Virtual)"
                 : viewMode === "compact"
-                  ? "Compact (grid)"
-                  : "Detailed (list)"}
+                  ? "Compact (Grid)"
+                  : "Detailed (List)"}
             </span>
           </div>
         )}
