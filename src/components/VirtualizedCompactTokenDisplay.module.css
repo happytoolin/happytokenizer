@@ -1,0 +1,65 @@
+.virtualCompactContainer {
+  position: relative;
+  width: 100%;
+}
+
+.scrollContainer {
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: #0a0a0a;
+  padding: 8px;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollContainer::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+.compactToken {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: center;
+  user-select: none;
+}
+
+.compactToken:hover {
+  transform: scale(1.1);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.scrollIndicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #888;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}

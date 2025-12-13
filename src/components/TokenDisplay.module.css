@@ -16,11 +16,62 @@
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.virtualBadge {
+  background: #667eea;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .modelInfo {
   color: #888;
   font-size: 13px;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 4px;
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.viewButton {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewButton.active {
+  background: #667eea;
+  color: #fff;
+}
+
+.viewButton:hover:not(.active) {
+  background: #333;
+  color: #fff;
 }
 
 .tokensContainer {
@@ -91,6 +142,109 @@
   color: #fff;
   font-weight: 600;
   font-size: 14px;
+}
+
+.compactTokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 12px;
+  align-items: center;
+}
+
+.compactToken {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  min-width: 30px;
+  text-align: center;
+}
+
+.compactToken:hover {
+  transform: scale(1.2);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.inlineContainer {
+  background: #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 400px; /* Approximately 15 lines at 24px line height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+.inlineContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.inlineContainer::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.inlineContainer::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.inlineContainer::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+.inlineToken {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 1px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  transition: all 0.1s ease;
+  cursor: pointer;
+  line-height: 1.4;
+  vertical-align: baseline;
+}
+
+.inlineToken:hover {
+  transform: scale(1.05);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.inlineTokenNumber {
+  font-size: 10px;
+  opacity: 0.7;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  min-width: 20px;
+  text-align: center;
+}
+
+.inlineTokenText {
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.moreIndicator {
+  color: #888;
+  font-size: 12px;
+  font-style: italic;
+  padding: 4px 8px;
+  background: #1a1a1a;
+  border-radius: 4px;
 }
 
 .loading, .empty, .error {
