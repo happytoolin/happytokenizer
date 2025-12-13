@@ -1,0 +1,86 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { TokenizerMessage, TokenizerResponse } from '../workers/tokenizer.worker'
+
+export type ModelType = 'o200k_base' | 'cl100k_base'
+
+export interface TokenizerResult {
+  tokens: number[]
+  count: number
+  model: ModelType
+  isLoading: boolean
+  error: string | null
+}
+
+export function useTokenizer() {
+  const [result, setResult] = useState<TokenizerResult>({
+    tokens: [],
+    count: 0,
+    model: 'o200k_base',
+    isLoading: false,
+    error: null
+  })
+
+  const workerRef = useRef<Worker | null>(null)
+  const debounceTimeoutRef = useRef<number | null>(null)
+
+  // Initialize worker
+  useEffect(() => {
+    workerRef.current = new Worker(
+      new URL('../workers/tokenizer.worker.ts', import.meta.url),
+      { type: 'module' }
+    )
+
+    workerRef.current.onmessage = (e: MessageEvent<TokenizerResponse>) => {
+      setResult(prev => ({
+        ...prev,
+        ...e.data,
+        model: e.data.model as ModelType,
+        isLoading: false,
+        error: null
+      }))
+    }
+
+    workerRef.current.onerror = (error) => {
+      setResult(prev => ({
+        ...prev,
+        isLoading: false,
+        error: 'Worker error: ' + error.message
+      }))
+    }
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate()
+      }
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const tokenize = useCallback((text: string, model: ModelType = 'o200k_base') => {
+    if (!workerRef.current) return
+
+    // Clear previous debounce
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+
+    setResult(prev => ({
+      ...prev,
+      isLoading: true,
+      error: null
+    }))
+
+    // Debounce tokenization
+    debounceTimeoutRef.current = setTimeout(() => {
+      const message: TokenizerMessage = { text, model }
+      workerRef.current?.postMessage(message)
+    }, 200)
+  }, [])
+
+  return {
+    ...result,
+    tokenize
+  }
+}

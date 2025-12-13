@@ -11,6 +11,9 @@ importers:
 
   .:
     dependencies:
+      gpt-tokenizer:
+        specifier: ^3.4.0
+        version: 3.4.0
       react:
         specifier: ^19.2.0
         version: 19.2.3
@@ -623,6 +626,9 @@ packages:
   globals@16.5.0:
     resolution: {integrity: sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ==}
     engines: {node: '>=18'}
+
+  gpt-tokenizer@3.4.0:
+    resolution: {integrity: sha512-wxFLnhIXTDjYebd9A9pGl3e31ZpSypbpIJSOswbgop5jLte/AsZVDvjlbEuVFlsqZixVKqbcoNmRlFDf6pz/UQ==}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -1612,6 +1618,8 @@ snapshots:
   globals@14.0.0: {}
 
   globals@16.5.0: {}
+
+  gpt-tokenizer@3.4.0: {}
 
   has-flag@4.0.0: {}
 
