@@ -1,11 +1,409 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { ModelsPage } from '../components/react/ModelsPage';
+import { MODEL_ENCODINGS, MODEL_DISPLAY_NAMES } from '../utils/modelEncodings';
+
+// Reconstruct the category logic here in server-side JS
+const MODEL_CATEGORIES = [
+  {
+    id: "modern",
+    title: "Modern Models",
+    icon: "🚀",
+    encoding: "o200k_base",
+    description: "Latest encoding for modern models",
+    color: "#FF6600", // Orange
+    models: MODEL_ENCODINGS.o200k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "chat",
+    title: "Chat Models",
+    icon: "💬",
+    encoding: "cl100k_base",
+    description: "Standard encoding for chat models",
+    color: "#00CC99", // Mint
+    models: MODEL_ENCODINGS.cl100k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "oss",
+    title: "OpenAI OSS",
+    icon: "🎵",
+    encoding: "o200k_harmony",
+    description: "Special encoding for open-source",
+    color: "#CCFF00", // Volt
+    models: MODEL_ENCODINGS.o200k_harmony.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "code",
+    title: "Code Models",
+    icon: "📝",
+    encoding: "p50k_base",
+    description: "Optimized for code generation",
+    color: "#0066FF", // Blue
+    models: MODEL_ENCODINGS.p50k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "edit",
+    title: "Edit Models",
+    icon: "✏️",
+    encoding: "p50k_edit",
+    description: "Designed for text editing tasks",
+    color: "#FF3366", // Red
+    models: MODEL_ENCODINGS.p50k_edit.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "legacy",
+    title: "Legacy Models",
+    icon: "🏛️",
+    encoding: "r50k_base",
+    description: "Original GPT-3 encoding",
+    color: "#666666", // Grey
+    models: MODEL_ENCODINGS.r50k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+].map((category) => ({
+  ...category,
+  models: category.models.sort((a, b) => a.localeCompare(b)),
+}));
 ---
 
 <MainLayout
   title="System Manifest - HappyTokenizer"
   description="Complete system manifest of all GPT models supported by HappyTokenizer with their encodings and technical specifications."
 >
-  <ModelsPage client:visible />
+  <div class="pageContainer">
+    <header class="header">
+      <div class="headerLeft">
+        <a href="/" class="backButton">← BACK</a>
+        <h1 class="pageTitle">System Manifest</h1>
+      </div>
+      <div class="searchWrapper">
+        <span class="searchIcon">⚡</span>
+        <input type="text" id="model-search" placeholder="FILTER MODELS..." class="searchInput" />
+      </div>
+    </header>
+
+    <div class="grid" id="model-grid">
+      {MODEL_CATEGORIES.map((cat) => (
+        <div class="card model-category" data-keywords={`${cat.title} ${cat.encoding}`}>
+          <div class="cardHeader" style={`border-bottom: 2px solid ${cat.color}`}>
+            <div class="cardTitleRow">
+              <span class="icon">{cat.icon}</span>
+              <h2 class="cardTitle">{cat.title}</h2>
+            </div>
+            <div class="encodingBadge">{cat.encoding}</div>
+          </div>
+
+          <div class="cardMeta">
+            <span class="desc">{cat.description}</span>
+            <span class="count">{cat.models.length} MODELS</span>
+          </div>
+
+          <div class="modelList">
+            {cat.models.map((model) => (
+              <div class="modelItem" data-name={model}>
+                <div class="modelBullet" style={`background: ${cat.color}`}></div>
+                <span class="modelName">{model}</span>
+              </div>
+            ))}
+            {cat.models.length === 0 && (
+              <div class="empty">No matches in this category</div>
+            )}
+          </div>
+        </div>
+      ))}
+
+      <div class="noResults" style="display: none;">
+        No models found matching "<span id="search-term"></span>"
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Inline styles for this page to avoid CSS module dependencies */
+    .pageContainer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding: 20px 0;
+      border-bottom: 2px solid var(--c-black);
+    }
+
+    .headerLeft {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .backButton {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--c-orange);
+      cursor: pointer;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-xs);
+      transition: all 0.2s var(--ease-mechanical);
+    }
+
+    .backButton:hover {
+      color: var(--c-steel);
+      text-decoration: underline;
+    }
+
+    .pageTitle {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0;
+      font-family: var(--font-display);
+    }
+
+    .searchWrapper {
+      display: flex;
+      align-items: center;
+      background: var(--c-white);
+      border: 2px solid var(--c-black);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      min-width: 300px;
+    }
+
+    .searchIcon {
+      margin-right: 12px;
+      font-size: 16px;
+    }
+
+    .searchInput {
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .searchInput::placeholder {
+      color: var(--c-steel);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--c-white);
+      border: 2px solid var(--c-black);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .cardHeader {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--c-white);
+    }
+
+    .cardTitleRow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon {
+      font-size: 20px;
+    }
+
+    .cardTitle {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      font-family: var(--font-display);
+    }
+
+    .encodingBadge {
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--c-concrete);
+      padding: 4px 8px;
+      border-radius: var(--radius-xs);
+      font-family: var(--font-mono);
+    }
+
+    .cardMeta {
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--c-paper);
+      border-bottom: 1px solid var(--c-concrete);
+    }
+
+    .desc {
+      font-size: 12px;
+      color: var(--c-steel);
+      font-weight: 500;
+    }
+
+    .count {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--c-black);
+      font-family: var(--font-mono);
+    }
+
+    .modelList {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .modelList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modelList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modelList::-webkit-scrollbar-thumb {
+      background: var(--c-black);
+      border-radius: var(--radius-xs);
+    }
+
+    .modelItem {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: var(--radius-xs);
+      margin-bottom: 4px;
+      transition: background-color 0.2s var(--ease-mechanical);
+    }
+
+    .modelItem:hover {
+      background-color: var(--c-concrete);
+    }
+
+    .modelBullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .modelName {
+      font-size: 12px;
+      font-weight: 500;
+      font-family: var(--font-mono);
+      word-break: break-all;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--c-steel);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .noResults {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--c-steel);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+      }
+
+      .searchWrapper {
+        width: 100%;
+        min-width: unset;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script is:inline>
+    // Simple vanilla JS filter
+    const input = document.getElementById('model-search');
+    const categories = document.querySelectorAll('.model-category');
+    const noResults = document.querySelector('.noResults');
+    const searchTerm = document.getElementById('search-term');
+
+    input.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      let hasVisibleCategories = false;
+
+      categories.forEach(cat => {
+        const title = cat.dataset.keywords.toLowerCase();
+        const modelItems = cat.querySelectorAll('.modelItem');
+        let hasVisibleModels = false;
+
+        // Check if category title matches
+        const categoryMatches = title.includes(term);
+
+        // Filter individual models
+        modelItems.forEach(item => {
+          const modelName = item.dataset.name.toLowerCase();
+          const modelMatches = modelName.includes(term);
+
+          if (term === '' || categoryMatches || modelMatches) {
+            item.style.display = 'flex';
+            hasVisibleModels = true;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        // Show/hide category based on whether it has visible models or matches title
+        if (term === '' || categoryMatches || hasVisibleModels) {
+          cat.style.display = 'block';
+          hasVisibleCategories = true;
+        } else {
+          cat.style.display = 'none';
+        }
+      });
+
+      // Show/hide no results message
+      if (hasVisibleCategories) {
+        noResults.style.display = 'none';
+      } else {
+        noResults.style.display = 'block';
+        searchTerm.textContent = e.target.value;
+      }
+    });
+  </script>
 </MainLayout>
