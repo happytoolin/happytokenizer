@@ -1,6 +1,6 @@
-<svg width="180" height="32" viewBox="0 0 180 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
-  <rect width="180" height="32" fill="#F2F2F0"/>
+  <rect width="64" height="64" fill="#F2F2F0"/>
 
   <!-- Glowing Orange Circle -->
   <defs>
@@ -13,5 +13,5 @@
     </filter>
   </defs>
 
-  <circle cx="90" cy="16" r="5" fill="#ff6600" filter="url(#glow)"/>
+  <circle cx="32" cy="32" r="5" fill="#ff6600" filter="url(#glow)"/>
 </svg>
