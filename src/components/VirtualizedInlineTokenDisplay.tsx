@@ -2,6 +2,9 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./VirtualizedInlineTokenDisplay.module.css";
 
+// "use no memo" directive to disable React Compiler for this component
+/* @react-no-memo */
+
 interface TokenItem {
   id: number;
   tokenId: number;
@@ -151,7 +154,16 @@ export function VirtualizedInlineTokenDisplay({
     }
 
     setLineBreaks(lines);
-  }, [items]);
+  }, [
+    items,
+    CONSTANTS.PADDING_X,
+    CONSTANTS.BORDER,
+    CONSTANTS.INNER_GAP,
+    CONSTANTS.TOKEN_GAP,
+    CONSTANTS.LINE_HEIGHT,
+    CONSTANTS.DEFAULT_CHAR_WIDTH_ID,
+    CONSTANTS.DEFAULT_CHAR_WIDTH_TEXT,
+  ]);
 
   // Handle Resize with Debounce
   useEffect(() => {
@@ -186,6 +198,7 @@ export function VirtualizedInlineTokenDisplay({
     return () => clearTimeout(timer);
   }, [measureLineBreaks]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: lineBreaks.length,
     getScrollElement: () => parentRef.current,

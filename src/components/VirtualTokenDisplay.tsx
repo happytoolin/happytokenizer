@@ -2,6 +2,9 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import styles from "./VirtualTokenDisplay.module.css";
 
+// "use no memo" directive to disable React Compiler for this component
+/* @react-no-memo */
+
 interface TokenItem {
   id: number;
   tokenId: number;
@@ -22,6 +25,7 @@ export function VirtualTokenDisplay({
 }: VirtualTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => parentRef.current,

@@ -1,10 +1,24 @@
-import { encode, decode } from "gpt-tokenizer";
-import { encode as encodeCl100k, decode as decodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
-import { encode as encodeP50k, decode as decodeP50k } from "gpt-tokenizer/encoding/p50k_base";
-import { encode as encodeP50kEdit, decode as decodeP50kEdit } from "gpt-tokenizer/encoding/p50k_edit";
-import { encode as encodeR50k, decode as decodeR50k } from "gpt-tokenizer/encoding/r50k_base";
+import { decode, encode } from "gpt-tokenizer";
+import {
+  decode as decodeCl100k,
+  encode as encodeCl100k,
+} from "gpt-tokenizer/encoding/cl100k_base";
+import {
+  decode as decodeP50k,
+  encode as encodeP50k,
+} from "gpt-tokenizer/encoding/p50k_base";
+import {
+  decode as decodeP50kEdit,
+  encode as encodeP50kEdit,
+} from "gpt-tokenizer/encoding/p50k_edit";
+import {
+  decode as decodeR50k,
+  encode as encodeR50k,
+} from "gpt-tokenizer/encoding/r50k_base";
+import type { EncodingType } from "../models/modelEncodings";
 
-export type EncodingType = "o200k_base" | "cl100k_base" | "p50k_base" | "p50k_edit" | "r50k_base";
+// Re-export EncodingType for other modules
+export type { EncodingType };
 
 export interface TokenizerMessage {
   text: string;
@@ -88,6 +102,7 @@ function decodeTokens(tokens: number[], model: EncodingType): string[] {
         case "r50k_base":
           decoded = decodeR50k([token]);
           break;
+        case "o200k_harmony":
         case "o200k_base":
         default:
           decoded = decode([token]);
@@ -96,6 +111,7 @@ function decodeTokens(tokens: number[], model: EncodingType): string[] {
 
       return decoded;
     } catch (error) {
+      console.error("Decoding error:", error);
       // Fallback for special tokens or decoding errors
       return `[${token}]`;
     }
@@ -125,6 +141,7 @@ async function tokenizeWithChunks(
       case "r50k_base":
         tokens = encodeR50k(text);
         break;
+      case "o200k_harmony":
       case "o200k_base":
       default:
         tokens = encode(text);
@@ -170,6 +187,7 @@ async function tokenizeWithChunks(
         case "r50k_base":
           chunkTokens = encodeR50k(chunk);
           break;
+        case "o200k_harmony":
         case "o200k_base":
         default:
           chunkTokens = encode(chunk);
@@ -241,6 +259,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         case "r50k_base":
           tokens = encodeR50k(text);
           break;
+        case "o200k_harmony":
         case "o200k_base":
         default:
           tokens = encode(text);

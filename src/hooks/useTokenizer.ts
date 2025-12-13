@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
+  ChunkProgressResponse,
   TokenizerMessage,
   TokenizerResponse,
-  ChunkProgressResponse,
 } from "../workers/tokenizer.worker";
 
-export type ModelType = "o200k_base" | "cl100k_base" | "p50k_base" | "p50k_edit" | "r50k_base";
+// Define EncodingType directly to avoid import issues
+export type ModelType =
+  | "o200k_base"
+  | "cl100k_base"
+  | "p50k_base"
+  | "p50k_edit"
+  | "r50k_base"
+  | "o200k_harmony";
 
 export interface TokenizerProgress {
   chunkIndex: number;

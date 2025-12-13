@@ -8,7 +8,6 @@ interface TokenDisplayProps {
   text: string;
   tokens: number[];
   tokenTexts: string[];
-  isLoading?: boolean;
   error?: string | null;
 }
 
@@ -30,7 +29,6 @@ export function TokenDisplay({
   text,
   tokens,
   tokenTexts,
-  isLoading,
   error,
 }: TokenDisplayProps) {
   const [viewMode, setViewMode] = useState<"inline" | "compact" | "detailed">(

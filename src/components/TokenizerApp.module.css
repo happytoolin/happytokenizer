@@ -246,6 +246,31 @@
   line-height: 1;
 }
 
+/* --- MODEL INFO --- */
+.modelInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: var(--c-paper);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modelInfoLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.modelInfoValue {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--c-black);
+  font-weight: 600;
+}
+
 /* --- RIGHT PANEL: WORKSPACE --- */
 .workspace {
   display: flex;

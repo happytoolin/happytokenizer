@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTokenizer, type ModelType } from "../hooks/useTokenizer";
+import { getEncodingForModel, isEncodingType } from "../models/modelEncodings";
 import { TokenDisplay } from "./TokenDisplay";
 import styles from "./TokenizerApp.module.css";
 
@@ -36,8 +37,11 @@ ${`The history of machine learning dates back to the 1950s when Arthur Samuel cr
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<ModelType>("o200k_base");
+  const [model, setModel] = useState<ModelType>("gpt-4o"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
+
+  // Get encoding for the current model - if model is an encoding itself, use it directly
+  const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
     useTokenizer();
 
@@ -53,9 +57,9 @@ export function TokenizerApp() {
   // Tokenize when debounced text or model changes
   useEffect(() => {
     if (debouncedText) {
-      tokenize(debouncedText, model);
+      tokenize(debouncedText, encoding);
     }
-  }, [debouncedText, model, tokenize]);
+  }, [debouncedText, encoding, tokenize]);
 
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setModel(e.target.value as ModelType);
@@ -95,20 +99,172 @@ export function TokenizerApp() {
 
         <div className={styles.scrollableControls}>
           <div className={styles.controlGroup}>
-            <label className={styles.label}>Engine Architecture</label>
+            <label className={styles.label}>Model Selection</label>
             <div className={styles.selectWrapper}>
               <select
                 value={model}
                 onChange={handleModelChange}
                 className={styles.select}
               >
-                <option value="o200k_base">GPT-4o / o1 / o3 (o200k_base)</option>
-                <option value="cl100k_base">GPT-3.5/4 Turbo (cl100k_base)</option>
-                <option value="p50k_base">Text-Davinci-003/002 (p50k_base)</option>
-                <option value="p50k_edit">Code-Davinci-Edit (p50k_edit)</option>
-                <option value="r50k_base">Text-Davinci-001 / Legacy (r50k_base)</option>
+                <optgroup label="🚀 Modern Models (o200k_base)">
+                  <option value="gpt-4o">GPT-4o</option>
+                  <option value="gpt-4o-mini">GPT-4o Mini</option>
+                  <option value="o1">O1</option>
+                  <option value="o1-mini">O1 Mini</option>
+                  <option value="o1-pro">O1 Pro</option>
+                  <option value="o3">O3</option>
+                  <option value="o3-mini">O3 Mini</option>
+                  <option value="o3-pro">O3 Pro</option>
+                  <option value="gpt-5">GPT-5</option>
+                  <option value="gpt-5-pro">GPT-5 Pro</option>
+                  <option value="gpt-5-mini">GPT-5 Mini</option>
+                  <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
+                  <option value="gpt-4.1">GPT-4.1</option>
+                  <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+                </optgroup>
+
+                <optgroup label="💬 Chat Models (cl100k_base)">
+                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                  <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo 0125</option>
+                  <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo 0613</option>
+                  <option value="gpt-4">GPT-4</option>
+                  <option value="gpt-4-0613">GPT-4 0613</option>
+                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                  <option value="gpt-4-turbo-preview">
+                    GPT-4 Turbo Preview
+                  </option>
+                  <option value="gpt-4-1106-preview">GPT-4 1106 Preview</option>
+                  <option value="gpt-4-32k">GPT-4 32k</option>
+                  <option value="gpt-3.5-turbo-instruct">
+                    GPT-3.5 Turbo Instruct
+                  </option>
+                </optgroup>
+
+                <optgroup label="🔧 Completion Models (p50k_base)">
+                  <option value="text-davinci-003">Text Davinci 003</option>
+                  <option value="text-davinci-002">Text Davinci 002</option>
+                  <option value="code-davinci-001">Code Davinci 001</option>
+                  <option value="code-davinci-002">Code Davinci 002</option>
+                  <option value="code-cushman-001">Code Cushman 001</option>
+                  <option value="code-cushman-002">Code Cushman 002</option>
+                  <option value="cushman-codex">Cushman Codex</option>
+                  <option value="davinci-codex">Davinci Codex</option>
+                </optgroup>
+
+                <optgroup label="✏️ Edit Models (p50k_edit)">
+                  <option value="text-davinci-edit-001">
+                    Text Davinci Edit 001
+                  </option>
+                  <option value="code-davinci-edit-001">
+                    Code Davinci Edit 001
+                  </option>
+                </optgroup>
+
+                <optgroup label="🏛️ Legacy Models (r50k_base)">
+                  <option value="text-davinci-001">Text Davinci 001</option>
+                  <option value="ada">Ada</option>
+                  <option value="babbage">Babbage</option>
+                  <option value="curie">Curie</option>
+                  <option value="davinci">Davinci</option>
+                  <option value="text-ada-001">Text Ada 001</option>
+                  <option value="text-babbage-001">Text Babbage 001</option>
+                  <option value="text-curie-001">Text Curie 001</option>
+                </optgroup>
+
+                <optgroup label="🔍 Search & Similarity (r50k_base)">
+                  <option value="text-search-ada-doc-001">
+                    Text Search Ada Doc 001
+                  </option>
+                  <option value="text-search-ada-query-001">
+                    Text Search Ada Query 001
+                  </option>
+                  <option value="text-search-babbage-doc-001">
+                    Text Search Babbage Doc 001
+                  </option>
+                  <option value="text-search-babbage-query-001">
+                    Text Search Babbage Query 001
+                  </option>
+                  <option value="text-search-curie-doc-001">
+                    Text Search Curie Doc 001
+                  </option>
+                  <option value="text-search-curie-query-001">
+                    Text Search Curie Query 001
+                  </option>
+                  <option value="text-search-davinci-doc-001">
+                    Text Search Davinci Doc 001
+                  </option>
+                  <option value="text-search-davinci-query-001">
+                    Text Search Davinci Query 001
+                  </option>
+                  <option value="text-similarity-ada-001">
+                    Text Similarity Ada 001
+                  </option>
+                  <option value="text-similarity-babbage-001">
+                    Text Similarity Babbage 001
+                  </option>
+                  <option value="text-similarity-curie-001">
+                    Text Similarity Curie 001
+                  </option>
+                  <option value="text-similarity-davinci-001">
+                    Text Similarity Davinci 001
+                  </option>
+                </optgroup>
+
+                <optgroup label="🎵 Audio & Media (o200k_base)">
+                  <option value="whisper-1">Whisper 1</option>
+                  <option value="tts-1">TTS-1</option>
+                  <option value="tts-1-hd">TTS-1 HD</option>
+                  <option value="dall-e-2">DALL-E 2</option>
+                  <option value="dall-e-3">DALL-E 3</option>
+                  <option value="gpt-audio">GPT Audio</option>
+                  <option value="gpt-audio-mini">GPT Audio Mini</option>
+                  <option value="gpt-image-1">GPT Image 1</option>
+                  <option value="gpt-realtime">GPT Realtime</option>
+                  <option value="gpt-realtime-mini">GPT Realtime Mini</option>
+                  <option value="sora-2">Sora 2</option>
+                  <option value="sora-2-pro">Sora 2 Pro</option>
+                </optgroup>
+
+                <optgroup label="🧪 Open Source (o200k_harmony)">
+                  <option value="gpt-oss-20b">GPT-OSS 20B</option>
+                  <option value="gpt-oss-120b">GPT-OSS 120B</option>
+                </optgroup>
+
+                <optgroup label="📊 Embeddings (cl100k_base)">
+                  <option value="text-embedding-3-small">
+                    Text Embedding 3 Small
+                  </option>
+                  <option value="text-embedding-3-large">
+                    Text Embedding 3 Large
+                  </option>
+                  <option value="text-embedding-ada-002">
+                    Text Embedding Ada 002
+                  </option>
+                </optgroup>
+
+                <optgroup label="🛡️ Moderation (o200k_base)">
+                  <option value="text-moderation-stable">
+                    Text Moderation Stable
+                  </option>
+                  <option value="text-moderation-latest">
+                    Text Moderation Latest
+                  </option>
+                  <option value="text-moderation-007">
+                    Text Moderation 007
+                  </option>
+                  <option value="omni-moderation-latest">
+                    Omni Moderation Latest
+                  </option>
+                </optgroup>
               </select>
               <div className={styles.selectArrow}>↓</div>
+            </div>
+          </div>
+
+          <div className={styles.controlGroup}>
+            <div className={styles.modelInfo}>
+              <span className={styles.modelInfoLabel}>Current Encoding:</span>
+              <span className={styles.modelInfoValue}>{encoding}</span>
             </div>
           </div>
 
@@ -216,7 +372,6 @@ export function TokenizerApp() {
           text={debouncedText}
           tokens={tokens}
           tokenTexts={tokenTexts}
-          isLoading={isLoading}
           error={error}
         />
       </main>
