@@ -46,9 +46,10 @@ export function VirtualTokenDisplay({
       >
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize()}px`,
+            height: `${rowVirtualizer.getTotalSize() + 24}px`, // Add 24px top padding
             width: "100%",
             position: "relative",
+            paddingTop: "24px",
           }}
         >
           {virtualItems.map((virtualItem) => {
@@ -63,7 +64,7 @@ export function VirtualTokenDisplay({
                   left: 0,
                   width: "100%",
                   height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start}px)`,
+                  transform: `translateY(${virtualItem.start + 24}px)`, // Add 24px for top padding
                   willChange: "transform", // Performance optimization
                 }}
               >
@@ -73,7 +74,9 @@ export function VirtualTokenDisplay({
                     className={styles.colorIndicator}
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className={styles.tokenId}>#{item.tokenId}</span>
+                  <span className={styles.tokenId}>
+                    {item.id + 1}. #{item.tokenId}
+                  </span>
                   <span className={styles.tokenText}>{item.text}</span>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import styles from "./VirtualizedCompactTokenDisplay.module.css";
 
 interface TokenItem {
@@ -27,14 +27,47 @@ export function VirtualizedCompactTokenDisplay({
   gap,
 }: VirtualizedCompactTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
-  const rowCount = Math.ceil(items.length / tokensPerRow);
+
+  // Calculate optimal tokens per row based on container width
+  // This will be updated dynamically when container is available
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // Recalculate tokens per row when container width changes
+  // Account for 32px of horizontal padding (16px on each side)
+  const effectiveTokensPerRow =
+    containerWidth > 0
+      ? Math.floor((containerWidth - 32 - gap) / (itemWidth + gap))
+      : tokensPerRow;
+
+  const rowCount = Math.ceil(items.length / effectiveTokensPerRow);
+
+  // Update container width on resize
+  useEffect(() => {
+    const container = parentRef.current;
+    if (!container) return;
+
+    const updateWidth = () => {
+      setContainerWidth(container.clientWidth);
+    };
+
+    // Initial width
+    updateWidth();
+
+    // Setup resize observer
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => itemHeight + gap,
-    overscan: 3,
+    overscan: 5, // Increased overscan for smoother scrolling
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
@@ -47,8 +80,11 @@ export function VirtualizedCompactTokenDisplay({
     }> = [];
 
     virtualRows.forEach((virtualRow) => {
-      const startIndex = virtualRow.index * tokensPerRow;
-      const endIndex = Math.min(startIndex + tokensPerRow, items.length);
+      const startIndex = virtualRow.index * effectiveTokensPerRow;
+      const endIndex = Math.min(
+        startIndex + effectiveTokensPerRow,
+        items.length,
+      );
 
       for (let i = startIndex; i < endIndex; i++) {
         result.push({
@@ -60,7 +96,7 @@ export function VirtualizedCompactTokenDisplay({
     });
 
     return result;
-  }, [virtualRows, items, tokensPerRow]);
+  }, [virtualRows, items, effectiveTokensPerRow]);
 
   return (
     <div className={styles.virtualCompactContainer}>
@@ -85,13 +121,13 @@ export function VirtualizedCompactTokenDisplay({
               style={{
                 position: "absolute",
                 top: virtualRow.start,
-                left: colIndex * (itemWidth + gap),
+                left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
                 width: itemWidth,
                 height: itemHeight,
-                backgroundColor: token.color + "20",
-                borderColor: token.color,
+                backgroundColor: token.color + "33", // Match TXT opacity (20%)
+                borderBottom: `2px solid ${token.color}`, // Underline style like TXT
+                title: token.text,
               }}
-              title={`Token ${token.id + 1}: ${token.tokenId}`}
             >
               {token.tokenId}
             </div>
@@ -101,9 +137,10 @@ export function VirtualizedCompactTokenDisplay({
 
       {items.length > 0 && (
         <div className={styles.scrollIndicator}>
-          {virtualRows[0]?.index * tokensPerRow + 1 || 0}-
+          {virtualRows[0]?.index * effectiveTokensPerRow + 1 || 0}-
           {Math.min(
-            (virtualRows[virtualRows.length - 1]?.index + 1) * tokensPerRow,
+            (virtualRows[virtualRows.length - 1]?.index + 1) *
+              effectiveTokensPerRow,
             items.length,
           )}{" "}
           of {items.length} tokens

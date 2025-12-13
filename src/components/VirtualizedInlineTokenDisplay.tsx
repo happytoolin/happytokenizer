@@ -250,7 +250,7 @@ export function VirtualizedInlineTokenDisplay({
                       backgroundColor: item.color + "33", // 20% opacity hex
                       borderBottom: `2px solid ${item.color}`, // Underline style instead of full border
                     }}
-                    title={`Token ${item.id + 1}: ${item.tokenId}`}
+                    data-tooltip={`ID: ${item.tokenId}`}
                   >
                     <span className={styles.tokenId}>{item.tokenId}</span>
                     {item.text}

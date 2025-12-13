@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
 import styles from "./TokenDisplay.module.css";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
+import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
 
 interface TokenDisplayProps {
   text: string;
@@ -11,16 +11,28 @@ interface TokenDisplayProps {
   error?: string | null;
 }
 
-// Industrial Palette: Oranges, Teals, Greys, with specific opacities
+// Industrial Palette: Markers, Wires, and Warning Labels
 const TOKEN_COLORS = [
-  "#FF6600", // Brand Orange
-  "#00CC99", // Mint
-  "#333333", // Dark Grey
-  "#666666", // Mid Grey
-  "#999999", // Light Grey
-  "#0066FF", // Tech Blue
-  "#FF3366", // Warning Red
-  "#CCFF00", // Volt
+  "#FF6600", // Brand Orange (Safety)
+  "#2563EB", // International Klein Blue
+  "#059669", // Emerald Green
+  "#DB2777", // Pink 600 (Process Magenta)
+  "#7C3AED", // Violet (Electrical Purple)
+  "#D97706", // Amber (Warning Yellow)
+  "#0891B2", // Cyan 600 (Oxidized Copper)
+  "#DC2626", // Red 600 (Stop)
+  "#4F46E5", // Indigo (Blueprint)
+  "#65A30D", // Lime (High Vis)
+  "#333333", // Carbon (Black)
+  "#0284C7", // Sky Blue (Data)
+  "#C026D3", // Fuchsia
+  "#EA580C", // Burnt Orange
+  "#16A34A", // Green 600
+  "#9333EA", // Purple 600
+  "#CA8A04", // Dark Gold
+  "#BE123C", // Rose
+  "#0D9488", // Teal
+  "#475569", // Slate (Industrial Grey)
 ];
 
 const CONTAINER_HEIGHT = 500;
@@ -120,10 +132,10 @@ export function TokenDisplay({
           <VirtualizedCompactTokenDisplay
             items={tokenItems}
             containerHeight={CONTAINER_HEIGHT}
-            tokensPerRow={24} // Denser grid
-            itemWidth={40}
-            itemHeight={24}
-            gap={2}
+            tokensPerRow={32} // Will be dynamically calculated
+            itemWidth={48} // Increased for more horizontal space
+            itemHeight={24} // Decreased to match new token height + spacing
+            gap={2} // Reduced gap for tighter packing
           />
         )}
         {viewMode === "detailed" && (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useTokenizer, type ModelType } from "../hooks/useTokenizer";
+import { useTokenizer } from "../hooks/useTokenizer";
 import { getEncodingForModel, isEncodingType } from "../models/modelEncodings";
 import { TokenDisplay } from "./TokenDisplay";
 import styles from "./TokenizerApp.module.css";
@@ -37,7 +37,7 @@ ${`The history of machine learning dates back to the 1950s when Arthur Samuel cr
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<ModelType>("gpt-4o"); // Default to a specific model
+  const [model, setModel] = useState<string>("gpt-4o"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
 
   // Get encoding for the current model - if model is an encoding itself, use it directly
@@ -62,7 +62,7 @@ export function TokenizerApp() {
   }, [debouncedText, encoding, tokenize]);
 
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setModel(e.target.value as ModelType);
+    setModel(e.target.value);
   };
 
   const handleClear = () => {
@@ -89,10 +89,17 @@ export function TokenizerApp() {
         <div className={styles.brand}>
           <div className={styles.logoRow}>
             <div className={styles.statusDot}></div>
-            <h1 className={styles.title}>HappyTokenizer</h1>
+            <a
+              href="https://github.com/happytoolin"
+              className={styles.titleLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <h1 className={styles.title}>HappyTokenizer</h1>
+            </a>
           </div>
           <div className={styles.metaRow}>
-            <span className={styles.versionBadge}>v2.0.4</span>
+            <span className={styles.versionBadge}>v0.0.1</span>
             <span className={styles.ownerBadge}>by happytoolin</span>
           </div>
         </div>
@@ -322,7 +329,12 @@ export function TokenizerApp() {
 
         <div className={styles.footer}>
           <div className={styles.footerLabel}>Open Source Software</div>
-          <a href="#" className={styles.footerLink}>
+          <a
+            href="https://github.com/happytoolin"
+            className={styles.footerLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             github.com/happytoolin
           </a>
         </div>
