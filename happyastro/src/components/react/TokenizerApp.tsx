@@ -210,11 +210,10 @@ export function TokenizerApp() {
 
         {/* --- TOKEN DISPLAY --- */}
         <TokenDisplay
+          text={debouncedText}
           tokens={tokens}
           tokenTexts={tokenTexts}
-          isLoading={isLoading}
           error={error}
-          encoding={encoding}
         />
       </main>
     </div>
