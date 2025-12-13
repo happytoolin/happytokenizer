@@ -1,4 +1,7 @@
 <svg width="180" height="32" viewBox="0 0 180 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="180" height="32" fill="#F2F2F0"/>
+
   <!-- Glowing Orange Circle -->
   <defs>
     <filter id="glow">
