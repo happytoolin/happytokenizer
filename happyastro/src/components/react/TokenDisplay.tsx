@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import styles from "../../styles/components/TokenDisplay.module.css";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
@@ -83,36 +84,36 @@ export function TokenDisplay({
     return result;
   }, [tokens, tokenTexts]);
 
-  if (error) return <div className="token-error">ERR: {error}</div>;
+  if (error) return <div className={styles.error}>ERR: {error}</div>;
   if (!text || tokens.length === 0)
     return (
-      <div className="token-empty">
+      <div className={styles.empty}>
         // HAPPYTOKENIZER: WAITING FOR INPUT STREAM
       </div>
     );
 
   return (
-    <div className="token-display">
-      <div className="token-header">
-        <div className="token-title">
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.title}>
           <span>TOKEN MAP</span>
-          <span className="token-count-badge">{tokens.length}</span>
+          <span className={styles.countBadge}>{tokens.length}</span>
         </div>
-        <div className="view-toggle">
+        <div className={styles.viewToggle}>
           <button
-            className={`view-button ${viewMode === "inline" ? "active" : ""}`}
+            className={`${styles.viewButton} ${viewMode === "inline" ? "active" : ""}`}
             onClick={() => setViewMode("inline")}
           >
             TXT
           </button>
           <button
-            className={`view-button ${viewMode === "compact" ? "active" : ""}`}
+            className={`${styles.viewButton} ${viewMode === "compact" ? "active" : ""}`}
             onClick={() => setViewMode("compact")}
           >
             GRD
           </button>
           <button
-            className={`view-button ${viewMode === "detailed" ? "active" : ""}`}
+            className={`${styles.viewButton} ${viewMode === "detailed" ? "active" : ""}`}
             onClick={() => setViewMode("detailed")}
           >
             LST
@@ -120,7 +121,7 @@ export function TokenDisplay({
         </div>
       </div>
 
-      <div className="tokens-container">
+      <div className={styles.tokensContainer}>
         {viewMode === "inline" && (
           <VirtualizedInlineTokenDisplay
             items={tokenItems}
@@ -146,24 +147,24 @@ export function TokenDisplay({
         )}
       </div>
 
-      <div className="token-stats">
-        <div className="token-stat">
-          <span className="token-stat-label">Token Count</span>
-          <span className="token-stat-value">{tokens.length}</span>
+      <div className={styles.stats}>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Token Count</span>
+          <span className={styles.statValue}>{tokens.length}</span>
         </div>
-        <div className="token-stat">
-          <span className="token-stat-label">Char Count</span>
-          <span className="token-stat-value">{text.length}</span>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Char Count</span>
+          <span className={styles.statValue}>{text.length}</span>
         </div>
-        <div className="token-stat">
-          <span className="token-stat-label">Est. Cost (Input)</span>
-          <span className="token-stat-value">
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Est. Cost (Input)</span>
+          <span className={styles.statValue}>
             ${((tokens.length / 1000) * 0.005).toFixed(4)}
           </span>
         </div>
-        <div className="token-stat">
-          <span className="token-stat-label">Density</span>
-          <span className="token-stat-value">
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Density</span>
+          <span className={styles.statValue}>
             {(text.length / tokens.length).toFixed(2)}
           </span>
         </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import { getEncodingForModel, isEncodingType } from "../../utils/modelEncodings";
 import { TokenDisplay } from "./TokenDisplay";
+import styles from "../../styles/components/TokenizerApp.module.css";
 
 const DEFAULT_ESSAY = `HappyTokenizer by happytoolin represents a new approach to understanding and optimizing AI context windows. As developers increasingly work with Large Language Models, the efficient management of token usage has become crucial for both cost optimization and model performance. HappyTokenizer provides precise token counting and visualization tools that help developers understand exactly how their text is being processed by models like GPT-4o and GPT-3.5.
 
@@ -48,342 +49,172 @@ export function TokenizerApp() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedText(text);
-    }, 150); // Reduced debounce time for better responsiveness
+    }, 300); // 300ms debounce
 
     return () => clearTimeout(timer);
   }, [text]);
 
-  // Tokenize when debounced text or model changes
+  // Trigger tokenization when debounced text or encoding changes
   useEffect(() => {
-    if (debouncedText) {
+    if (debouncedText && encoding) {
       tokenize(debouncedText, encoding);
     }
   }, [debouncedText, encoding, tokenize]);
 
-  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setModel(e.target.value);
-  };
-
   const handleClear = () => {
     setText("");
-    setDebouncedText("");
-  };
-
-  const handleLoadSample = () => {
-    setText(SAMPLE_TEXT);
-  };
-
-  const handleLoadEssay = () => {
-    setText(DEFAULT_ESSAY);
-  };
-
-  const handleLoadLargeSample = () => {
-    setText(LARGE_SAMPLE_TEXT);
   };
 
   return (
-    <div className="tokenizer-container">
+    <div className={styles.container}>
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className="control-deck">
-        <div className="brand">
-          <div className="logo-row">
-            <div className="status-dot"></div>
+      <aside className={styles.controlDeck}>
+        <div className={styles.brand}>
+          <div className={styles.logoRow}>
+            <div className={styles.statusDot}></div>
             <a
-              href="https://github.com/happytoolin"
-              className="title-link"
+              href="https://happytoolin.com"
               target="_blank"
               rel="noopener noreferrer"
+              className={styles.titleLink}
             >
-              <h1 className="title">HappyTokenizer</h1>
+              <h1 className={styles.title}>HappyTokenizer</h1>
             </a>
           </div>
-          <div className="meta-row">
-            <span className="version-badge">v0.0.1</span>
-            <span className="owner-badge">by happytoolin</span>
+          <div className={styles.metaRow}>
+            <span className={styles.versionBadge}>v0.0.1</span>
+            <span className={styles.ownerBadge}>by happytoolin</span>
           </div>
         </div>
 
-        <div className="scrollable-controls">
-          <div className="control-group">
-            <label className="label">Model Selection</label>
-            <div className="select-wrapper">
+        <div className={styles.scrollableControls}>
+          <div className={styles.controlGroup}>
+            <label className={styles.label}>Model Selection</label>
+            <div className={styles.selectWrapper}>
               <select
                 value={model}
-                onChange={handleModelChange}
-                className="select"
+                onChange={(e) => setModel(e.target.value)}
+                className={styles.select}
               >
-                <optgroup label="🚀 Modern Models (o200k_base)">
-                  <option value="gpt-4o">GPT-4o</option>
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
-                  <option value="o1">O1</option>
-                  <option value="o1-mini">O1 Mini</option>
-                  <option value="o1-pro">O1 Pro</option>
-                  <option value="o3">O3</option>
-                  <option value="o3-mini">O3 Mini</option>
-                  <option value="o3-pro">O3 Pro</option>
-                  <option value="gpt-5">GPT-5</option>
-                  <option value="gpt-5-pro">GPT-5 Pro</option>
-                  <option value="gpt-5-mini">GPT-5 Mini</option>
-                  <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
-                  <option value="gpt-4.1">GPT-4.1</option>
-                  <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-                </optgroup>
-
-                <optgroup label="💬 Chat Models (cl100k_base)">
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                  <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo 0125</option>
-                  <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo 0613</option>
-                  <option value="gpt-4">GPT-4</option>
-                  <option value="gpt-4-0613">GPT-4 0613</option>
-                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                  <option value="gpt-4-turbo-preview">
-                    GPT-4 Turbo Preview
-                  </option>
-                  <option value="gpt-4-1106-preview">GPT-4 1106 Preview</option>
-                  <option value="gpt-4-32k">GPT-4 32k</option>
-                  <option value="gpt-3.5-turbo-instruct">
-                    GPT-3.5 Turbo Instruct
-                  </option>
-                </optgroup>
-
-                <optgroup label="🔧 Completion Models (p50k_base)">
-                  <option value="text-davinci-003">Text Davinci 003</option>
-                  <option value="text-davinci-002">Text Davinci 002</option>
-                  <option value="code-davinci-001">Code Davinci 001</option>
-                  <option value="code-davinci-002">Code Davinci 002</option>
-                  <option value="code-cushman-001">Code Cushman 001</option>
-                  <option value="code-cushman-002">Code Cushman 002</option>
-                  <option value="cushman-codex">Cushman Codex</option>
-                  <option value="davinci-codex">Davinci Codex</option>
-                </optgroup>
-
-                <optgroup label="✏️ Edit Models (p50k_edit)">
-                  <option value="text-davinci-edit-001">
-                    Text Davinci Edit 001
-                  </option>
-                  <option value="code-davinci-edit-001">
-                    Code Davinci Edit 001
-                  </option>
-                </optgroup>
-
-                <optgroup label="🏛️ Legacy Models (r50k_base)">
-                  <option value="text-davinci-001">Text Davinci 001</option>
-                  <option value="ada">Ada</option>
-                  <option value="babbage">Babbage</option>
-                  <option value="curie">Curie</option>
-                  <option value="davinci">Davinci</option>
-                  <option value="text-ada-001">Text Ada 001</option>
-                  <option value="text-babbage-001">Text Babbage 001</option>
-                  <option value="text-curie-001">Text Curie 001</option>
-                </optgroup>
-
-                <optgroup label="🔍 Search & Similarity (r50k_base)">
-                  <option value="text-search-ada-doc-001">
-                    Text Search Ada Doc 001
-                  </option>
-                  <option value="text-search-ada-query-001">
-                    Text Search Ada Query 001
-                  </option>
-                  <option value="text-search-babbage-doc-001">
-                    Text Search Babbage Doc 001
-                  </option>
-                  <option value="text-search-babbage-query-001">
-                    Text Search Babbage Query 001
-                  </option>
-                  <option value="text-search-curie-doc-001">
-                    Text Search Curie Doc 001
-                  </option>
-                  <option value="text-search-curie-query-001">
-                    Text Search Curie Query 001
-                  </option>
-                  <option value="text-search-davinci-doc-001">
-                    Text Search Davinci Doc 001
-                  </option>
-                  <option value="text-search-davinci-query-001">
-                    Text Search Davinci Query 001
-                  </option>
-                  <option value="text-similarity-ada-001">
-                    Text Similarity Ada 001
-                  </option>
-                  <option value="text-similarity-babbage-001">
-                    Text Similarity Babbage 001
-                  </option>
-                  <option value="text-similarity-curie-001">
-                    Text Similarity Curie 001
-                  </option>
-                  <option value="text-similarity-davinci-001">
-                    Text Similarity Davinci 001
-                  </option>
-                </optgroup>
-
-                <optgroup label="🎵 Audio & Media (o200k_base)">
-                  <option value="whisper-1">Whisper 1</option>
-                  <option value="tts-1">TTS-1</option>
-                  <option value="tts-1-hd">TTS-1 HD</option>
-                  <option value="dall-e-2">DALL-E 2</option>
-                  <option value="dall-e-3">DALL-E 3</option>
-                  <option value="gpt-audio">GPT Audio</option>
-                  <option value="gpt-audio-mini">GPT Audio Mini</option>
-                  <option value="gpt-image-1">GPT Image 1</option>
-                  <option value="gpt-realtime">GPT Realtime</option>
-                  <option value="gpt-realtime-mini">GPT Realtime Mini</option>
-                  <option value="sora-2">Sora 2</option>
-                  <option value="sora-2-pro">Sora 2 Pro</option>
-                </optgroup>
-
-                <optgroup label="🧪 Open Source (o200k_harmony)">
-                  <option value="gpt-oss-20b">GPT-OSS 20B</option>
-                  <option value="gpt-oss-120b">GPT-OSS 120B</option>
-                </optgroup>
-
-                <optgroup label="📊 Embeddings (cl100k_base)">
-                  <option value="text-embedding-3-small">
-                    Text Embedding 3 Small
-                  </option>
-                  <option value="text-embedding-3-large">
-                    Text Embedding 3 Large
-                  </option>
-                  <option value="text-embedding-ada-002">
-                    Text Embedding Ada 002
-                  </option>
-                </optgroup>
-
-                <optgroup label="🛡️ Moderation (o200k_base)">
-                  <option value="text-moderation-stable">
-                    Text Moderation Stable
-                  </option>
-                  <option value="text-moderation-latest">
-                    Text Moderation Latest
-                  </option>
-                  <option value="text-moderation-007">
-                    Text Moderation 007
-                  </option>
-                  <option value="omni-moderation-latest">
-                    Omni Moderation Latest
-                  </option>
-                </optgroup>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                <option value="text-davinci-003">text-davinci-003</option>
+                <option value="claude-3">claude-3</option>
               </select>
-              <div className="select-arrow">↓</div>
+              <div className={styles.selectArrow}>↓</div>
             </div>
           </div>
 
-          <div className="control-group">
-            <div className="model-info">
-              <span className="model-info-label">Current Encoding:</span>
-              <span className="model-info-value">{encoding}</span>
+          <div className={styles.controlGroup}>
+            <div className={styles.modelInfo}>
+              <span className={styles.modelInfoLabel}>Current Encoding:</span>
+              <span className={styles.modelInfoValue}>{encoding}</span>
             </div>
           </div>
 
-          <div className="control-group">
-            <label className="label">Input Source</label>
-            <div className="button-grid">
-              <button
-                onClick={handleLoadEssay}
-                className="button-secondary"
-              >
-                Load Essay
+          <div className={styles.controlGroup}>
+            <label className={styles.label}>Input Source</label>
+            <div className={styles.buttonGrid}>
+              <button onClick={() => setText(SAMPLE_TEXT)} className={styles.buttonSecondary}>
+                Sample
               </button>
-              <button
-                onClick={handleLoadSample}
-                className="button-secondary"
-              >
-                Load Sample
+              <button onClick={() => setText(LARGE_SAMPLE_TEXT)} className={styles.buttonSecondary}>
+                Large Sample
               </button>
             </div>
-            <div className="button-grid">
-              <button
-                onClick={handleLoadLargeSample}
-                className="button-secondary"
-              >
-                Load Heavy
+            <div className={styles.buttonGrid}>
+              <button onClick={() => setText(DEFAULT_ESSAY)} className={styles.buttonSecondary}>
+                Essay
               </button>
-              <button onClick={handleClear} className="button">
-                Clear Buffer
+              <button onClick={handleClear} className={styles.button}>
+                Clear
               </button>
             </div>
           </div>
 
           {isLoading && (
-            <div className="processing-state">
-              <div className="label">Processing Stream</div>
-              <div className="progress-bar">
+            <div className={styles.processingState}>
+              <div className={styles.label}>Processing Stream</div>
+              <div className={styles.progressBar}>
                 <div
-                  className="progress-fill"
-                  style={{ width: `${progress ? progress.percentage : 100}%` }}
-                />
+                  className={styles.progressFill}
+                  style={{ width: `${progress * 100}%` }}
+                ></div>
               </div>
-              <div className="processing-meta">
-                {progress
-                  ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
-                  : "Calculating..."}
+              <div className={styles.processingMeta}>
+                Analyzing tokens... {Math.round(progress * 100)}%
               </div>
             </div>
           )}
         </div>
 
-        <div className="privacy-section">
-          <span className="privacy-label">Client-Side Processing</span>
-          <span className="privacy-desc">No data sent to servers</span>
+        <div className={styles.privacySection}>
+          <span className={styles.privacyLabel}>Client-Side Processing</span>
+          <span className={styles.privacyDesc}>No data sent to servers</span>
         </div>
 
-        <div className="footer">
-          <div className="footer-label">Open Source Software</div>
+        <div className={styles.footer}>
+          <div className={styles.footerLabel}>Open Source Software</div>
           <a
-            href="https://github.com/happytoolin"
-            className="footer-link"
+            href="https://github.com/happytoolin/happytokenizer"
             target="_blank"
             rel="noopener noreferrer"
+            className={styles.footerLink}
           >
-            github.com/happytoolin
+            GitHub
           </a>
         </div>
       </aside>
 
-      {/* --- WORKSPACE (Main) --- */}
-      <main className="workspace">
-        <section className="editor-section">
-          <div className="editor-header">
-            <span className="tab-active">Input Stream</span>
-            <span className="tab-inactive">Upload File (Beta)</span>
+      <main className={styles.workspace}>
+        <section className={styles.editorSection}>
+          <div className={styles.editorHeader}>
+            <span className={styles.tabActive}>Input Stream</span>
+            <span className={styles.tabInactive}>Upload File (Beta)</span>
           </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="> Paste text here to tokenize..."
-            className="textarea"
-            spellCheck={false}
-            rows={6}
+            placeholder="Enter your text here to see how it gets tokenized..."
+            className={styles.textarea}
           />
-          <div className="meta-bar">
-            <div className="meta-item">
-              <span className="meta-label">CHARS</span>
-              <span className="meta-value">{text.length}</span>
+          <div className={styles.metaBar}>
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>CHARS</span>
+              <span className={styles.metaValue}>{text.length}</span>
             </div>
-            <div className="meta-item">
-              <span className="meta-label">WORDS</span>
-              <span className="meta-value">
-                {text.split(/\s+/).filter(Boolean).length}
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>WORDS</span>
+              <span className={styles.metaValue}>
+                {text.trim().split(/\s+/).filter((w) => w.length > 0).length}
               </span>
             </div>
-            <div className="meta-item">
-              <span className="meta-label">STATUS</span>
-              <span
-                className="meta-value"
-                style={{
-                  color: isLoading ? "var(--c-orange)" : "var(--c-steel)",
-                }}
-              >
-                {isLoading ? "BUSY" : "READY"}
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>STATUS</span>
+              <span className={styles.metaValue}>
+                {error ? (
+                  <span style={{ color: "var(--c-red)" }}>
+                    Processing Error
+                  </span>
+                ) : isLoading ? (
+                  "Processing..."
+                ) : (
+                  <span style={{ color: "var(--c-orange)" }}>
+                    Ready
+                  </span>
+                )}
               </span>
             </div>
           </div>
         </section>
 
+        {/* --- TOKEN DISPLAY --- */}
         <TokenDisplay
-          text={debouncedText}
           tokens={tokens}
           tokenTexts={tokenTexts}
+          isLoading={isLoading}
           error={error}
+          encoding={encoding}
         />
       </main>
     </div>

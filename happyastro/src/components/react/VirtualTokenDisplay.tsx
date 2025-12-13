@@ -1,5 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
+import styles from "../../styles/components/VirtualTokenDisplay.module.css";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
@@ -37,10 +38,10 @@ export function VirtualTokenDisplay({
   const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
-    <div className="virtual-display">
+    <div className={styles.virtualContainer}>
       <div
         ref={parentRef}
-        className="virtual-list"
+        className={styles.scrollContainer}
         style={{ height: containerHeight }}
       >
         <div
@@ -56,7 +57,7 @@ export function VirtualTokenDisplay({
             return (
               <div
                 key={virtualItem.key}
-                className="virtual-item"
+                className=""
                 style={{
                   position: "absolute",
                   top: 0,
@@ -67,17 +68,17 @@ export function VirtualTokenDisplay({
                   willChange: "transform", // Performance optimization
                 }}
               >
-                <div className="token-list-item">
+                <div className={styles.tokenItem}>
                   {/* Mechanical color bar indicator */}
                   <div
-                    className="token-color-indicator"
+                    className={styles.colorIndicator}
                     style={{ backgroundColor: item.color }}
                   />
-                  <div className="token-info">
-                    <span className="token-id">
+                  <div className={styles.token}>
+                    <span className={styles.tokenId}>
                       {item.id + 1}. #{item.tokenId}
                     </span>
-                    <span className="token-text">{item.text}</span>
+                    <span className={styles.tokenText}>{item.text}</span>
                   </div>
                 </div>
               </div>
@@ -87,7 +88,7 @@ export function VirtualTokenDisplay({
       </div>
 
       {items.length > 0 && virtualItems.length > 0 && (
-        <div className="scroll-position-indicator">
+        <div className={styles.scrollIndicator}>
           {virtualItems[0].index + 1}-
           {Math.min(
             virtualItems[virtualItems.length - 1].index + 1,
