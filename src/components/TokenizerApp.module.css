@@ -1,196 +1,209 @@
 .container {
-  max-width: 900px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px;
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 32px;
+/* --- LEFT PANEL: CONTROL DECK --- */
+.controlDeck {
+  background: var(--c-white);
+  border: 1px solid var(--c-black);
+  padding: 24px;
+  position: sticky;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+}
+
+.brand {
+  border-bottom: 2px solid var(--c-black);
+  padding-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .title {
-  color: #fff;
-  font-size: 36px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.subtitle {
-  color: #888;
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 24px;
+  text-transform: uppercase;
   margin: 0;
-  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--c-black);
 }
 
-.controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 16px;
+.badge {
+  display: inline-block;
+  background: var(--c-orange);
+  color: var(--c-white);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
-.modelSelector {
+.controlGroup {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.buttons {
-  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
 .label {
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #888;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
+/* --- FORM ELEMENTS --- */
 .select {
-  background: #1a1a1a;
-  color: #fff;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 8px 12px;
+  appearance: none;
+  background: var(--c-paper);
+  border: 1px solid var(--c-black);
+  border-radius: var(--radius-xs);
+  padding: 12px;
+  font-family: var(--font-body);
+  font-weight: 500;
   font-size: 14px;
+  color: var(--c-black);
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s var(--ease-mechanical);
 }
 
 .select:hover {
-  border-color: #555;
+  background: #EAEAEA;
 }
 
 .select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--c-orange);
+  box-shadow: 0 0 0 1px var(--c-orange);
+}
+
+.buttonGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .button {
-  background: #667eea;
-  color: #fff;
+  background: var(--c-black);
+  color: var(--c-white);
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: var(--radius-xs);
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.1s var(--ease-mechanical), background 0.2s;
+}
+
+.button:active {
+  transform: scale(0.98);
 }
 
 .button:hover {
-  background: #5a67d8;
+  background: var(--c-orange);
+  color: var(--c-black);
 }
 
 .buttonSecondary {
-  background: #333;
-  color: #fff;
+  background: transparent;
+  border: 1px solid var(--c-black);
+  color: var(--c-black);
 }
 
 .buttonSecondary:hover {
-  background: #444;
+  background: var(--c-black);
+  color: var(--c-white);
 }
 
-.inputSection {
-  margin-bottom: 24px;
+/* --- RIGHT PANEL: WORKSPACE --- */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inputWrapper {
+  position: relative;
 }
 
 .textarea {
   width: 100%;
-  background: #1a1a1a;
-  color: #fff;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 12px;
+  background: var(--c-white);
+  border: 1px solid var(--c-black); /* Thin precise border */
+  border-radius: 0;
+  padding: 24px;
+  font-family: var(--font-mono);
   font-size: 14px;
-  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
-  line-height: 1.5;
+  line-height: 1.6;
+  color: var(--c-black);
   resize: vertical;
-  transition: border-color 0.2s;
+  min-height: 200px;
+  transition: border 0.2s;
 }
 
 .textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-left: 4px solid var(--c-orange);
+  padding-left: 21px; /* Compensate for border width */
 }
 
-.textarea::placeholder {
+.metaBar {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #ddd;
+  background: var(--c-white);
+  border: 1px solid var(--c-black);
+  border-top: none;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   color: #666;
 }
 
-.inputStats {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-  color: #888;
-  font-size: 13px;
-}
-
-.status {
-  text-align: center;
-  color: #888;
-  font-style: italic;
-  margin: 16px 0;
-}
-
+/* --- LOADING STATE --- */
 .progressBar {
-  position: relative;
+  height: 4px;
+  background: #eee;
   width: 100%;
-  height: 24px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  margin-top: 12px;
+  position: relative;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  transition: width 0.3s ease;
-  border-radius: 12px;
+  background: var(--c-orange);
+  transition: width 0.3s var(--ease-mechanical);
 }
 
-.progressText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  mix-blend-mode: difference;
-}
-
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .container {
-    padding: 16px;
+    grid-template-columns: 1fr;
+    padding: 20px;
   }
 
-  .title {
-    font-size: 28px;
+  .controlDeck {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    box-shadow: none;
   }
 
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .modelSelector {
-    justify-content: center;
-  }
-
-  .buttons {
-    justify-content: center;
+  .brand {
+    grid-column: span 2;
   }
 }

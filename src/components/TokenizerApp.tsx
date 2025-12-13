@@ -56,20 +56,18 @@ export function TokenizerApp() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>GPT Tokenizer</h1>
-        <p className={styles.subtitle}>Explore how GPT models tokenize text</p>
-      </header>
+      {/* Control Deck (Left/Top) */}
+      <aside className={styles.controlDeck}>
+        <div className={styles.brand}>
+          <h1 className={styles.title}>Endrik</h1>
+          <span className={styles.badge}>Tokenizer // V3</span>
+        </div>
 
-      <div className={styles.controls}>
-        <div className={styles.modelSelector}>
-          <label htmlFor="model-select" className={styles.label}>
-            Model:
-          </label>
+        <div className={styles.controlGroup}>
+          <label className={styles.label}>Model Architecture</label>
           <select
-            id="model-select"
             value={model}
-            onChange={handleModelChange}
+            onChange={(e) => setModel(e.target.value as ModelType)}
             className={styles.select}
           >
             <option value="o200k_base">GPT-4o (o200k_base)</option>
@@ -77,77 +75,63 @@ export function TokenizerApp() {
           </select>
         </div>
 
-        <div className={styles.buttons}>
-          <button onClick={handleLoadSample} className={styles.button}>
-            Load Sample
-          </button>
-          <button onClick={handleLoadLargeSample} className={styles.button}>
-            Load Large Text
-          </button>
-          <button
-            onClick={handleClear}
-            className={`${styles.button} ${styles.buttonSecondary}`}
-          >
-            Clear
+        <div className={styles.controlGroup}>
+          <label className={styles.label}>Data Source</label>
+          <div className={styles.buttonGrid}>
+            <button onClick={handleLoadSample} className={styles.buttonSecondary}>
+              Sample
+            </button>
+            <button onClick={handleLoadLargeSample} className={styles.buttonSecondary}>
+              Heavy Load
+            </button>
+          </div>
+          <button onClick={handleClear} className={styles.button}>
+            Clear Buffer
           </button>
         </div>
-      </div>
 
-      <div className={styles.inputSection}>
-        <label htmlFor="text-input" className={styles.label}>
-          Input Text:
-        </label>
-        <textarea
-          id="text-input"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Enter text to tokenize..."
-          className={styles.textarea}
-          rows={8}
-        />
-        {text && (
-          <div className={styles.inputStats}>
-            <span>{text.length} characters</span>
-            <span>•</span>
-            <span>{text.split(/\s+/).filter(Boolean).length} words</span>
+        {isLoading && (
+          <div className={styles.controlGroup}>
+            <label className={styles.label}>Processing Status</label>
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${progress ? progress.percentage : 100}%` }}
+              />
+            </div>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+              {progress ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}` : 'Calculating...'}
+            </div>
           </div>
         )}
-      </div>
+      </aside>
 
-      {isLoading && (
-        <div className={styles.status}>
-          {progress ? (
-            <>
-              <div>
-                Tokenizing with{" "}
-                {model === "o200k_base" ? "GPT-4o" : "GPT-3.5/4"}...
-              </div>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{ width: `${progress.percentage}%` }}
-                />
-                <span className={styles.progressText}>
-                  {progress.percentage}% ({progress.chunkIndex + 1}/
-                  {progress.totalChunks} chunks)
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              Tokenizing with {model === "o200k_base" ? "GPT-4o" : "GPT-3.5/4"}
-              ...
-            </>
-          )}
-        </div>
-      )}
+      {/* Workspace (Right/Bottom) */}
+      <main className={styles.workspace}>
+        <section>
+          <div className={styles.inputWrapper}>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="> AWAITING INPUT STREAM..."
+              className={styles.textarea}
+              spellCheck={false}
+              rows={6}
+            />
+          </div>
+          <div className={styles.metaBar}>
+            <span>CHARS: {text.length}</span>
+            <span>WORDS: {text.split(/\s+/).filter(Boolean).length}</span>
+          </div>
+        </section>
 
-      <TokenDisplay
-        text={debouncedText}
-        tokens={tokens}
-        isLoading={isLoading}
-        error={error}
-      />
+        <TokenDisplay
+          text={debouncedText}
+          tokens={tokens}
+          isLoading={isLoading}
+          error={error}
+        />
+      </main>
     </div>
   );
 }

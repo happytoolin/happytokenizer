@@ -11,27 +11,19 @@ interface TokenDisplayProps {
   error?: string | null;
 }
 
+// Industrial Palette: Oranges, Teals, Greys, with specific opacities
 const TOKEN_COLORS = [
-  "#FF6B6B",
-  "#4ECDC4",
-  "#45B7D1",
-  "#FFA07A",
-  "#98D8C8",
-  "#6C5CE7",
-  "#55A3FF",
-  "#FD79A8",
-  "#FDCB6E",
-  "#6C5CE7",
-  "#A29BFE",
-  "#74B9FF",
-  "#A0E7E5",
-  "#FFBE76",
-  "#FF7979",
+  "#FF6600", // Brand Orange
+  "#00CC99", // Mint
+  "#333333", // Dark Grey
+  "#666666", // Mid Grey
+  "#999999", // Light Grey
+  "#0066FF", // Tech Blue
+  "#FF3366", // Warning Red
+  "#CCFF00", // Volt
 ];
 
-const VIRTUALIZATION_THRESHOLD = 100;
-const ITEM_HEIGHT = 36;
-const CONTAINER_HEIGHT = 400;
+const CONTAINER_HEIGHT = 500;
 
 export function TokenDisplay({
   text,
@@ -95,150 +87,59 @@ export function TokenDisplay({
     return result;
   }, [tokens, wordsList]);
 
-  if (error) {
-    return <div className={styles.error}>Error: {error}</div>;
-  }
-
-  if (isLoading) {
-    return <div className={styles.loading}>Tokenizing...</div>;
-  }
-
-  if (!text || tokens.length === 0) {
-    return <div className={styles.empty}>Enter text above to see tokens</div>;
-  }
-
-  const shouldUseVirtualization = tokens.length > VIRTUALIZATION_THRESHOLD;
+  if (error) return <div className={styles.error}>ERR: {error}</div>;
+  if (!text || tokens.length === 0) return <div className={styles.empty}>// NO DATA STREAM</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>Tokens ({tokens.length})</h3>
-        <div className={styles.controls}>
-          <div className={styles.modelInfo}>
-            Each colored block represents a token
-          </div>
-          <div className={styles.viewToggle}>
-            <button
-              className={`${styles.viewButton} ${viewMode === "inline" ? styles.active : ""}`}
-              onClick={() => setViewMode("inline")}
-            >
-              Inline
-            </button>
-            <button
-              className={`${styles.viewButton} ${viewMode === "compact" ? styles.active : ""}`}
-              onClick={() => setViewMode("compact")}
-            >
-              Compact
-            </button>
-            <button
-              className={`${styles.viewButton} ${viewMode === "detailed" ? styles.active : ""}`}
-              onClick={() => setViewMode("detailed")}
-            >
-              Detailed
-            </button>
-          </div>
+        <div className={styles.title}>
+          <span>TOKEN MAP</span>
+          <span className={styles.countBadge}>{tokens.length}</span>
+        </div>
+        <div className={styles.viewToggle}>
+          <button className={`${styles.viewButton} ${viewMode === "inline" ? styles.active : ""}`} onClick={() => setViewMode("inline")}>TXT</button>
+          <button className={`${styles.viewButton} ${viewMode === "compact" ? styles.active : ""}`} onClick={() => setViewMode("compact")}>GRD</button>
+          <button className={`${styles.viewButton} ${viewMode === "detailed" ? styles.active : ""}`} onClick={() => setViewMode("detailed")}>LST</button>
         </div>
       </div>
 
       <div className={styles.tokensContainer}>
-        {viewMode === "inline" ? (
-          shouldUseVirtualization ? (
-            <VirtualizedInlineTokenDisplay
-              items={tokenItems}
-              containerHeight={CONTAINER_HEIGHT}
-            />
-          ) : (
-            // Fallback for very small text (original logic)
-            <div className={styles.inlineContainer}>
-              {wordsList.map((word, wordIndex) => {
-                const tokensPerWord = Math.max(
-                  1,
-                  Math.ceil(tokens.length / wordsList.length),
-                );
-                const startTokenIndex = wordIndex * tokensPerWord;
-                const endTokenIndex = Math.min(
-                  startTokenIndex + tokensPerWord,
-                  tokens.length,
-                );
-
-                return (
-                  <span key={wordIndex}>
-                    {Array.from(
-                      { length: Math.max(0, endTokenIndex - startTokenIndex) },
-                      (_, tokenIndex) => {
-                        const globalIndex = startTokenIndex + tokenIndex;
-                        const item = tokenItems[globalIndex];
-                        if (!item) return null;
-
-                        return (
-                          <span
-                            key={globalIndex}
-                            className={styles.inlineToken}
-                            style={{
-                              backgroundColor: item.color + "20",
-                              borderColor: item.color,
-                            }}
-                            title={`Token ${globalIndex + 1}: ${item.tokenId}`}
-                          >
-                            <span className={styles.inlineTokenNumber}>
-                              {item.tokenId}
-                            </span>
-                            <span className={styles.inlineTokenText}>
-                              {word}
-                            </span>
-                          </span>
-                        );
-                      },
-                    )}
-                    <span className={styles.space}> </span>
-                  </span>
-                );
-              })}
-            </div>
-          )
-        ) : viewMode === "compact" ? (
+        {viewMode === "inline" && (
+          <VirtualizedInlineTokenDisplay items={tokenItems} containerHeight={CONTAINER_HEIGHT} />
+        )}
+        {viewMode === "compact" && (
           <VirtualizedCompactTokenDisplay
             items={tokenItems}
             containerHeight={CONTAINER_HEIGHT}
-            tokensPerRow={20}
-            itemWidth={50}
-            itemHeight={28}
-            gap={4}
+            tokensPerRow={24} // Denser grid
+            itemWidth={40}
+            itemHeight={24}
+            gap={2}
           />
-        ) : (
-          <VirtualTokenDisplay
-            items={tokenItems}
-            containerHeight={CONTAINER_HEIGHT}
-            estimatedItemHeight={ITEM_HEIGHT}
-          />
+        )}
+        {viewMode === "detailed" && (
+          <VirtualTokenDisplay items={tokenItems} containerHeight={CONTAINER_HEIGHT} estimatedItemHeight={40} />
         )}
       </div>
 
       <div className={styles.stats}>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>Total Tokens:</span>
+          <span className={styles.statLabel}>Token Count</span>
           <span className={styles.statValue}>{tokens.length}</span>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>Characters:</span>
+          <span className={styles.statLabel}>Char Count</span>
           <span className={styles.statValue}>{text.length}</span>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>Words:</span>
-          <span className={styles.statValue}>{wordsList.length}</span>
+          <span className={styles.statLabel}>Est. Cost (Input)</span>
+          <span className={styles.statValue}>${((tokens.length / 1000) * 0.005).toFixed(4)}</span>
         </div>
-        {shouldUseVirtualization && (
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>View:</span>
-            <span className={styles.statValue}>
-              {viewMode === "inline"
-                ? "Inline (Virtual)"
-                : viewMode === "compact"
-                  ? "Compact (Grid)"
-                  : "Detailed (List)"}
-            </span>
-          </div>
-        )}
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Density</span>
+          <span className={styles.statValue}>{(text.length / tokens.length).toFixed(2)}</span>
+        </div>
       </div>
     </div>
   );

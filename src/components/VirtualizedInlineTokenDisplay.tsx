@@ -29,19 +29,15 @@ export function VirtualizedInlineTokenDisplay({
   const [lineBreaks, setLineBreaks] = useState<LineInfo[]>([]);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  // Configuration matching CSS styles
-  // .token { padding: 6px 10px; border: 1px solid; gap: 8px }
-  // .tokenLine { gap: 6px }
+  // Update Constants for the new font sizes and tighter layout
   const CONSTANTS = {
-    PADDING_X: 20, // 10px left + 10px right
-    BORDER: 2, // 1px left + 1px right
-    INNER_GAP: 8, // Gap between ID and Text
-    TOKEN_GAP: 6, // Gap between tokens in a line
-    LINE_HEIGHT: 46, // Height of a row
-
-    // Fallback widths if calibration fails
-    DEFAULT_CHAR_WIDTH_ID: 6, // approx for 10px mono
-    DEFAULT_CHAR_WIDTH_TEXT: 7.2, // approx for 12px mono
+    PADDING_X: 8, // Tighter padding
+    BORDER: 0,
+    INNER_GAP: 4,
+    TOKEN_GAP: 2,
+    LINE_HEIGHT: 32, // Tighter lines for "Code Editor" feel
+    DEFAULT_CHAR_WIDTH_ID: 5,
+    DEFAULT_CHAR_WIDTH_TEXT: 8,
   };
 
   const measureLineBreaks = useCallback(() => {
@@ -236,13 +232,14 @@ export function VirtualizedInlineTokenDisplay({
                     key={item.id}
                     className={styles.token}
                     style={{
-                      backgroundColor: item.color + "20",
-                      borderColor: item.color,
+                      // Use background opacity for the "Highlighter" effect
+                      backgroundColor: item.color + "33", // 20% opacity hex
+                      borderBottom: `2px solid ${item.color}` // Underline style instead of full border
                     }}
                     title={`Token ${item.id + 1}: ${item.tokenId}`}
                   >
                     <span className={styles.tokenId}>{item.tokenId}</span>
-                    <span className={styles.tokenText}>{item.text}</span>
+                    {item.text}
                   </span>
                 ))}
               </div>

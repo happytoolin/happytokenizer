@@ -1,5 +1,5 @@
 import { TokenizerApp } from "./components/TokenizerApp";
-import "./App.css";
+import "./index.css";
 
 function App() {
   return <TokenizerApp />;

@@ -1,11 +1,31 @@
-:root {
-  font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", monospace;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-  color-scheme: dark;
-  color: #e0e0e0;
-  background-color: #0a0a0a;
+:root {
+  /* --- PALETTE: Industrial Utility --- */
+  --c-orange: #FF6600;
+  --c-neon: #00FF00;
+  --c-black: #1A1A1A;
+  --c-steel: #252525;
+  --c-paper: #F2F2F0; /* Recycled paper tone */
+  --c-white: #FFFFFF;
+  --c-concrete: #E5E5E5;
+  --c-ink: #000000;
+
+  /* --- TYPOGRAPHY --- */
+  --font-display: 'Archivo', sans-serif; /* Simulating Druk Wide */
+  --font-body: 'Inter', sans-serif;      /* Simulating Geist Sans */
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* --- PHYSICS & SHAPE --- */
+  --ease-mechanical: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-snap: cubic-bezier(0.87, 0, 0.13, 1);
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+
+  /* --- UI TOKENS --- */
+  --border-thin: 1px solid rgba(0,0,0,0.1);
+  --border-heavy: 2px solid var(--c-black);
+  --shadow-lift: 0 4px 20px rgba(0,0,0,0.05);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,10 +39,15 @@
 
 body {
   margin: 0;
+  background-color: var(--c-paper);
+  color: var(--c-black);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(var(--c-concrete) 1px, transparent 1px);
+  background-size: 24px 24px; /* Dot grid texture */
   min-width: 320px;
   min-height: 100vh;
-  background-color: #0a0a0a;
-  color: #e0e0e0;
 }
 
 #root {
@@ -32,49 +57,51 @@ body {
 
 a {
   font-weight: 500;
-  color: #667eea;
+  color: var(--c-orange);
   text-decoration: none;
 }
 
 a:hover {
-  color: #5a67d8;
+  color: var(--c-steel);
   text-decoration: underline;
 }
 
 button {
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   border: 1px solid transparent;
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s var(--ease-mechanical);
   outline: none;
 }
 
 button:focus-visible {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--c-orange);
   outline-offset: 2px;
 }
 
-/* Smooth scrollbar */
+/* Scrollbar Engineering */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: var(--c-black);
+  border-radius: var(--radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-orange);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #444;
+::selection {
+  background: var(--c-orange);
+  color: var(--c-white);
 }
 
 /* Remove default focus styles */

@@ -63,16 +63,12 @@ export function VirtualTokenDisplay({
                   willChange: "transform", // Performance optimization
                 }}
               >
-                <span
-                  className={styles.token}
-                  style={{
-                    backgroundColor: item.color + "20",
-                    borderColor: item.color,
-                  }}
-                >
-                  <span className={styles.tokenId}>{item.tokenId}</span>
+                <div className={styles.token}>
+                   {/* Mechanical color bar indicator */}
+                  <div className={styles.colorIndicator} style={{ backgroundColor: item.color }} />
+                  <span className={styles.tokenId}>#{item.tokenId}</span>
                   <span className={styles.tokenText}>{item.text}</span>
-                </span>
+                </div>
               </div>
             );
           })}
