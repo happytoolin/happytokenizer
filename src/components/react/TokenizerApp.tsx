@@ -101,7 +101,7 @@ export function TokenizerApp() {
   return (
     <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[900px]:grid-cols-1 max-[900px]:p-4">
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className="sticky top-10 min-h-[650px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:min-h-0 max-[900px]:shadow-none">
+      <aside className="sticky top-10 h-[800px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:shadow-none">
         <div className="p-6 border-b border-brand-black bg-brand-black text-white">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
@@ -277,15 +277,15 @@ export function TokenizerApp() {
                   </option>
                 </optgroup>
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xxs pointer-events-none text-brand-orange">
-                ▼
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-brand-orange">
+                ↓
               </span>
             </div>
           </div>
 
           {/* Model Info */}
-          <div className="flex justify-between items-center p-2 bg-brand-paper border border-gray-300 rounded-sm">
-            <span className="font-mono text-xxs text-gray-400 uppercase">
+          <div className="flex justify-between items-center p-2 bg-brand-paper border border-gray-300">
+            <span className="font-mono text-xxs text-gray-400 uppercase font-semibold">
               Encoding
             </span>
             <span className="font-mono text-xs text-brand-black font-semibold">
@@ -303,7 +303,7 @@ export function TokenizerApp() {
                   setText(SAMPLE_TEXT);
                   setActiveTab("input");
                 }}
-                className="bg-transparent border border-gray-300 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
+                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
                 Sample
               </button>
@@ -312,15 +312,15 @@ export function TokenizerApp() {
                   setText(LARGE_SAMPLE_TEXT);
                   setActiveTab("input");
                 }}
-                className="bg-transparent border border-gray-300 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
+                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
-                Large Sample
+                Large
               </button>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setText(DEFAULT_ESSAY)}
-                className="bg-transparent border border-gray-300 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
+                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
                 Essay
               </button>
@@ -333,31 +333,50 @@ export function TokenizerApp() {
             </div>
           </div>
 
+          {/* Always reserve space for loading state to prevent layout shift */}
+          <div className="h-[80px] flex-shrink-0">
+            {isLoading && (
+              <div className="bg-brand-paper p-3 border border-gray-300 h-full">
+                <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] mb-2">
+                  Processing Stream
+                </div>
+                <div className="h-1 bg-gray-300 w-full relative overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
+                    style={{
+                      width: `${progress ? progress.percentage : 100}%`,
+                    }}
+                  />
+                </div>
+                <div className="font-mono text-xxs text-gray-400 mt-1 text-right">
+                  {progress
+                    ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
+                    : "Calculating..."}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Privacy Section */}
           <div className="flex flex-col items-center gap-0.5 p-1.5 m-2 text-center">
             <span className="font-mono text-xxs text-gray-400 uppercase leading-none mb-1">
               Privacy
             </span>
-            <a
-              href="https://github.com/happytokenizer/happytokenizer"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-xs text-brand-black no-underline font-semibold leading-none hover:text-brand-orange transition-colors"
-            >
+            <span className="font-mono text-xs text-brand-black font-semibold leading-none">
               100% Client-Side
-            </a>
+            </span>
           </div>
         </div>
 
         <div className="p-6 border-t border-gray-200 bg-brand-paper">
-          <div className="font-mono text-xxs text-gray-300 uppercase mb-1 text-center block">
+          <div className="font-mono text-xxs text-gray-400 uppercase mb-1 text-center block">
             Open Source Software
           </div>
           <a
             href="https://github.com/happytoolin/happytokenizer"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors hover:underline"
+            className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors"
           >
             github.com/happytoolin
           </a>

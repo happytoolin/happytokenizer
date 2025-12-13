@@ -311,7 +311,7 @@ a:hover {
 
 button {
   border-radius: var(--radius-xs);
-  border: 1px solid transparent;
+  /* border: 1px solid transparent; */
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
