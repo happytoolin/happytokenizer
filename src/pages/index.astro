@@ -1,0 +1,11 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { TokenizerApp } from '../components/react/TokenizerApp';
+---
+
+<MainLayout
+  title="HappyTokenizer - Interactive GPT Tokenizer Visualization Tool"
+  description="Visualize how GPT models tokenize your text in real-time. Support for all OpenAI models including GPT-4o, GPT-3.5, and more. Privacy-focused client-side processing."
+>
+  <TokenizerApp client:visible />
+</MainLayout>

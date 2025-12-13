@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useTokenizer } from "../hooks/useTokenizer";
-import { getEncodingForModel, isEncodingType } from "../models/modelEncodings";
+import React, { useEffect, useRef, useState } from "react";
+import { useTokenizer } from "../../hooks/useTokenizer";
+import styles from "../../styles/components/TokenizerApp.module.css";
+import {
+  getEncodingForModel,
+  isEncodingType,
+} from "../../utils/modelEncodings";
+import { VERSION } from "../../utils/version";
+import { Footer } from "../Footer";
 import { TokenDisplay } from "./TokenDisplay";
-import styles from "./TokenizerApp.module.css";
 
 const DEFAULT_ESSAY = `HappyTokenizer by happytoolin represents a new approach to understanding and optimizing AI context windows. As developers increasingly work with Large Language Models, the efficient management of token usage has become crucial for both cost optimization and model performance. HappyTokenizer provides precise token counting and visualization tools that help developers understand exactly how their text is being processed by models like GPT-4o and GPT-3.5.
 
@@ -40,6 +45,12 @@ export function TokenizerApp() {
   const [model, setModel] = useState<string>("gpt-4o"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
 
+  // --- TAB STATE ---
+  const [activeTab, setActiveTab] = useState<"input" | "upload">("input");
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Get encoding for the current model - if model is an encoding itself, use it directly
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
@@ -49,37 +60,70 @@ export function TokenizerApp() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedText(text);
-    }, 150); // Reduced debounce time for better responsiveness
+    }, 150); // Faster debounce for better UX
 
     return () => clearTimeout(timer);
   }, [text]);
 
-  // Tokenize when debounced text or model changes
+  // Trigger tokenization when debounced text or encoding changes
   useEffect(() => {
-    if (debouncedText) {
+    if (debouncedText && encoding) {
       tokenize(debouncedText, encoding);
     }
   }, [debouncedText, encoding, tokenize]);
 
-  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setModel(e.target.value);
+  // --- FILE HANDLERS ---
+  const processFile = (file: File) => {
+    setUploadError(null);
+
+    // Basic validation
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      setUploadError("File is too large (Max 5MB)");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result;
+      if (typeof content === "string") {
+        setText(content);
+        setActiveTab("input"); // Switch back to editor view to see content
+      }
+    };
+    reader.onerror = () => setUploadError("Failed to read file");
+
+    // Attempt to read as text (covers txt, md, json, code files)
+    reader.readAsText(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processFile(e.target.files[0]);
+    }
   };
 
   const handleClear = () => {
     setText("");
-    setDebouncedText("");
-  };
-
-  const handleLoadSample = () => {
-    setText(SAMPLE_TEXT);
-  };
-
-  const handleLoadEssay = () => {
-    setText(DEFAULT_ESSAY);
-  };
-
-  const handleLoadLargeSample = () => {
-    setText(LARGE_SAMPLE_TEXT);
   };
 
   return (
@@ -90,17 +134,23 @@ export function TokenizerApp() {
           <div className={styles.logoRow}>
             <div className={styles.statusDot}></div>
             <a
-              href="https://github.com/happytoolin"
-              className={styles.titleLink}
+              href="https://happytokenizer.com"
               target="_blank"
               rel="noopener noreferrer"
+              className={styles.titleLink}
             >
               <h1 className={styles.title}>HappyTokenizer</h1>
             </a>
           </div>
           <div className={styles.metaRow}>
-            <span className={styles.versionBadge}>v0.0.1</span>
-            <span className={styles.ownerBadge}>by happytoolin</span>
+            <span className={styles.versionBadge}>{VERSION}</span>
+            <a
+              href="https://happytoolin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className={styles.ownerBadge}>by happytoolin</span>
+            </a>
           </div>
         </div>
 
@@ -110,7 +160,7 @@ export function TokenizerApp() {
             <div className={styles.selectWrapper}>
               <select
                 value={model}
-                onChange={handleModelChange}
+                onChange={(e) => setModel(e.target.value)}
                 className={styles.select}
               >
                 <optgroup label="🚀 Modern Models (o200k_base)">
@@ -279,27 +329,33 @@ export function TokenizerApp() {
             <label className={styles.label}>Input Source</label>
             <div className={styles.buttonGrid}>
               <button
-                onClick={handleLoadEssay}
+                onClick={() => {
+                  setText(SAMPLE_TEXT);
+                  setActiveTab("input");
+                }}
                 className={styles.buttonSecondary}
               >
-                Load Essay
+                Sample
               </button>
               <button
-                onClick={handleLoadSample}
+                onClick={() => {
+                  setText(LARGE_SAMPLE_TEXT);
+                  setActiveTab("input");
+                }}
                 className={styles.buttonSecondary}
               >
-                Load Sample
+                Large Sample
               </button>
             </div>
             <div className={styles.buttonGrid}>
               <button
-                onClick={handleLoadLargeSample}
+                onClick={() => setText(DEFAULT_ESSAY)}
                 className={styles.buttonSecondary}
               >
-                Load Heavy
+                Essay
               </button>
               <button onClick={handleClear} className={styles.button}>
-                Clear Buffer
+                Clear
               </button>
             </div>
           </div>
@@ -330,56 +386,125 @@ export function TokenizerApp() {
         <div className={styles.footer}>
           <div className={styles.footerLabel}>Open Source Software</div>
           <a
-            href="https://github.com/happytoolin"
-            className={styles.footerLink}
+            href="https://github.com/happytoolin/happytokenizer"
             target="_blank"
             rel="noopener noreferrer"
+            className={styles.footerLink}
           >
             github.com/happytoolin
           </a>
         </div>
       </aside>
 
-      {/* --- WORKSPACE (Main) --- */}
       <main className={styles.workspace}>
         <section className={styles.editorSection}>
           <div className={styles.editorHeader}>
-            <span className={styles.tabActive}>Input Stream</span>
-            <span className={styles.tabInactive}>Upload File (Beta)</span>
+            <button
+              className={`${styles.tabButton} ${activeTab === "input" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("input")}
+            >
+              Input Stream
+            </button>
+            <button
+              className={`${styles.tabButton} ${activeTab === "upload" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("upload")}
+            >
+              Upload File
+            </button>
           </div>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="> Paste text here to tokenize..."
-            className={styles.textarea}
-            spellCheck={false}
-            rows={6}
-          />
-          <div className={styles.metaBar}>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>CHARS</span>
-              <span className={styles.metaValue}>{text.length}</span>
-            </div>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>WORDS</span>
-              <span className={styles.metaValue}>
-                {text.split(/\s+/).filter(Boolean).length}
-              </span>
-            </div>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>STATUS</span>
-              <span
-                className={styles.metaValue}
-                style={{
-                  color: isLoading ? "var(--c-orange)" : "var(--c-steel)",
-                }}
+
+          {/* TAB CONTENT: INPUT */}
+          {activeTab === "input" && (
+            <>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Enter your text here to see how it gets tokenized..."
+                className={styles.textarea}
+              />
+              <div className={styles.metaBar}>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>CHARS</span>
+                  <span className={styles.metaValue}>{text.length}</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>WORDS</span>
+                  <span className={styles.metaValue}>
+                    {
+                      text
+                        .trim()
+                        .split(/\s+/)
+                        .filter((w) => w.length > 0).length
+                    }
+                  </span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>STATUS</span>
+                  <span className={styles.metaValue}>
+                    {error ? (
+                      <span style={{ color: "var(--c-red)" }}>
+                        Processing Error
+                      </span>
+                    ) : isLoading ? (
+                      "Processing..."
+                    ) : (
+                      <span style={{ color: "var(--c-orange)" }}>READY</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* TAB CONTENT: UPLOAD */}
+          {activeTab === "upload" && (
+            <div className={styles.uploadContainer}>
+              <div
+                className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ""}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
               >
-                {isLoading ? "BUSY" : "READY"}
-              </span>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className={styles.fileInput}
+                  onChange={handleFileSelect}
+                  accept=".txt,.md,.json,.js,.ts,.tsx,.csv,.py"
+                />
+
+                {/* Upload Icon SVG */}
+                <svg
+                  className={styles.uploadIcon}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                  />
+                </svg>
+
+                <div style={{ textAlign: "center" }}>
+                  <div className={styles.uploadTitle}>Drop File Here</div>
+                  <div className={styles.uploadSub}>
+                    Supports .txt, .md, .json, .js, .py (Max 5MB)
+                  </div>
+                </div>
+              </div>
+
+              {uploadError && (
+                <div className={styles.errorMsg}>⚠️ {uploadError}</div>
+              )}
             </div>
-          </div>
+          )}
         </section>
 
+        {/* --- TOKEN DISPLAY --- */}
         <TokenDisplay
           text={debouncedText}
           tokens={tokens}
@@ -387,6 +512,7 @@ export function TokenizerApp() {
           error={error}
         />
       </main>
+      <Footer />
     </div>
   );
 }

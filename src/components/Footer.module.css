@@ -1,0 +1,78 @@
+.footerContainer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--c-black);
+  border-radius: 999px; /* Pill shape */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  z-index: 90;
+  transition: transform 0.2s var(--ease-mechanical);
+}
+
+.footerContainer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.linkGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: #666;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: var(--c-orange);
+}
+
+.separator {
+  width: 1px;
+  height: 12px;
+  background: #ddd;
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Version Indicator */
+.version {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #aaa;
+  margin-left: 8px;
+  padding-left: 16px;
+  border-left: 1px solid #eee;
+}
+
+@media (max-width: 600px) {
+  .footerContainer {
+    bottom: 12px;
+    right: 50%;
+    transform: translateX(50%);
+    width: auto;
+    white-space: nowrap;
+    /* Hide on mobile if it overlaps heavily with the dock,
+       or just position it above the dock */
+    bottom: 80px;
+  }
+}

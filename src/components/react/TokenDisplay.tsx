@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import styles from "./TokenDisplay.module.css";
+import styles from "../../styles/components/TokenDisplay.module.css";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";

@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
-import styles from "./VirtualTokenDisplay.module.css";
+import styles from "../../styles/components/VirtualTokenDisplay.module.css";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */

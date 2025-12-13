@@ -1,0 +1,11 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { ModelsPage } from '../components/react/ModelsPage';
+---
+
+<MainLayout
+  title="System Manifest - HappyTokenizer"
+  description="Complete system manifest of all GPT models supported by HappyTokenizer with their encodings and technical specifications."
+>
+  <ModelsPage client:visible />
+</MainLayout>

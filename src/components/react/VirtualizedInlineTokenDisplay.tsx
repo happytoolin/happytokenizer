@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useRef, useState } from "react";
-import styles from "./VirtualizedInlineTokenDisplay.module.css";
+import styles from "../../styles/components/VirtualizedInlineTokenDisplay.module.css";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
@@ -169,7 +169,7 @@ export function VirtualizedInlineTokenDisplay({
   useEffect(() => {
     if (!parentRef.current) return;
 
-    let timeoutId: number;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     resizeObserverRef.current = new ResizeObserver(() => {
       // Clear existing timeout to debounce

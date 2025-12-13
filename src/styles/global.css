@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Noto+Serif+Arabic:wght@400;500;600;700&family=Cairo:wght@200;300;400;500;600;700;800;900&family=Tajawal:wght@200;300;400;500;600;700;800;900&family=Amiri:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif:wght@400;500;700&display=swap");
 
 :root {
   /* --- PALETTE: Industrial Utility --- */
@@ -10,16 +10,19 @@
   --c-white: #ffffff;
   --c-concrete: #e5e5e5;
   --c-ink: #000000;
+  --c-red: #dc2626;
 
   /* --- TYPOGRAPHY --- */
   --font-display:
     "Archivo", "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-    "Noto Sans Arabic", "Impact", "Arial Black", system-ui, sans-serif; /* Simulating Druk Wide with comprehensive language support */
+    "Cairo", "Tajawal", "Noto Sans Arabic", "Impact", "Arial Black", system-ui,
+    sans-serif; /* Simulating Druk Wide with comprehensive language support */
   --font-body:
     "Inter", "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-    "Noto Sans Arabic", "Noto Serif", "Georgia", "Times New Roman",
-    "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji",
-    "Noto Color Emoji", system-ui, sans-serif; /* Comprehensive multilingual support */
+    "Cairo", "Tajawal", "Noto Sans Arabic", "Noto Serif Arabic", "Amiri",
+    "Noto Serif", "Georgia", "Times New Roman", "Arial Unicode MS",
+    "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui,
+    sans-serif; /* Comprehensive multilingual support */
   --font-mono:
     "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas",
     "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP",
@@ -36,6 +39,16 @@
   --border-thin: 1px solid rgba(0, 0, 0, 0.1);
   --border-heavy: 2px solid var(--c-black);
   --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  /* --- FONT SIZES --- */
+  --fs-xxs: 10px;
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-base: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 20px;
+  --fs-xxl: 24px;
+  --fs-xxxl: 32px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -66,11 +79,37 @@ body {
 [lang="ar"],
 [dir="rtl"],
 .arabic-text {
-  font-family: "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", sans-serif;
+  font-family:
+    "Cairo", "Tajawal", "Noto Sans Arabic", "Amiri", "Noto Serif Arabic",
+    "Tahoma", "Arial Unicode MS", sans-serif;
   direction: rtl;
   text-align: right;
   font-weight: 500;
   letter-spacing: 0;
+  line-height: 1.7;
+}
+
+/* Arabic headings and display text */
+[lang="ar"] h1,
+[lang="ar"] h2,
+[lang="ar"] h3,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+.arabic-text h1,
+.arabic-text h2,
+.arabic-text h3 {
+  font-family: "Tajawal", "Cairo", "Noto Sans Arabic", sans-serif;
+  font-weight: 700;
+}
+
+/* Arabic body text emphasis */
+[lang="ar"] p,
+[dir="rtl"] p,
+.arabic-text p {
+  font-family: "Amiri", "Noto Serif Arabic", "Cairo", serif;
+  font-weight: 400;
+  line-height: 1.8;
 }
 
 /* Chinese (Simplified) support */
@@ -279,3 +318,5 @@ textarea:focus,
 input:focus {
   outline: none;
 }
+
+/* Component-specific styles are handled in their respective .module.css files */
