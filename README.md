@@ -1,14 +1,15 @@
 <div align="center">
   <img src="public/logo.svg" alt="HappyTokenizer Logo" width="120" height="120">
 
-  # HappyTokenizer
+# HappyTokenizer
 
-  **Interactive GPT Tokenizer Visualization Tool**
+**Interactive GPT Tokenizer Visualization Tool**
 
-  [![Live Site](https://img.shields.io/badge/Live-Site-brightgreen)](https://happytokenizer.com)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Live Site](https://img.shields.io/badge/Live-Site-brightgreen)](https://happytokenizer.com)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-  Explore how different GPT models tokenize your text in real-time. Privacy-focused, client-side processing.
+Explore how different GPT models tokenize your text in real-time. Privacy-focused, client-side processing.
+
 </div>
 
 ## Features
@@ -30,6 +31,7 @@ When using OpenAI's API, you're charged **per token**, not per word. Understandi
 - **Compare different models** for your specific use case
 
 Example: "Hello, world!" might be:
+
 - 3 tokens in GPT-4o
 - 4 tokens in GPT-3.5-turbo
 - This directly affects your API costs!
@@ -37,6 +39,7 @@ Example: "Hello, world!" might be:
 ## Getting Started
 
 ### Quick Start
+
 Visit [**happytokenizer.com**](https://happytokenizer.com) and start typing in the text area. That's it!
 
 ### Using the Tool
@@ -49,18 +52,22 @@ Visit [**happytokenizer.com**](https://happytokenizer.com) and start typing in t
 ### Supported Models
 
 #### Modern Models (o200k_base)
+
 - GPT-4o series (gpt-4o, gpt-4o-mini, etc.)
 - Latest OpenAI models with optimized encoding
 
 #### Chat Models (cl100k_base)
+
 - GPT-3.5 series (gpt-3.5-turbo, gpt-3.5-turbo-16k)
 - GPT-4 series (gpt-4, gpt-4-32k)
 
 #### Code Models (p50k_base)
+
 - Code-davinci series
 - Optimized for code generation
 
 #### And Many More...
+
 - Legacy models (r50k_base)
 - Edit models (p50k_edit)
 - Open-source models (o200k_harmony)
