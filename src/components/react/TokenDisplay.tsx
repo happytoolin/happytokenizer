@@ -1,9 +1,11 @@
 import { useState } from "react";
 import styles from "../../styles/components/TokenDisplay.module.css";
 import { TOKEN_COLORS, CONTAINER_HEIGHT } from "../../utils/tokenColors";
+import { VIRTUAL_CONFIG } from "../../constants/virtual";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
+import { VirtualErrorBoundary } from "../ui/VirtualErrorBoundary";
 import type { ChatMessage } from "../../types/chat";
 
 interface TokenDisplayProps {
@@ -72,30 +74,36 @@ export function TokenDisplay({
 
       <div className={styles.tokensContainer}>
         {viewMode === "inline" && (
-          <VirtualizedInlineTokenDisplay
-            tokens={tokens}
-            tokenTexts={tokenTexts}
-            containerHeight={CONTAINER_HEIGHT}
-          />
+          <VirtualErrorBoundary componentName="VirtualizedInlineTokenDisplay">
+            <VirtualizedInlineTokenDisplay
+              tokens={tokens}
+              tokenTexts={tokenTexts}
+              containerHeight={CONTAINER_HEIGHT}
+            />
+          </VirtualErrorBoundary>
         )}
         {viewMode === "compact" && (
-          <VirtualizedCompactTokenDisplay
-            tokens={tokens}
-            tokenTexts={tokenTexts}
-            containerHeight={CONTAINER_HEIGHT}
-            tokensPerRow={32} // Will be dynamically calculated
-            itemWidth={48} // Increased for more horizontal space
-            itemHeight={24} // Decreased to match new token height + spacing
-            gap={2} // Reduced gap for tighter packing
-          />
+          <VirtualErrorBoundary componentName="VirtualizedCompactTokenDisplay">
+            <VirtualizedCompactTokenDisplay
+              tokens={tokens}
+              tokenTexts={tokenTexts}
+              containerHeight={CONTAINER_HEIGHT}
+              tokensPerRow={VIRTUAL_CONFIG.COMPACT.TOKENS_PER_ROW} // Will be dynamically calculated
+              itemWidth={VIRTUAL_CONFIG.COMPACT.ITEM_WIDTH}
+              itemHeight={VIRTUAL_CONFIG.COMPACT.ITEM_HEIGHT}
+              gap={VIRTUAL_CONFIG.COMPACT.GAP}
+            />
+          </VirtualErrorBoundary>
         )}
         {viewMode === "detailed" && (
-          <VirtualTokenDisplay
-            tokens={tokens}
-            tokenTexts={tokenTexts}
-            containerHeight={CONTAINER_HEIGHT}
-            estimatedItemHeight={40}
-          />
+          <VirtualErrorBoundary componentName="VirtualTokenDisplay">
+            <VirtualTokenDisplay
+              tokens={tokens}
+              tokenTexts={tokenTexts}
+              containerHeight={CONTAINER_HEIGHT}
+              estimatedItemHeight={VIRTUAL_CONFIG.DETAILED.ITEM_HEIGHT}
+            />
+          </VirtualErrorBoundary>
         )}
       </div>
 

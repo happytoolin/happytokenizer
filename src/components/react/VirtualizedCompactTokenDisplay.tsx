@@ -2,6 +2,7 @@ import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { useMemo, useRef, useState, useEffect } from "react";
 import styles from "../../styles/components/VirtualizedCompactTokenDisplay.module.css";
 import { TOKEN_COLORS } from "../../utils/tokenColors";
+import { VIRTUAL_CONFIG } from "../../constants/virtual";
 
 interface VirtualizedCompactTokenDisplayProps {
   tokens: number[];
@@ -29,10 +30,9 @@ export function VirtualizedCompactTokenDisplay({
   const [containerWidth, setContainerWidth] = useState(0);
 
   // Recalculate tokens per row when container width changes
-  // Account for 32px of horizontal padding (16px on each side)
   const effectiveTokensPerRow =
     containerWidth > 0
-      ? Math.floor((containerWidth - 32 - gap) / (itemWidth + gap))
+      ? Math.floor((containerWidth - VIRTUAL_CONFIG.COMPACT.HORIZONTAL_PADDING - gap) / (itemWidth + gap))
       : tokensPerRow;
 
   const rowCount = Math.ceil(tokens.length / effectiveTokensPerRow);
@@ -62,7 +62,7 @@ export function VirtualizedCompactTokenDisplay({
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => itemHeight + gap,
-    overscan: 5, // Increased overscan for smoother scrolling
+    overscan: VIRTUAL_CONFIG.OVERSCAN.DEFAULT,
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
@@ -80,8 +80,8 @@ export function VirtualizedCompactTokenDisplay({
     }
 
     // Truncate very long tokens for display and tooltips (CSS perf optimization)
-    if (displayText.length > 30) {
-      displayText = displayText.substring(0, 30) + "...";
+    if (displayText.length > VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) {
+      displayText = displayText.substring(0, VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) + "...";
     }
 
     return { tokenId, color, text: displayText };
@@ -145,7 +145,7 @@ export function VirtualizedCompactTokenDisplay({
                     top: virtualRow.start,
                     left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
                     width: itemWidth,
-                    backgroundColor: color + "33", // 20% opacity hex
+                    backgroundColor: color + VIRTUAL_CONFIG.TOKEN.COLOR_OPACITY,
                     borderBottom: `2px solid ${color}`, // Underline style instead of full border
                   }}
                   data-tooltip={text}

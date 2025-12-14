@@ -1,7 +1,8 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import styles from "../../styles/components/VirtualTokenDisplay.module.css";
 import { TOKEN_COLORS } from "../../utils/tokenColors";
+import { VIRTUAL_CONFIG } from "../../constants/virtual";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
@@ -21,13 +22,20 @@ export function VirtualTokenDisplay({
 }: VirtualTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
+  // Add cleanup for any potential async operations
+  useEffect(() => {
+    return () => {
+      // Cleanup if needed
+    };
+  }, []);
+
   const rowVirtualizer = useVirtualizer({
     count: tokens.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimatedItemHeight,
     // Overscan determines how many items to render outside the visible area.
-    // Increasing this slightly (e.g., to 10) prevents white flickers during fast scrolling.
-    overscan: 10,
+    // Increasing this slightly prevents white flickers during fast scrolling.
+    overscan: VIRTUAL_CONFIG.OVERSCAN.DETAILED,
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
@@ -41,10 +49,10 @@ export function VirtualTokenDisplay({
       >
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize() + 24}px`, // Add 24px top padding
+            height: `${rowVirtualizer.getTotalSize() + VIRTUAL_CONFIG.DETAILED.TOP_PADDING}px`,
             width: "100%",
             position: "relative",
-            paddingTop: "24px",
+            paddingTop: `${VIRTUAL_CONFIG.DETAILED.TOP_PADDING}px`,
           }}
         >
           {virtualItems.map((virtualItem) => {
@@ -60,8 +68,8 @@ export function VirtualTokenDisplay({
             }
 
             // Truncate very long tokens for display
-            if (displayText.length > 30) {
-              displayText = displayText.substring(0, 30) + "...";
+            if (displayText.length > VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) {
+              displayText = displayText.substring(0, VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) + "...";
             }
 
             return (
@@ -74,7 +82,7 @@ export function VirtualTokenDisplay({
                   left: 0,
                   width: "100%",
                   height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start + 24}px)`, // Add 24px for top padding
+                  transform: `translateY(${virtualItem.start + VIRTUAL_CONFIG.DETAILED.TOP_PADDING}px)`,
                   willChange: "transform", // Performance optimization
                 }}
               >
@@ -95,14 +103,14 @@ export function VirtualTokenDisplay({
         </div>
       </div>
 
-      {items.length > 0 && virtualItems.length > 0 && (
+      {tokens.length > 0 && virtualItems.length > 0 && (
         <div className={styles.scrollIndicator}>
           {virtualItems[0].index + 1}-
           {Math.min(
             virtualItems[virtualItems.length - 1].index + 1,
-            items.length,
+            tokens.length,
           )}{" "}
-          of {items.length} tokens
+          of {tokens.length} tokens
         </div>
       )}
     </div>

@@ -281,7 +281,7 @@ export function TokenizerApp() {
           {!isLoading && !error && (
             <TokenDisplay
               text={tokenizeTarget}
-              tokens={tokens || []}
+              tokens={Array.isArray(tokens) ? tokens : Array.from(tokens || [])}
               tokenTexts={tokenTexts || []}
             />
           )}

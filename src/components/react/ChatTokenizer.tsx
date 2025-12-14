@@ -168,7 +168,7 @@ export function ChatTokenizer() {
           {!isLoading && !error && (
             <TokenDisplay
               text="" // Empty text for chat mode
-              tokens={tokens || []}
+              tokens={Array.isArray(tokens) ? tokens : Array.from(tokens || [])}
               tokenTexts={tokenTexts || []}
               isChatMode={true}
               chatMessages={chatMessages}

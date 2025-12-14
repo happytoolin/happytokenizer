@@ -2,6 +2,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../../styles/components/VirtualizedInlineTokenDisplay.module.css";
 import { TOKEN_COLORS } from "../../utils/tokenColors";
+import { VIRTUAL_CONFIG } from "../../constants/virtual";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
@@ -21,6 +22,7 @@ interface VirtualizedInlineTokenDisplayProps {
 
 interface LineInfo {
   tokens: Array<{
+    id: number;
     tokenId: number;
     color: string;
     text: string;
@@ -39,15 +41,17 @@ export function VirtualizedInlineTokenDisplay({
   const [lineBreaks, setLineBreaks] = useState<LineInfo[]>([]);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  // Update Constants for the new font sizes and tighter layout
+  // Use constants for configuration
   const CONSTANTS = {
-    PADDING_X: 8, // Tighter padding
-    BORDER: 0,
-    INNER_GAP: 4,
-    TOKEN_GAP: 2,
-    LINE_HEIGHT: 32, // Tighter lines for "Code Editor" feel
-    DEFAULT_CHAR_WIDTH_ID: 5,
-    DEFAULT_CHAR_WIDTH_TEXT: 8,
+    PADDING_X: VIRTUAL_CONFIG.INLINE.PADDING_X,
+    BORDER: VIRTUAL_CONFIG.INLINE.BORDER,
+    INNER_GAP: VIRTUAL_CONFIG.INLINE.INNER_GAP,
+    TOKEN_GAP: VIRTUAL_CONFIG.INLINE.TOKEN_GAP,
+    LINE_HEIGHT: VIRTUAL_CONFIG.INLINE.LINE_HEIGHT,
+    DEFAULT_CHAR_WIDTH_ID: VIRTUAL_CONFIG.INLINE.DEFAULT_CHAR_WIDTH_ID,
+    DEFAULT_CHAR_WIDTH_TEXT: VIRTUAL_CONFIG.INLINE.DEFAULT_CHAR_WIDTH_TEXT,
+    DEBOUNCE_DELAY: VIRTUAL_CONFIG.INLINE.DEBOUNCE_DELAY,
+    SCROLLBAR_PADDING: VIRTUAL_CONFIG.INLINE.SCROLLBAR_PADDING,
   };
 
   const measureLineBreaks = useCallback(() => {
@@ -56,13 +60,13 @@ export function VirtualizedInlineTokenDisplay({
       return;
     }
 
-    const containerWidth = parentRef.current.clientWidth - 16; // Subtract scrollbar/padding safety
+    const containerWidth = parentRef.current.clientWidth - VIRTUAL_CONFIG.INLINE.SCROLLBAR_PADDING;
     if (containerWidth <= 0) return;
 
     // 1. Calibrate Font Metrics (Fast, run once per measure)
     // Use cached canvas context for better performance
-    let charWidthId = CONSTANTS.DEFAULT_CHAR_WIDTH_ID;
-    let charWidthText = CONSTANTS.DEFAULT_CHAR_WIDTH_TEXT;
+    let charWidthId = 5; // Type assertion needed for canvas measure
+    let charWidthText = 8;
 
     if (measurementCtx) {
       try {
@@ -86,6 +90,7 @@ export function VirtualizedInlineTokenDisplay({
     // 2. Calculate Lines (Pure Math, No DOM)
     const lines: LineInfo[] = [];
     let currentLine: Array<{
+      id: number;
       tokenId: number;
       color: string;
       text: string;
@@ -109,11 +114,11 @@ export function VirtualizedInlineTokenDisplay({
       }
 
       // Truncate very long tokens for display
-      if (displayText.length > 30) {
-        displayText = displayText.substring(0, 30) + "...";
+      if (displayText.length > VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) {
+        displayText = displayText.substring(0, VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) + "...";
       }
 
-      const item = { tokenId, color, text: displayText };
+      const item = { id: i, tokenId, color, text: displayText };
 
       // Calculate ID width: number of digits * char width
       // Optimization: Get digit count without converting to string for small numbers
@@ -199,10 +204,10 @@ export function VirtualizedInlineTokenDisplay({
       // Clear existing timeout to debounce
       if (timeoutId) clearTimeout(timeoutId);
 
-      // Wait 100ms after resize stops before recalculating
+      // Wait after resize stops before recalculating
       timeoutId = setTimeout(() => {
         measureLineBreaks();
-      }, 100);
+      }, VIRTUAL_CONFIG.INLINE.DEBOUNCE_DELAY);
     });
 
     resizeObserverRef.current.observe(parentRef.current);
@@ -226,7 +231,7 @@ export function VirtualizedInlineTokenDisplay({
     count: lineBreaks.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => CONSTANTS.LINE_HEIGHT,
-    overscan: 5,
+    overscan: VIRTUAL_CONFIG.OVERSCAN.DEFAULT,
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
@@ -270,7 +275,7 @@ export function VirtualizedInlineTokenDisplay({
                     className={styles.token}
                     style={{
                       // Use background opacity for the "Highlighter" effect
-                      backgroundColor: item.color + "33", // 20% opacity hex
+                      backgroundColor: item.color + VIRTUAL_CONFIG.TOKEN.COLOR_OPACITY,
                       borderBottom: `2px solid ${item.color}`, // Underline style instead of full border
                     }}
                     data-tooltip={`ID: ${item.tokenId}`}
