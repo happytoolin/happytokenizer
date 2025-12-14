@@ -17,7 +17,7 @@ export interface TokenizerProgress {
 }
 
 export interface TokenizerResult {
-  tokens: number[];
+  tokens: Uint32Array | number[];
   tokenTexts: string[];
   count: number;
   model: ModelType;

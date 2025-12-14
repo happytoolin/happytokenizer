@@ -1,36 +1,29 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import styles from "../../styles/components/VirtualTokenDisplay.module.css";
+import { TOKEN_COLORS } from "../../utils/tokenColors";
 
-// "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
 
-interface TokenItem {
-  id: number;
-  tokenId: number;
-  color: string;
-  text: string;
-}
-
 interface VirtualTokenDisplayProps {
-  items: TokenItem[];
+  tokens: number[];
+  tokenTexts: string[];
   containerHeight: number;
   estimatedItemHeight: number;
 }
 
 export function VirtualTokenDisplay({
-  items,
+  tokens,
+  tokenTexts,
   containerHeight,
   estimatedItemHeight,
 }: VirtualTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
-    count: items.length,
+    count: tokens.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimatedItemHeight,
-    // Overscan determines how many items to render outside the visible area.
-    // Increasing this slightly (e.g., to 10) prevents white flickers during fast scrolling.
     overscan: 10,
   });
 
@@ -45,14 +38,27 @@ export function VirtualTokenDisplay({
       >
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize() + 24}px`, // Add 24px top padding
+            height: `${rowVirtualizer.getTotalSize() + 24}px`,
             width: "100%",
             position: "relative",
             paddingTop: "24px",
           }}
         >
           {virtualItems.map((virtualItem) => {
-            const item = items[virtualItem.index];
+            const index = virtualItem.index;
+            const tokenId = tokens[index];
+            const color = TOKEN_COLORS[index % TOKEN_COLORS.length];
+
+            let displayText = tokenTexts[index] || `[${tokenId}]`;
+
+            if (displayText.trim() === "") {
+              displayText = `[${tokenId}]`;
+            }
+
+            if (displayText.length > 20) {
+              displayText = displayText.substring(0, 20) + "...";
+            }
+
             return (
               <div
                 key={virtualItem.key}
@@ -63,20 +69,19 @@ export function VirtualTokenDisplay({
                   left: 0,
                   width: "100%",
                   height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start + 24}px)`, // Add 24px for top padding
-                  willChange: "transform", // Performance optimization
+                  transform: `translateY(${virtualItem.start + 24}px)`,
+                  willChange: "transform",
                 }}
               >
                 <div className={styles.token}>
-                  {/* Mechanical color bar indicator */}
                   <div
                     className={styles.colorIndicator}
-                    style={{ backgroundColor: item.color }}
+                    style={{ backgroundColor: color }}
                   />
                   <span className={styles.tokenId}>
-                    {item.id + 1}. #{item.tokenId}
+                    {index + 1}. #{tokenId}
                   </span>
-                  <span className={styles.tokenText}>{item.text}</span>
+                  <span className={styles.tokenText}>{displayText}</span>
                 </div>
               </div>
             );
@@ -84,14 +89,14 @@ export function VirtualTokenDisplay({
         </div>
       </div>
 
-      {items.length > 0 && virtualItems.length > 0 && (
+      {tokens.length > 0 && virtualItems.length > 0 && (
         <div className={styles.scrollIndicator}>
           {virtualItems[0].index + 1}-
           {Math.min(
             virtualItems[virtualItems.length - 1].index + 1,
-            items.length,
+            tokens.length,
           )}{" "}
-          of {items.length} tokens
+          of {tokens.length} tokens
         </div>
       )}
     </div>

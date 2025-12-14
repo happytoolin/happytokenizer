@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import styles from "../../styles/components/TokenDisplay.module.css";
-import { TOKEN_COLORS, CONTAINER_HEIGHT } from "../../utils/tokenColors";
+import { CONTAINER_HEIGHT } from "../../utils/tokenColors";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
+import { VirtualErrorBoundary } from "../ui/VirtualErrorBoundary";
 import type { ChatMessage } from "../../types/chat";
 
 interface TokenDisplayProps {
@@ -26,43 +27,6 @@ export function TokenDisplay({
   const [viewMode, setViewMode] = useState<"inline" | "compact" | "detailed">(
     "inline",
   );
-
-  // Highly optimized token item generation using actual decoded token texts
-  const tokenItems = useMemo(() => {
-    if (tokens.length === 0) return [];
-
-    const result = new Array(tokens.length);
-    const colorsLen = TOKEN_COLORS.length;
-
-    for (let i = 0; i < tokens.length; i++) {
-      const tokenId = tokens[i];
-      // Fast modulo
-      const color = TOKEN_COLORS[i % colorsLen];
-
-      // Use the actual decoded text for this token if available
-      // This shows what each token actually represents, fixing the duplicate issue
-      let displayText = tokenTexts[i] || `[${tokenId}]`;
-
-      // Clean up whitespace-only tokens for better display
-      if (displayText.trim() === "") {
-        displayText = `[${tokenId}]`;
-      }
-
-      // Truncate very long tokens for display
-      if (displayText.length > 20) {
-        displayText = displayText.substring(0, 20) + "...";
-      }
-
-      result[i] = {
-        id: i,
-        tokenId,
-        color,
-        text: displayText,
-      };
-    }
-
-    return result;
-  }, [tokens, tokenTexts]);
 
   if (error) return <div className={styles.error}>ERR: {error}</div>;
 
@@ -109,27 +73,36 @@ export function TokenDisplay({
 
       <div className={styles.tokensContainer}>
         {viewMode === "inline" && (
-          <VirtualizedInlineTokenDisplay
-            items={tokenItems}
-            containerHeight={CONTAINER_HEIGHT}
-          />
+          <VirtualErrorBoundary componentName="VirtualizedInlineTokenDisplay">
+            <VirtualizedInlineTokenDisplay
+              tokens={tokens}
+              tokenTexts={tokenTexts}
+              containerHeight={CONTAINER_HEIGHT}
+            />
+          </VirtualErrorBoundary>
         )}
         {viewMode === "compact" && (
-          <VirtualizedCompactTokenDisplay
-            items={tokenItems}
-            containerHeight={CONTAINER_HEIGHT}
-            tokensPerRow={32} // Will be dynamically calculated
-            itemWidth={48} // Increased for more horizontal space
-            itemHeight={24} // Decreased to match new token height + spacing
-            gap={2} // Reduced gap for tighter packing
-          />
+          <VirtualErrorBoundary componentName="VirtualizedCompactTokenDisplay">
+            <VirtualizedCompactTokenDisplay
+              tokens={tokens}
+              tokenTexts={tokenTexts}
+              containerHeight={CONTAINER_HEIGHT}
+              tokensPerRow={32}
+              itemWidth={48}
+              itemHeight={32}
+              gap={4}
+            />
+          </VirtualErrorBoundary>
         )}
         {viewMode === "detailed" && (
-          <VirtualTokenDisplay
-            items={tokenItems}
-            containerHeight={CONTAINER_HEIGHT}
-            estimatedItemHeight={40}
-          />
+          <VirtualErrorBoundary componentName="VirtualTokenDisplay">
+            <VirtualTokenDisplay
+              tokens={tokens}
+              tokenTexts={tokenTexts}
+              containerHeight={CONTAINER_HEIGHT}
+              estimatedItemHeight={40}
+            />
+          </VirtualErrorBoundary>
         )}
       </div>
 

@@ -1,99 +1,101 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../../styles/components/VirtualizedInlineTokenDisplay.module.css";
+import { TOKEN_COLORS } from "../../utils/tokenColors";
 
-// "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
 
-interface TokenItem {
-  id: number;
-  tokenId: number;
-  color: string;
-  text: string;
-}
-
 interface VirtualizedInlineTokenDisplayProps {
-  items: TokenItem[];
+  tokens: number[];
+  tokenTexts: string[];
   containerHeight: number;
 }
 
 interface LineInfo {
-  tokens: TokenItem[];
+  tokens: Array<{
+    id: number;
+    tokenId: number;
+    color: string;
+    text: string;
+  }>;
   startIndex: number;
   endIndex: number;
   height: number;
 }
 
 export function VirtualizedInlineTokenDisplay({
-  items,
+  tokens,
+  tokenTexts,
   containerHeight,
 }: VirtualizedInlineTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [lineBreaks, setLineBreaks] = useState<LineInfo[]>([]);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  // Update Constants for the new font sizes and tighter layout
-  const CONSTANTS = {
-    PADDING_X: 8, // Tighter padding
-    BORDER: 0,
-    INNER_GAP: 4,
-    TOKEN_GAP: 2,
-    LINE_HEIGHT: 32, // Tighter lines for "Code Editor" feel
-    DEFAULT_CHAR_WIDTH_ID: 5,
-    DEFAULT_CHAR_WIDTH_TEXT: 8,
-  };
+  const PADDING_X = 8;
+  const BORDER = 0;
+  const INNER_GAP = 4;
+  const TOKEN_GAP = 2;
+  const LINE_HEIGHT = 32;
+  const DEFAULT_CHAR_WIDTH_ID = 5;
+  const DEFAULT_CHAR_WIDTH_TEXT = 8;
 
   const measureLineBreaks = useCallback(() => {
-    if (!parentRef.current || items.length === 0) {
+    if (!parentRef.current || tokens.length === 0) {
       setLineBreaks([]);
       return;
     }
 
-    const containerWidth = parentRef.current.clientWidth - 16; // Subtract scrollbar/padding safety
+    const containerWidth = parentRef.current.clientWidth - 16;
     if (containerWidth <= 0) return;
 
-    // 1. Calibrate Font Metrics (Fast, run once per measure)
-    // We create a temporary canvas to get the EXACT width of a character
-    // since we are using a Monospace font.
-    let charWidthId = CONSTANTS.DEFAULT_CHAR_WIDTH_ID;
-    let charWidthText = CONSTANTS.DEFAULT_CHAR_WIDTH_TEXT;
+    let charWidthId = DEFAULT_CHAR_WIDTH_ID;
+    let charWidthText = DEFAULT_CHAR_WIDTH_TEXT;
 
     try {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        // Measure ID font (10px)
-        ctx.font =
-          '10px "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP", "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         const m1 = ctx.measureText("0");
         if (m1.width > 0) charWidthId = m1.width;
 
-        // Measure Text font (12px 500 weight)
-        ctx.font =
-          '500 12px "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP", "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace';
+        ctx.font = '500 12px "JetBrains Mono", monospace';
         const m2 = ctx.measureText("M");
         if (m2.width > 0) charWidthText = m2.width;
       }
     } catch (error) {
       console.error("Font measurement failed:", error);
-      // Fallback to defaults if canvas fails
     }
 
-    // 2. Calculate Lines (Pure Math, No DOM)
     const lines: LineInfo[] = [];
-    let currentLine: TokenItem[] = [];
+    let currentLine: Array<{
+      id: number;
+      tokenId: number;
+      color: string;
+      text: string;
+    }> = [];
     let currentLineWidth = 0;
     let currentLineStartIndex = 0;
 
-    // Constant overhead per token: padding + border + inner gap between ID and Text
-    const tokenBaseWidth =
-      CONSTANTS.PADDING_X + CONSTANTS.BORDER + CONSTANTS.INNER_GAP;
+    const tokenBaseWidth = PADDING_X + BORDER + INNER_GAP;
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (let i = 0; i < tokens.length; i++) {
+      const tokenId = tokens[i];
+      const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
 
-      // Calculate ID width: number of digits * char width
-      // Optimization: Get digit count without converting to string for small numbers
+      let displayText = tokenTexts[i] || `[${tokenId}]`;
+
+      if (displayText.trim() === "") {
+        displayText = `[${tokenId}]`;
+      }
+
+      if (displayText.length > 20) {
+        displayText = displayText.substring(0, 20) + "...";
+      }
+
+      const item = { id: i, tokenId, color, text: displayText };
+
       const idDigits =
         item.tokenId < 10
           ? 1
@@ -108,74 +110,49 @@ export function VirtualizedInlineTokenDisplay({
                   : 6;
 
       const idWidth = idDigits * charWidthId;
-
-      // Calculate Text width: char length * char width
-      // item.text is already truncated to max 15 chars + "..." in TokenDisplay
       const textWidth = item.text.length * charWidthText;
-
-      // Total token width
-      // We use Math.ceil to avoid sub-pixel rounding issues causing wrap early
       const itemWidth = Math.ceil(tokenBaseWidth + idWidth + textWidth);
-
-      // Check if adding this token exceeds container width
-      // Note: First item in a line is always added even if it's too wide
-      const gap = currentLine.length > 0 ? CONSTANTS.TOKEN_GAP : 0;
+      const gap = currentLine.length > 0 ? TOKEN_GAP : 0;
 
       if (
         currentLine.length > 0 &&
         currentLineWidth + gap + itemWidth > containerWidth
       ) {
-        // Wrap to new line
         lines.push({
           tokens: currentLine,
           startIndex: currentLineStartIndex,
           endIndex: i - 1,
-          height: CONSTANTS.LINE_HEIGHT,
+          height: LINE_HEIGHT,
         });
 
         currentLine = [item];
         currentLineWidth = itemWidth;
         currentLineStartIndex = i;
       } else {
-        // Add to current line
         currentLine.push(item);
         currentLineWidth += gap + itemWidth;
       }
     }
 
-    // Add the final line
     if (currentLine.length > 0) {
       lines.push({
         tokens: currentLine,
         startIndex: currentLineStartIndex,
-        endIndex: items.length - 1,
-        height: CONSTANTS.LINE_HEIGHT,
+        endIndex: tokens.length - 1,
+        height: LINE_HEIGHT,
       });
     }
 
     setLineBreaks(lines);
-  }, [
-    items,
-    CONSTANTS.PADDING_X,
-    CONSTANTS.BORDER,
-    CONSTANTS.INNER_GAP,
-    CONSTANTS.TOKEN_GAP,
-    CONSTANTS.LINE_HEIGHT,
-    CONSTANTS.DEFAULT_CHAR_WIDTH_ID,
-    CONSTANTS.DEFAULT_CHAR_WIDTH_TEXT,
-  ]);
+  }, [tokens, tokenTexts]);
 
-  // Handle Resize with Debounce
   useEffect(() => {
     if (!parentRef.current) return;
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     resizeObserverRef.current = new ResizeObserver(() => {
-      // Clear existing timeout to debounce
       if (timeoutId) clearTimeout(timeoutId);
-
-      // Wait 100ms after resize stops before recalculating
       timeoutId = setTimeout(() => {
         measureLineBreaks();
       }, 100);
@@ -191,9 +168,7 @@ export function VirtualizedInlineTokenDisplay({
     };
   }, [measureLineBreaks]);
 
-  // Initial measurement
   useEffect(() => {
-    // Small delay to ensure container has rendered width
     const timer = setTimeout(measureLineBreaks, 0);
     return () => clearTimeout(timer);
   }, [measureLineBreaks]);
@@ -201,7 +176,7 @@ export function VirtualizedInlineTokenDisplay({
   const rowVirtualizer = useVirtualizer({
     count: lineBreaks.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => CONSTANTS.LINE_HEIGHT,
+    estimateSize: () => LINE_HEIGHT,
     overscan: 5,
   });
 
@@ -236,7 +211,6 @@ export function VirtualizedInlineTokenDisplay({
                   width: "100%",
                   height: `${virtualItem.size}px`,
                   transform: `translateY(${virtualItem.start}px)`,
-                  // optimization: hint browser for GPU layering
                   willChange: "transform",
                 }}
               >
@@ -245,9 +219,8 @@ export function VirtualizedInlineTokenDisplay({
                     key={item.id}
                     className={styles.token}
                     style={{
-                      // Use background opacity for the "Highlighter" effect
-                      backgroundColor: item.color + "33", // 20% opacity hex
-                      borderBottom: `2px solid ${item.color}`, // Underline style instead of full border
+                      backgroundColor: item.color + "33",
+                      borderBottom: `2px solid ${item.color}`,
                     }}
                     data-tooltip={`ID: ${item.tokenId}`}
                   >
@@ -261,17 +234,19 @@ export function VirtualizedInlineTokenDisplay({
         </div>
       </div>
 
-      {items.length > 0 && lineBreaks.length > 0 && virtualItems.length > 0 && (
-        <div className={styles.scrollIndicator}>
-          {lineBreaks[virtualItems[0].index]?.startIndex + 1 || 1}-
-          {Math.min(
-            lineBreaks[virtualItems[virtualItems.length - 1].index]?.endIndex +
-              1 || items.length,
-            items.length,
-          )}{" "}
-          of {items.length} tokens
-        </div>
-      )}
+      {tokens.length > 0 &&
+        lineBreaks.length > 0 &&
+        virtualItems.length > 0 && (
+          <div className={styles.scrollIndicator}>
+            {lineBreaks[virtualItems[0].index]?.startIndex + 1 || 1}-
+            {Math.min(
+              lineBreaks[virtualItems[virtualItems.length - 1].index]
+                ?.endIndex + 1 || tokens.length,
+              tokens.length,
+            )}{" "}
+            of {tokens.length} tokens
+          </div>
+        )}
     </div>
   );
 }

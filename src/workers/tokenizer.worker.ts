@@ -18,6 +18,21 @@ import {
   encode as encodeR50k,
 } from "gpt-tokenizer/encoding/r50k_base";
 
+// Define encoders/decoders strategy map
+const ENCODING_STRATEGIES = {
+  cl100k_base: { encode: encodeCl100k, decode: decodeCl100k },
+  p50k_base: { encode: encodeP50k, decode: decodeP50k },
+  p50k_edit: { encode: encodeP50kEdit, decode: decodeP50kEdit },
+  r50k_base: { encode: encodeR50k, decode: decodeR50k },
+  o200k_base: { encode: encode, decode: decode },
+  o200k_harmony: { encode: encode, decode: decode }, // Fallback to standard
+};
+
+// Helper to get strategy
+const getEncodingStrategy = (model: EncodingType) => {
+  return ENCODING_STRATEGIES[model] || ENCODING_STRATEGIES["o200k_base"];
+};
+
 // Re-export EncodingType for other modules
 export type { EncodingType };
 
@@ -30,7 +45,7 @@ export interface TokenizerMessage {
 }
 
 export interface TokenizerResponse {
-  tokens: number[];
+  tokens: Uint32Array | number[];
   count: number;
   model: string;
   tokenTexts?: string[];
@@ -90,31 +105,11 @@ function splitIntoChunks(text: string, chunkSize: number = 1000): string[] {
 
 // Decode individual tokens to their text representation
 function decodeTokens(tokens: number[], model: EncodingType): string[] {
+  const decoder = getEncodingStrategy(model).decode;
+
   return tokens.map((token) => {
     try {
-      let decoded: string;
-
-      switch (model) {
-        case "cl100k_base":
-          decoded = decodeCl100k([token]);
-          break;
-        case "p50k_base":
-          decoded = decodeP50k([token]);
-          break;
-        case "p50k_edit":
-          decoded = decodeP50kEdit([token]);
-          break;
-        case "r50k_base":
-          decoded = decodeR50k([token]);
-          break;
-        case "o200k_harmony":
-        case "o200k_base":
-        default:
-          decoded = decode([token]);
-          break;
-      }
-
-      return decoded;
+      return decoder([token]);
     } catch (error) {
       console.error("Decoding error:", error);
       // Fallback for special tokens or decoding errors
@@ -131,28 +126,8 @@ async function tokenizeWithChunks(
 ): Promise<{ tokens: number[]; tokenTexts: string[] }> {
   // For small texts, use direct tokenization
   if (text.length <= 5000) {
-    let tokens: number[];
-
-    switch (model) {
-      case "cl100k_base":
-        tokens = encodeCl100k(text);
-        break;
-      case "p50k_base":
-        tokens = encodeP50k(text);
-        break;
-      case "p50k_edit":
-        tokens = encodeP50kEdit(text);
-        break;
-      case "r50k_base":
-        tokens = encodeR50k(text);
-        break;
-      case "o200k_harmony":
-      case "o200k_base":
-      default:
-        tokens = encode(text);
-        break;
-    }
-
+    const encoder = getEncodingStrategy(model).encode;
+    const tokens = encoder(text);
     const tokenTexts = decodeTokens(tokens, model);
     return { tokens, tokenTexts };
   }
@@ -173,32 +148,14 @@ async function tokenizeWithChunks(
   for (let i = 0; i < chunks.length; i += batchSize) {
     const batchEnd = Math.min(i + batchSize, chunks.length);
 
+    // Get the encoder once per batch for efficiency
+    const encoder = getEncodingStrategy(model).encode;
+
     for (let j = i; j < batchEnd; j++) {
       const chunk = chunks[j];
 
-      // Tokenize this chunk
-      let chunkTokens: number[];
-
-      switch (model) {
-        case "cl100k_base":
-          chunkTokens = encodeCl100k(chunk);
-          break;
-        case "p50k_base":
-          chunkTokens = encodeP50k(chunk);
-          break;
-        case "p50k_edit":
-          chunkTokens = encodeP50kEdit(chunk);
-          break;
-        case "r50k_base":
-          chunkTokens = encodeR50k(chunk);
-          break;
-        case "o200k_harmony":
-        case "o200k_base":
-        default:
-          chunkTokens = encode(chunk);
-          break;
-      }
-
+      // Tokenize this chunk using strategy
+      const chunkTokens = encoder(chunk);
       allTokens.push(...chunkTokens);
     }
 
@@ -258,14 +215,20 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       const tokens = encodeChat(chatMessages as any, chatModel as any);
       const tokenTexts = decodeTokens(tokens, model);
 
-      self.postMessage({
-        tokens,
-        count: tokens.length,
-        model,
-        tokenTexts,
-        isChatMode: true,
-        chatMessages,
-      } as TokenizerResponse);
+      // Convert to Uint32Array for zero-copy transfer
+      const tokensArray = new Uint32Array(tokens);
+
+      self.postMessage(
+        {
+          tokens: tokensArray,
+          count: tokensArray.length,
+          model,
+          tokenTexts,
+          isChatMode: true,
+          chatMessages,
+        } as TokenizerResponse,
+        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
+      );
       return;
     }
 
@@ -284,46 +247,34 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       );
 
       // Send final result
-      self.postMessage({
-        tokens,
-        count: tokens.length,
-        model,
-        tokenTexts,
-        isChatMode: false,
-      } as TokenizerResponse);
+      const tokensArray = new Uint32Array(tokens);
+      self.postMessage(
+        {
+          tokens: tokensArray,
+          count: tokensArray.length,
+          model,
+          tokenTexts,
+          isChatMode: false,
+        } as TokenizerResponse,
+        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
+      );
     } else {
       // Direct tokenization for small texts
-      let tokens: number[];
-
-      switch (model) {
-        case "cl100k_base":
-          tokens = encodeCl100k(text);
-          break;
-        case "p50k_base":
-          tokens = encodeP50k(text);
-          break;
-        case "p50k_edit":
-          tokens = encodeP50kEdit(text);
-          break;
-        case "r50k_base":
-          tokens = encodeR50k(text);
-          break;
-        case "o200k_harmony":
-        case "o200k_base":
-        default:
-          tokens = encode(text);
-          break;
-      }
-
+      const encoder = getEncodingStrategy(model).encode;
+      const tokens = encoder(text);
       const tokenTexts = decodeTokens(tokens, model);
 
-      self.postMessage({
-        tokens,
-        count: tokens.length,
-        model,
-        tokenTexts,
-        isChatMode: false,
-      } as TokenizerResponse);
+      const tokensArray = new Uint32Array(tokens);
+      self.postMessage(
+        {
+          tokens: tokensArray,
+          count: tokensArray.length,
+          model,
+          tokenTexts,
+          isChatMode: false,
+        } as TokenizerResponse,
+        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
+      );
     }
   } catch (error) {
     console.error("Tokenizer error:", error);
