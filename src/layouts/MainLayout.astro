@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import FontLoader from '../components/FontLoader.astro';
 
 export interface Props {
 	title: string;
@@ -91,9 +92,14 @@ const structuredData = {
 		<!-- Structured Data -->
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-		<!-- Preload fonts for performance -->
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+		<!-- Preload critical font stylesheets with async loading -->
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+		<noscript>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+		</noscript>
+
+		<!-- Include font loader component -->
+		<FontLoader />
 
 		<title>{title}</title>
 

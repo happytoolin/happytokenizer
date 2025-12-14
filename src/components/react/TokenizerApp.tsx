@@ -1,22 +1,22 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
-import { useTokenizer } from "../../hooks/useTokenizer";
-import {
-  getEncodingForModel,
-  isEncodingType,
-  MODEL_ENCODINGS,
-  MODEL_DISPLAY_NAMES,
-} from "../../utils/modelEncodings";
-import { VERSION } from "../../utils/version";
-import {
-  DEFAULT_ESSAY,
-  SAMPLE_TEXT,
-  LARGE_SAMPLE_TEXT,
-} from "../../utils/constants";
-import { TokenDisplay } from "./TokenDisplay";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ComboboxShadcn,
   type ComboboxOption,
 } from "../../components/ui/combobox-shadcn";
+import { useTokenizer } from "../../hooks/useTokenizer";
+import {
+  DEFAULT_ESSAY,
+  LARGE_SAMPLE_TEXT,
+  SAMPLE_TEXT,
+} from "../../utils/constants";
+import {
+  getEncodingForModel,
+  isEncodingType,
+  MODEL_DISPLAY_NAMES,
+  MODEL_ENCODINGS,
+} from "../../utils/modelEncodings";
+import { VERSION } from "../../utils/version";
+import { TokenDisplay } from "./TokenDisplay";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
@@ -238,10 +238,10 @@ export function TokenizerApp() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[900px]:grid-cols-1 max-[900px]:p-4">
+    <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[1024px]:gap-6 max-[900px]:grid-cols-1 max-[900px]:p-4 max-[768px]:p-3 max-[480px]:p-2">
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className="sticky top-10 h-[800px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:shadow-none">
-        <div className="p-6 border-b border-brand-black bg-brand-black text-white">
+      <aside className="sticky top-10 h-[calc(100vh-3rem)] max-h-[900px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[1024px]:h-[calc(100vh-2.5rem)] max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:max-h-none max-[900px]:shadow-none max-[768px]:mb-4">
+        <div className="p-6 border-b border-brand-black bg-brand-black text-white max-[768px]:p-4 max-[480px]:p-3">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
             <a
@@ -269,7 +269,7 @@ export function TokenizerApp() {
           </div>
         </div>
 
-        <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical">
+        <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical max-[768px]:p-4 max-[768px]:gap-6 max-[480px]:p-3 max-[480px]:gap-4">
           <div className="flex flex-col gap-3">
             <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
               Model Selection
@@ -334,7 +334,7 @@ export function TokenizerApp() {
           </div>
 
           {/* Always reserve space for loading state to prevent layout shift */}
-          <div className="h-[80px] flex-shrink-0">
+          <div className="h-[80px] shrink-0 max-[768px]:h-0 max-[768px]:overflow-hidden">
             {isLoading && (
               <div className="bg-brand-paper p-3 border border-gray-300 h-full">
                 <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] mb-2">
@@ -342,7 +342,7 @@ export function TokenizerApp() {
                 </div>
                 <div className="h-1 bg-gray-300 w-full relative overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
+                    className="h-full bg-linear-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
                     style={{
                       width: `${progress ? progress.percentage : 100}%`,
                     }}
@@ -368,7 +368,7 @@ export function TokenizerApp() {
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200 bg-brand-paper">
+        <div className="p-6 border-t border-gray-200 bg-brand-paper max-[768px]:p-4 max-[480px]:p-3">
           <div className="font-mono text-xxs text-gray-400 uppercase mb-1 text-center block">
             Open Source Software
           </div>
@@ -384,13 +384,13 @@ export function TokenizerApp() {
       </aside>
 
       {/* --- RIGHT PANEL: WORKSPACE --- */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 max-[768px]:pb-32 max-[600px]:pb-20 max-[480px]:pb-24">
         {/* Editor Section */}
         <div className="bg-white border border-brand-black shadow-hard">
           <div className="flex border-b border-brand-black bg-brand-paper">
             <button
               onClick={() => setActiveTab("input")}
-              className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/[0.02] ${
+              className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
                 activeTab === "input"
                   ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
                   : "text-gray-500"
@@ -400,7 +400,7 @@ export function TokenizerApp() {
             </button>
             <button
               onClick={() => setActiveTab("upload")}
-              className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/[0.02] ${
+              className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
                 activeTab === "upload"
                   ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
                   : "text-gray-500"
@@ -415,15 +415,15 @@ export function TokenizerApp() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Paste or type your text here to see how it gets tokenized..."
-              className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50"
+              className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50 max-[768px]:p-4 max-[480px]:p-3 max-[480px]:text-xs"
             />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px]">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px] max-[768px]:p-4 max-[480px]:p-3">
               <div
                 className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
-                  isDragging || isDragging
-                    ? "border-brand-orange bg-brand-orange/[0.02] scale-[0.98]"
-                    : "hover:border-brand-orange hover:bg-brand-orange/[0.02]"
+                  isDragging
+                    ? "border-brand-orange bg-brand-orange/2 scale-[0.98]"
+                    : "hover:border-brand-orange hover:bg-brand-orange/2"
                 }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -432,9 +432,7 @@ export function TokenizerApp() {
               >
                 <svg
                   className={`w-12 h-12 transition-colors ${
-                    isDragging || isDragging
-                      ? "text-brand-orange"
-                      : "text-gray-400"
+                    isDragging ? "text-brand-orange" : "text-gray-400"
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -497,7 +495,7 @@ export function TokenizerApp() {
           <div className="bg-gray-50 p-3 border border-gray-200">
             <div className="h-1 bg-gray-200 w-full mt-2 relative overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
+                className="h-full bg-linear-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
                 style={{ width: `${progress ? progress.percentage : 100}%` }}
               />
             </div>

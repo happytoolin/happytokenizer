@@ -1,0 +1,89 @@
+---
+// FontLoader.astro - Optimized font loading component
+---
+
+<script is:inline>
+  // Optimized regional font loading
+  (function() {
+    const lang = document.documentElement.lang || navigator.language;
+
+    // Detect language families
+    const needsArabic = /ar|he|fa|ur|ps/.test(lang);
+    const needsChinese = /zh|cmn/.test(lang);
+    const needsJapanese = /ja/.test(lang);
+    const needsKorean = /ko/.test(lang);
+    const needsThai = /th/.test(lang);
+    const needsIndic = /hi|bn|gu|ta|te|ml|kn|or|pa|mr|ne|si|my|km|lo|ka|am|zu|sw|af|is|mt|cy|ga|gd|eu|ca|gl|et|lv|lt|mk|sr|hr|sk|sl|cs|pl|hu|ro|bg|ru|uk|be|kk|ky|uz|tg|mn|bo|dz|hy|he|yi/.test(lang);
+
+    // Performance-optimized font loader with caching
+    function loadFont(fontUrl, fontName) {
+      return new Promise((resolve, reject) => {
+        // Check if font is already loaded
+        if (document.querySelector(`link[href*="${fontName}"]`)) {
+          resolve();
+          return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'style';
+        link.onload = function() {
+          this.rel = 'stylesheet';
+          resolve();
+        };
+        link.onerror = reject;
+        link.href = fontUrl;
+
+        // Add cache-busting for development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          link.href += '&v=' + Date.now();
+        }
+
+        document.head.appendChild(link);
+      });
+    }
+
+    // Load fonts based on language
+    async function loadRegionalFonts() {
+      try {
+        if (needsArabic) {
+          await Promise.all([
+            loadFont('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap', 'Cairo'),
+            loadFont('https://fonts.googleapis.com/css2?family=Amiri:wght@400;500&display=swap', 'Amiri')
+          ]);
+        }
+
+        if (needsChinese) {
+          await loadFont('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600&display=swap', 'Noto+Sans+SC');
+        }
+
+        if (needsJapanese) {
+          await loadFont('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap', 'Noto+Sans+JP');
+        }
+
+        if (needsKorean) {
+          await loadFont('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600&display=swap', 'Noto+Sans+KR');
+        }
+
+        if (needsThai) {
+          await loadFont('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600&display=swap', 'Noto+Sans+Thai');
+        }
+
+        if (needsIndic) {
+          // Load general Indic font support
+          await loadFont('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&display=subset=devanagari,bengali,gurmukhi,gujarati,oriya,tamil,telugu,kannada,malayalam,sinhala,thai', 'Noto+Sans+Indic');
+        }
+      } catch (error) {
+        console.warn('Failed to load regional fonts:', error);
+      }
+    }
+
+    // Load fonts after critical path is clear
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadRegionalFonts);
+    } else {
+      // If DOM is already loaded, wait a bit for critical resources
+      setTimeout(loadRegionalFonts, 100);
+    }
+  })();
+</script>

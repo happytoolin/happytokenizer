@@ -1,6 +1,27 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Noto+Serif+Arabic:wght@400;500;600;700&family=Cairo:wght@200;300;400;500;600;700;800;900&family=Tajawal:wght@200;300;400;500;600;700;800;900&family=Amiri:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif:wght@400;500;700&display=swap");
+/* Critical Latin fonts - minimal weights for performance */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap");
+
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* Font loading improvements */
+@layer base {
+  /* Ensure font-display: swap for all Google Fonts */
+  @font-face {
+    font-family: "Archivo";
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "JetBrains Mono";
+    font-display: swap;
+  }
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -18,20 +39,15 @@
 
   /* --- TYPOGRAPHY --- */
   --font-display:
-    "Archivo", "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-    "Cairo", "Tajawal", "Noto Sans Arabic", "Impact", "Arial Black", system-ui,
-    sans-serif; /* Simulating Druk Wide with comprehensive language support */
+    "Archivo", "Impact", "Arial Black", "Helvetica Neue", "Arial", system-ui,
+    sans-serif; /* Display font with local fallbacks */
   --font-body:
-    "Inter", "Noto Sans", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
-    "Cairo", "Tajawal", "Noto Sans Arabic", "Noto Serif Arabic", "Amiri",
-    "Noto Serif", "Georgia", "Times New Roman", "Arial Unicode MS",
-    "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui,
-    sans-serif; /* Comprehensive multilingual support */
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Open Sans", "Helvetica Neue", "Arial", sans-serif;
+  /* System font stack with Inter as primary */
   --font-mono:
-    "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas",
-    "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP",
-    "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS",
-    "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace;
+    "JetBrains Mono", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono",
+    "Source Code Pro", "Menlo", "Consolas", "Courier New", monospace;
 
   /* --- PHYSICS & SHAPE --- */
   --ease-mechanical: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -554,5 +570,31 @@ input:focus {
     @apply bg-brand-paper text-brand-black font-body;
     background-image: var(--background-image-dot-grid);
     background-size: var(--background-size-dot-grid);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Safe area utilities for mobile devices */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-area-inset-all {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 }
