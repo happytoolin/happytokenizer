@@ -27,7 +27,7 @@ export function StatusDisplay({
       <div className="bg-gray-50 p-3 border border-gray-200">
         <div className="h-1 bg-gray-200 w-full mt-2 relative overflow-hidden">
           <div
-            className="h-full bg-linear-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out animate-pulse"
+            className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out animate-pulse"
             style={{ width: progress ? `${progress.percentage}%` : "100%" }}
           />
         </div>

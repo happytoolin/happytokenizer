@@ -123,7 +123,7 @@ export function VirtualizedCompactTokenDisplay({
           }}
         >
           {visibleItems.map(
-            ({ tokenId, color, text, virtualRow, colIndex }, index) => {
+            ({ tokenId, color, text, virtualRow, colIndex }) => {
               const tokenIndex =
                 virtualRow.index * effectiveTokensPerRow + colIndex;
               return (

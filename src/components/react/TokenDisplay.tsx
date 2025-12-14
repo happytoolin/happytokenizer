@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "../../styles/components/TokenDisplay.module.css";
-import { TOKEN_COLORS, CONTAINER_HEIGHT } from "../../utils/tokenColors";
+import { CONTAINER_HEIGHT } from "../../utils/tokenColors";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";

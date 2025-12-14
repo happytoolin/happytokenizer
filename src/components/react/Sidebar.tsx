@@ -1,7 +1,6 @@
 import React from "react";
 import { ComboboxShadcn, type ComboboxOption } from "../ui/combobox-shadcn";
 import { VERSION } from "../../utils/version";
-import type { ChatMessage } from "../../types/chat";
 
 export interface SidebarProps {
   model: string;
