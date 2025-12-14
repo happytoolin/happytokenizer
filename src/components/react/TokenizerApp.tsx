@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ComboboxShadcn,
-  type ComboboxOption,
+  type ComboboxOption
 } from "../../components/ui/combobox-shadcn";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import {
@@ -15,21 +14,13 @@ import {
   MODEL_DISPLAY_NAMES,
   MODEL_ENCODINGS,
 } from "../../utils/modelEncodings";
-import { VERSION } from "../../utils/version";
-import { ChatMessageEditor } from "./ChatMessageEditor";
+import { Sidebar } from "./Sidebar";
 import { TokenDisplay } from "./TokenDisplay";
-import type { ChatMessage } from "../../types/chat";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
   const [model, setModel] = useState<string>("gpt-5"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
-  const [activeMode, setActiveMode] = useState<"text" | "chat">("text");
-
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [debouncedChatMessages, setDebouncedChatMessages] = useState<
-    ChatMessage[]
-  >([]);
 
   // Generate combobox options from model encodings
   const modelOptions = useMemo(() => {
@@ -172,15 +163,8 @@ export function TokenizerApp() {
 
   // Get encoding for the current model - if model is an encoding itself, use it directly
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
-  const {
-    tokens,
-    tokenTexts,
-    isLoading,
-    error,
-    progress,
-    tokenize,
-    isChatMode,
-  } = useTokenizer();
+  const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
+    useTokenizer();
 
   // Debounce text input
   useEffect(() => {
@@ -191,48 +175,12 @@ export function TokenizerApp() {
     return () => clearTimeout(timer);
   }, [text]);
 
-  // Debounce chat messages
+  // Trigger tokenization when debounced text or encoding changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Create a deep copy of chat messages to avoid reference issues
-      setDebouncedChatMessages(JSON.parse(JSON.stringify(chatMessages)));
-    }, 300); // Slightly longer debounce for chat to avoid rapid re-tokenization
-
-    return () => clearTimeout(timer);
-  }, [chatMessages]);
-
-  // Clear debounced values when switching modes to avoid showing stale data
-  useEffect(() => {
-    if (activeMode === "text") {
-      setDebouncedChatMessages([]);
-    } else if (activeMode === "chat") {
-      setDebouncedText("");
-    }
-  }, [activeMode]);
-
-  // Trigger tokenization when debounced text or encoding changes (for text mode)
-  useEffect(() => {
-    if (activeMode === "text" && debouncedText && encoding) {
+    if (debouncedText && encoding) {
       tokenize(debouncedText, encoding, { isChatMode: false });
     }
-  }, [debouncedText, encoding, tokenize, activeMode]);
-
-  // Trigger tokenization when debounced chat messages change (for chat mode)
-  useEffect(() => {
-    if (activeMode === "chat" && debouncedChatMessages.length > 0 && encoding) {
-      // Create a combined text representation for the UI
-      const combinedText = debouncedChatMessages
-        .map((msg) => `[${msg.role}]: ${msg.content}`)
-        .join("\n\n");
-      tokenize(combinedText, encoding, {
-        isChatMode: true,
-        chatMessages: debouncedChatMessages,
-      });
-    } else if (activeMode === "chat" && debouncedChatMessages.length === 0) {
-      // Clear tokens when there are no chat messages
-      tokenize("", encoding, { isChatMode: true, chatMessages: [] });
-    }
-  }, [debouncedChatMessages, encoding, tokenize, activeMode]);
+  }, [debouncedText, encoding, tokenize]);
 
   // --- FILE HANDLERS ---
   const processFile = (file: File) => {
@@ -291,337 +239,123 @@ export function TokenizerApp() {
   return (
     <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[1024px]:gap-6 max-[900px]:grid-cols-1 max-[900px]:p-4 max-[768px]:p-3 max-[480px]:p-2">
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className="sticky top-10 h-[calc(100vh-3rem)] max-h-[900px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[1024px]:h-[calc(100vh-2.5rem)] max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:max-h-none max-[900px]:shadow-none max-[768px]:mb-4">
-        <div className="p-6 border-b border-brand-black bg-brand-black text-white max-[768px]:p-4 max-[480px]:p-3">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
-            <a
-              href="https://happytokenizer.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="no-underline inline-block"
-            >
-              <h1 className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
-                HappyTokenizer
-              </h1>
-            </a>
-          </div>
-          <div className="flex gap-2 items-center">
-            <span className="font-mono text-xxs text-gray-400">{VERSION}</span>
-            <a
-              href="https://happytoolin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="font-mono text-xxs bg-white text-brand-black px-1 py-0.5 font-bold">
-                by happytoolin
-              </span>
-            </a>
-          </div>
-        </div>
-
-        <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical max-[768px]:p-4 max-[768px]:gap-6 max-[480px]:p-3 max-[480px]:gap-4">
-          <div className="flex flex-col gap-3">
-            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
-              Model Selection
-            </label>
-            <ComboboxShadcn
-              options={modelOptions}
-              value={model}
-              onValueChange={setModel}
-              placeholder="Select a model..."
-              className="w-full"
-            />
-          </div>
-
-          {/* Mode Toggle */}
-          <div className="flex flex-col gap-3">
-            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
-              Tokenization Mode
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setActiveMode("text")}
-                className={`font-mono text-xs px-3 py-2 border rounded transition-all ${
-                  activeMode === "text"
-                    ? "bg-brand-orange text-brand-black border-brand-black"
-                    : "bg-transparent border-gray-300 text-gray-600 hover:border-brand-black hover:text-brand-black"
-                }`}
-              >
-                Text
-              </button>
-              <button
-                onClick={() => setActiveMode("chat")}
-                className={`font-mono text-xs px-3 py-2 border rounded transition-all ${
-                  activeMode === "chat"
-                    ? "bg-brand-orange text-brand-black border-brand-black"
-                    : "bg-transparent border-gray-300 text-gray-600 hover:border-brand-black hover:text-brand-black"
-                }`}
-              >
-                Chat
-              </button>
-            </div>
-          </div>
-
-          {/* Model Info */}
-          <div className="flex justify-between items-center p-2 bg-brand-paper border border-gray-300">
-            <span className="font-mono text-xxs text-gray-400 uppercase font-semibold">
-              Encoding
-            </span>
-            <span className="font-mono text-xs text-brand-black font-semibold">
-              {encoding}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
-              Input Source
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => {
-                  setText(SAMPLE_TEXT);
-                  setActiveTab("input");
-                }}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-              >
-                Sample
-              </button>
-              <button
-                onClick={() => {
-                  setText(LARGE_SAMPLE_TEXT);
-                  setActiveTab("input");
-                }}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-              >
-                Large
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setText(DEFAULT_ESSAY)}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-              >
-                Essay
-              </button>
-              <button
-                onClick={handleClear}
-                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-          {/* Always reserve space for loading state to prevent layout shift */}
-          <div className="h-[80px] shrink-0 max-[768px]:h-0 max-[768px]:overflow-hidden">
-            {isLoading && (
-              <div className="bg-brand-paper p-3 border border-gray-300 h-full">
-                <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] mb-2">
-                  Processing Stream
-                </div>
-                <div className="h-1 bg-gray-300 w-full relative overflow-hidden">
-                  <div
-                    className="h-full bg-linear-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
-                    style={{
-                      width: `${progress ? progress.percentage : 100}%`,
-                    }}
-                  />
-                </div>
-                <div className="font-mono text-xxs text-gray-400 mt-1 text-right">
-                  {progress
-                    ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
-                    : "Calculating..."}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Privacy Section */}
-          <div className="flex flex-col items-center gap-0.5 p-1.5 m-2 text-center">
-            <span className="font-mono text-xxs text-gray-400 uppercase leading-none mb-1">
-              Privacy
-            </span>
-            <span className="font-mono text-xs text-brand-black font-semibold leading-none">
-              100% Client-Side
-            </span>
-          </div>
-        </div>
-
-        <div className="p-6 border-t border-gray-200 bg-brand-paper max-[768px]:p-4 max-[480px]:p-3">
-          <div className="font-mono text-xxs text-gray-400 uppercase mb-1 text-center block">
-            Open Source Software
-          </div>
-          <a
-            href="https://github.com/happytoolin/happytokenizer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors"
-          >
-            github.com/happytoolin
-          </a>
-        </div>
-      </aside>
+      <Sidebar
+        model={model}
+        onModelChange={setModel}
+        modelOptions={modelOptions}
+        encoding={encoding}
+        mode="text"
+        onSampleText={() => setText(SAMPLE_TEXT)}
+        onLargeText={() => setText(LARGE_SAMPLE_TEXT)}
+        onEssayText={() => setText(DEFAULT_ESSAY)}
+        onClearText={handleClear}
+        isLoading={isLoading}
+      />
 
       {/* --- RIGHT PANEL: WORKSPACE --- */}
       <div className="flex flex-col gap-6 max-[768px]:pb-32 max-[600px]:pb-20 max-[480px]:pb-24">
         {/* Editor Section */}
         <div className="bg-white border border-brand-black shadow-hard">
-          {/* Tab Header - Only show for text mode */}
-          {activeMode === "text" && (
-            <div className="flex border-b border-brand-black bg-brand-paper">
-              <button
-                onClick={() => setActiveTab("input")}
-                className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
-                  activeTab === "input"
-                    ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
-                    : "text-gray-500"
-                }`}
-              >
-                Input Stream
-              </button>
-              <button
-                onClick={() => setActiveTab("upload")}
-                className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
-                  activeTab === "upload"
-                    ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
-                    : "text-gray-500"
-                }`}
-              >
-                Upload File
-              </button>
-            </div>
-          )}
+          <div className="flex border-b border-brand-black bg-brand-paper">
+            <button
+              onClick={() => setActiveTab("input")}
+              className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
+                activeTab === "input"
+                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                  : "text-gray-500"
+              }`}
+            >
+              Input Stream
+            </button>
+            <button
+              onClick={() => setActiveTab("upload")}
+              className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
+                activeTab === "upload"
+                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                  : "text-gray-500"
+              }`}
+            >
+              Upload File
+            </button>
+          </div>
 
-          {/* Chat Mode Header - Only show for chat mode */}
-          {activeMode === "chat" && (
-            <div className="border-b border-brand-black bg-brand-paper p-4">
-              <h3 className="font-mono text-sm font-semibold text-brand-black">
-                Chat Conversation Editor
-              </h3>
-              <p className="font-mono text-xs text-gray-500 mt-1">
-                Build a conversation to see how OpenAI tokenizes chat messages
-                with special formatting tokens
-              </p>
-            </div>
-          )}
-
-          {/* Content Area */}
-          <div className="min-h-[200px]">
-            {activeMode === "text" ? (
-              activeTab === "input" ? (
-                <textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Paste or type your text here to see how it gets tokenized..."
-                  className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50 max-[768px]:p-4 max-[480px]:p-3 max-[480px]:text-xs"
-                />
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px] max-[768px]:p-4 max-[480px]:p-3">
-                  <div
-                    className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
-                      isDragging
-                        ? "border-brand-orange bg-brand-orange/2 scale-[0.98]"
-                        : "hover:border-brand-orange hover:bg-brand-orange/2"
-                    }`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <svg
-                      className={`w-12 h-12 transition-colors ${
-                        isDragging ? "text-brand-orange" : "text-gray-400"
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    <div className="text-center">
-                      <p className="font-display font-bold text-base text-brand-black">
-                        Drop File Here
-                      </p>
-                      <p className="font-mono text-xs text-gray-500 max-w-[250px] text-center leading-6">
-                        Supports .txt, .md, .json, .js, .py (Max 5MB)
-                      </p>
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.py,.html,.css"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                  </div>
-                  {uploadError && (
-                    <p className="text-red-500 font-mono text-xs mt-4">
-                      {uploadError}
-                    </p>
-                  )}
+          {activeTab === "input" ? (
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste or type your text here to see how it gets tokenized..."
+              className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50 max-[768px]:p-4 max-[480px]:p-3 max-[480px]:text-xs"
+            />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px] max-[768px]:p-4 max-[480px]:p-3">
+              <div
+                className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
+                  isDragging
+                    ? "border-brand-orange bg-brand-orange/2 scale-[0.98]"
+                    : "hover:border-brand-orange hover:bg-brand-orange/2"
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <svg
+                  className={`w-12 h-12 transition-colors ${
+                    isDragging ? "text-brand-orange" : "text-gray-400"
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                <div className="text-center">
+                  <p className="font-display font-bold text-base text-brand-black">
+                    Drop File Here
+                  </p>
+                  <p className="font-mono text-xs text-gray-500 max-w-[250px] text-center leading-6">
+                    Supports .txt, .md, .json, .js, .py (Max 5MB)
+                  </p>
                 </div>
-              )
-            ) : (
-              <div className="p-6">
-                <ChatMessageEditor
-                  messages={chatMessages}
-                  onMessagesChange={setChatMessages}
-                  disabled={isLoading}
-                  isProcessing={
-                    isLoading && chatMessages !== debouncedChatMessages
-                  }
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.py,.html,.css"
+                  onChange={handleFileSelect}
+                  className="hidden"
                 />
               </div>
-            )}
-          </div>
+              {uploadError && (
+                <p className="text-red-500 font-mono text-xs mt-4">
+                  {uploadError}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Meta Bar */}
           <div className="flex gap-6 border-t border-brand-black p-2 bg-white">
-            {activeMode === "text" ? (
-              <>
-                <div className="flex gap-2 items-center">
-                  <span className="font-mono text-xxs text-gray-400 font-bold">
-                    CH
-                  </span>
-                  <span className="font-mono text-xs font-medium">
-                    {text.length}
-                  </span>
-                </div>
-                <div className="flex gap-2 items-center">
-                  <span className="font-mono text-xxs text-gray-400 font-bold">
-                    WORD
-                  </span>
-                  <span className="font-mono text-xs font-medium">
-                    {text.split(/\s+/).filter((w) => w).length}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex gap-2 items-center">
-                  <span className="font-mono text-xxs text-gray-400 font-bold">
-                    MESSAGES
-                  </span>
-                  <span className="font-mono text-xs font-medium">
-                    {chatMessages.length}
-                  </span>
-                </div>
-                <div className="flex gap-2 items-center">
-                  <span className="font-mono text-xxs text-gray-400 font-bold">
-                    MODE
-                  </span>
-                  <span className="font-mono text-xs font-medium text-brand-orange">
-                    CHAT
-                  </span>
-                </div>
-              </>
-            )}
+            <div className="flex gap-2 items-center">
+              <span className="font-mono text-xxs text-gray-400 font-bold">
+                CH
+              </span>
+              <span className="font-mono text-xs font-medium">
+                {text.length}
+              </span>
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="font-mono text-xxs text-gray-400 font-bold">
+                WORD
+              </span>
+              <span className="font-mono text-xs font-medium">
+                {text.split(/\s+/).filter((w) => w).length}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -641,7 +375,7 @@ export function TokenizerApp() {
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-sm">
+          <div className="bg-red-50 border border-red-200 p-4">
             <p className="font-mono text-sm text-red-600">Error: {error}</p>
           </div>
         )}
@@ -651,8 +385,6 @@ export function TokenizerApp() {
             text={debouncedText}
             tokens={tokens || []}
             tokenTexts={tokenTexts || []}
-            isChatMode={isChatMode}
-            chatMessages={chatMessages}
           />
         )}
       </div>

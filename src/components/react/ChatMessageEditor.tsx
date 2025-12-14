@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { memo, useCallback } from "react";
 import type { ChatMessage } from "../../types/chat";
 
 interface ChatMessageEditorProps {
   messages: ChatMessage[];
   onMessagesChange: (messages: ChatMessage[]) => void;
   disabled?: boolean;
-  isProcessing?: boolean;
 }
 
 const messageRoles: Array<ChatMessage["role"]> = [
@@ -15,59 +14,148 @@ const messageRoles: Array<ChatMessage["role"]> = [
   "tool",
 ];
 
+// Memoized message item component to prevent re-renders of other messages
+const MessageItem = memo(
+  ({
+    message,
+    index,
+    disabled,
+    onUpdateMessage,
+    onRemoveMessage,
+    onMoveMessage,
+    messagesLength,
+  }: {
+    message: ChatMessage;
+    index: number;
+    disabled: boolean;
+    onUpdateMessage: (
+      index: number,
+      field: keyof ChatMessage,
+      value: string,
+    ) => void;
+    onRemoveMessage: (index: number) => void;
+    onMoveMessage: (index: number, direction: "up" | "down") => void;
+    messagesLength: number;
+  }) => (
+    <div className="border border-gray-200 p-3 bg-gray-50">
+      <div className="flex items-center gap-2 mb-2">
+        <select
+          value={message.role}
+          onChange={(e) =>
+            onUpdateMessage(
+              index,
+              "role",
+              e.target.value as ChatMessage["role"],
+            )
+          }
+          disabled={disabled}
+          className="font-mono text-xs border border-gray-300 px-2 py-1 bg-white focus:outline-none focus:border-brand-black disabled:opacity-50"
+        >
+          {messageRoles.map((role) => (
+            <option key={role} value={role}>
+              {role.charAt(0).toUpperCase() + role.slice(1)}
+            </option>
+          ))}
+        </select>
+
+        <div className="flex-1" />
+
+        <button
+          onClick={() => onMoveMessage(index, "up")}
+          disabled={disabled || index === 0}
+          className="font-mono text-xs bg-transparent border border-gray-300 px-1 py-0.5 rounded hover:border-brand-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Move up"
+        >
+          ↑
+        </button>
+        <button
+          onClick={() => onMoveMessage(index, "down")}
+          disabled={disabled || index === messagesLength - 1}
+          className="font-mono text-xs bg-transparent border border-gray-300 px-1 py-0.5 rounded hover:border-brand-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Move down"
+        >
+          ↓
+        </button>
+        <button
+          onClick={() => onRemoveMessage(index)}
+          disabled={disabled}
+          className="font-mono text-xs bg-red-500 text-white border border-red-600 px-1 py-0.5 rounded hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Remove"
+        >
+          ×
+        </button>
+      </div>
+
+      <textarea
+        value={message.content}
+        onChange={(e) => onUpdateMessage(index, "content", e.target.value)}
+        disabled={disabled}
+        placeholder={`Enter ${message.role} message...`}
+        className="w-full font-mono text-xs border border-gray-300 px-2 py-1 bg-white focus:outline-none focus:border-brand-black resize-y min-h-[60px] disabled:opacity-50"
+      />
+    </div>
+  ),
+);
+
+MessageItem.displayName = "MessageItem";
+
 export function ChatMessageEditor({
   messages,
   onMessagesChange,
   disabled = false,
-  isProcessing = false,
 }: ChatMessageEditorProps) {
-  const addMessage = () => {
+  const addMessage = useCallback(() => {
     const newMessage: ChatMessage = {
       role: "user",
       content: "",
     };
     onMessagesChange([...messages, newMessage]);
-  };
+  }, [messages, onMessagesChange]);
 
-  const updateMessage = (
-    index: number,
-    field: keyof ChatMessage,
-    value: string,
-  ) => {
-    const updatedMessages = [...messages];
-    updatedMessages[index] = {
-      ...updatedMessages[index],
-      [field]: value,
-    };
-    onMessagesChange(updatedMessages);
-  };
+  const updateMessage = useCallback(
+    (index: number, field: keyof ChatMessage, value: string) => {
+      const updatedMessages = [...messages];
+      updatedMessages[index] = {
+        ...updatedMessages[index],
+        [field]: value,
+      };
+      onMessagesChange(updatedMessages);
+    },
+    [messages, onMessagesChange],
+  );
 
-  const removeMessage = (index: number) => {
-    const updatedMessages = messages.filter((_, i) => i !== index);
-    onMessagesChange(updatedMessages);
-  };
+  const removeMessage = useCallback(
+    (index: number) => {
+      const updatedMessages = messages.filter((_, i) => i !== index);
+      onMessagesChange(updatedMessages);
+    },
+    [messages, onMessagesChange],
+  );
 
-  const moveMessage = (index: number, direction: "up" | "down") => {
-    if (
-      (direction === "up" && index === 0) ||
-      (direction === "down" && index === messages.length - 1)
-    ) {
-      return;
-    }
+  const moveMessage = useCallback(
+    (index: number, direction: "up" | "down") => {
+      if (
+        (direction === "up" && index === 0) ||
+        (direction === "down" && index === messages.length - 1)
+      ) {
+        return;
+      }
 
-    const updatedMessages = [...messages];
-    const newIndex = direction === "up" ? index - 1 : index + 1;
+      const updatedMessages = [...messages];
+      const newIndex = direction === "up" ? index - 1 : index + 1;
 
-    // Swap messages
-    [updatedMessages[index], updatedMessages[newIndex]] = [
-      updatedMessages[newIndex],
-      updatedMessages[index],
-    ];
+      // Swap messages
+      [updatedMessages[index], updatedMessages[newIndex]] = [
+        updatedMessages[newIndex],
+        updatedMessages[index],
+      ];
 
-    onMessagesChange(updatedMessages);
-  };
+      onMessagesChange(updatedMessages);
+    },
+    [messages, onMessagesChange],
+  );
 
-  const loadExampleChat = () => {
+  const loadExampleChat = useCallback(() => {
     const exampleMessages: ChatMessage[] = [
       {
         role: "system",
@@ -84,29 +172,26 @@ export function ChatMessageEditor({
       },
     ];
     onMessagesChange(exampleMessages);
-  };
+  }, [onMessagesChange]);
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-xs font-semibold uppercase text-gray-600">
-          Chat Messages{" "}
-          {isProcessing && (
-            <span className="text-brand-orange">(processing...)</span>
-          )}
+          Chat Messages
         </h3>
         <div className="flex gap-2">
           <button
             onClick={loadExampleChat}
-            disabled={disabled || isProcessing}
-            className="font-mono text-xs bg-transparent border border-gray-300 px-2 py-1 rounded hover:border-brand-black hover:text-brand-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
+            className="font-mono text-xs bg-transparent border border-gray-300 px-2 py-1 hover:border-brand-black hover:text-brand-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Load Example
           </button>
           <button
             onClick={addMessage}
-            disabled={disabled || isProcessing}
-            className="font-mono text-xs bg-brand-orange text-brand-black border border-brand-black px-2 py-1 rounded hover:bg-orange-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
+            className="font-mono text-xs bg-brand-orange text-brand-black border border-brand-black px-2 py-1 hover:bg-orange-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add Message
           </button>
@@ -120,68 +205,16 @@ export function ChatMessageEditor({
           </div>
         ) : (
           messages.map((message, index) => (
-            <div
+            <MessageItem
               key={index}
-              className="border border-gray-200 rounded-lg p-3 bg-gray-50"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <select
-                  value={message.role}
-                  onChange={(e) =>
-                    updateMessage(
-                      index,
-                      "role",
-                      e.target.value as ChatMessage["role"],
-                    )
-                  }
-                  disabled={disabled || isProcessing}
-                  className="font-mono text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:border-brand-black disabled:opacity-50"
-                >
-                  {messageRoles.map((role) => (
-                    <option key={role} value={role}>
-                      {role.charAt(0).toUpperCase() + role.slice(1)}
-                    </option>
-                  ))}
-                </select>
-
-                <div className="flex-1" />
-
-                <button
-                  onClick={() => moveMessage(index, "up")}
-                  disabled={disabled || index === 0}
-                  className="font-mono text-xs bg-transparent border border-gray-300 px-1 py-0.5 rounded hover:border-brand-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Move up"
-                >
-                  ↑
-                </button>
-                <button
-                  onClick={() => moveMessage(index, "down")}
-                  disabled={disabled || index === messages.length - 1}
-                  className="font-mono text-xs bg-transparent border border-gray-300 px-1 py-0.5 rounded hover:border-brand-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Move down"
-                >
-                  ↓
-                </button>
-                <button
-                  onClick={() => removeMessage(index)}
-                  disabled={disabled || isProcessing}
-                  className="font-mono text-xs bg-red-500 text-white border border-red-600 px-1 py-0.5 rounded hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Remove"
-                >
-                  ×
-                </button>
-              </div>
-
-              <textarea
-                value={message.content}
-                onChange={(e) =>
-                  updateMessage(index, "content", e.target.value)
-                }
-                disabled={disabled || isProcessing}
-                placeholder={`Enter ${message.role} message...`}
-                className="w-full font-mono text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:border-brand-black resize-y min-h-[60px] disabled:opacity-50"
-              />
-            </div>
+              message={message}
+              index={index}
+              disabled={disabled}
+              onUpdateMessage={updateMessage}
+              onRemoveMessage={removeMessage}
+              onMoveMessage={moveMessage}
+              messagesLength={messages.length}
+            />
           ))
         )}
       </div>

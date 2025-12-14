@@ -17,7 +17,6 @@ import {
   decode as decodeR50k,
   encode as encodeR50k,
 } from "gpt-tokenizer/encoding/r50k_base";
-import type { EncodingType } from "../utils/modelEncodings";
 
 // Re-export EncodingType for other modules
 export type { EncodingType };
