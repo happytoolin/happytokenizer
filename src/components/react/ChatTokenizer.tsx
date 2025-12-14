@@ -1,8 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import {
-  ComboboxShadcn,
-  type ComboboxOption,
-} from "../../components/ui/combobox-shadcn";
+import { type ComboboxOption } from "../../components/ui/combobox-shadcn";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import {
   getEncodingForModel,
@@ -118,7 +115,7 @@ export function ChatTokenizer() {
           let isInSpecialGroup = false;
 
           // Check if model belongs to a special group
-          Object.entries(specialGroups).forEach(([key, group]) => {
+          Object.values(specialGroups).forEach((group) => {
             if (group.models.includes(modelName)) {
               groupName = group.groupName;
               isInSpecialGroup = true;
@@ -144,7 +141,7 @@ export function ChatTokenizer() {
             group.groupName.includes("Legacy")
           ) {
             group.models.forEach((modelName) => {
-              if (MODEL_ENCODINGS.r50k_base.includes(modelName as any)) {
+              if (MODEL_ENCODINGS.r50k_base.includes(modelName as string)) {
                 options.push({
                   value: modelName,
                   label: MODEL_DISPLAY_NAMES[modelName] || modelName,
@@ -178,8 +175,7 @@ export function ChatTokenizer() {
 
   // Get encoding for the current model
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
-  const { tokens, tokenTexts, isLoading, error, tokenize, isChatMode } =
-    useTokenizer();
+  const { tokens, tokenTexts, isLoading, error, tokenize } = useTokenizer();
 
   // Memoize callback functions to prevent unnecessary re-renders
   const handleExampleChat = useCallback(() => {

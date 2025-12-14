@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  type ComboboxOption
-} from "../../components/ui/combobox-shadcn";
+import { type ComboboxOption } from "../../components/ui/combobox-shadcn";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import {
   DEFAULT_ESSAY,
@@ -97,7 +95,7 @@ export function TokenizerApp() {
           let isInSpecialGroup = false;
 
           // Check if model belongs to a special group
-          Object.entries(specialGroups).forEach(([key, group]) => {
+          Object.entries(specialGroups).forEach(([, group]) => {
             if (group.models.includes(modelName)) {
               groupName = group.groupName;
               isInSpecialGroup = true;
@@ -123,7 +121,7 @@ export function TokenizerApp() {
             group.groupName.includes("Legacy")
           ) {
             group.models.forEach((modelName) => {
-              if (MODEL_ENCODINGS.r50k_base.includes(modelName as any)) {
+              if (MODEL_ENCODINGS.r50k_base.includes(modelName as never)) {
                 options.push({
                   value: modelName,
                   label: MODEL_DISPLAY_NAMES[modelName] || modelName,

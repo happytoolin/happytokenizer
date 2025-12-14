@@ -62,7 +62,6 @@ export function VirtualizedCompactTokenDisplay({
     };
   }, []);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,

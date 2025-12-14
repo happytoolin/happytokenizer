@@ -22,9 +22,10 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-interface CommandDialogProps extends DialogProps {}
+type CommandDialogProps = DialogProps;
 
-const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CommandDialog = (_props: CommandDialogProps) => {
   return <div>{/* Placeholder - we'll use popover instead */}</div>;
 };
 

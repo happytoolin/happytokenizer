@@ -253,7 +253,8 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         model,
       );
 
-      // Cast chatMessages to any to handle type mismatch between our interface and library's interface
+      // Cast chatMessages to handle type mismatch between our interface and library's interface
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tokens = encodeChat(chatMessages as any, chatModel as any);
       const tokenTexts = decodeTokens(tokens, model);
 

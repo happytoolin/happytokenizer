@@ -198,7 +198,6 @@ export function VirtualizedInlineTokenDisplay({
     return () => clearTimeout(timer);
   }, [measureLineBreaks]);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: lineBreaks.length,
     getScrollElement: () => parentRef.current,
