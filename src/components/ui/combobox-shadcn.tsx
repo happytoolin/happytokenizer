@@ -66,19 +66,24 @@ export function ComboboxShadcn({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between bg-brand-paper border-brand-black text-brand-black font-body font-semibold hover:bg-gray-200 focus:bg-brand-black focus:text-white",
+            "w-full justify-between bg-brand-paper border-brand-black text-brand-black font-body font-semibold hover:bg-gray-200 focus:bg-brand-black focus:text-white min-h-10",
             disabled && "cursor-not-allowed opacity-50",
             className,
           )}
           disabled={disabled}
         >
-          {value
-            ? options.find((option) => option.value === value)?.label
-            : placeholder}
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-brand-orange" />
+          <span className="truncate mr-2">
+            {value
+              ? options.find((option) => option.value === value)?.label
+              : placeholder}
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0 text-brand-orange" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 max-h-[260px]" align="start">
+      <PopoverContent
+        className="w-full p-0 max-h-[260px] min-w-[var(--radix-popover-trigger-width)]"
+        align="start"
+      >
         <Command className="w-full">
           <CommandInput placeholder="Search model..." />
           <CommandEmpty>No model found.</CommandEmpty>
@@ -99,14 +104,15 @@ export function ComboboxShadcn({
                       setOpen(false);
                     }}
                     disabled={option.disabled}
+                    className="flex items-center gap-2"
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-3 w-3 text-brand-orange flex-shrink-0",
+                        "h-3 w-3 text-brand-orange flex-shrink-0",
                         value === option.value ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    {option.label}
+                    <span className="truncate">{option.label}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

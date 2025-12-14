@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import FontLoader from '../components/FontLoader.astro';
 
 export interface Props {
 	title: string;
@@ -30,7 +31,7 @@ const structuredData = {
 	name: "HappyTokenizer",
 	applicationCategory: "DeveloperApplication",
 	operatingSystem: "Web Browser",
-	description: "Interactive GPT tokenizer visualization tool. Explore how different GPT models tokenize text with real-time visualization.",
+	description: "Interactive tokenizer visualization tool. Explore how different LLM models tokenize text with real-time visualization.",
 	url: url,
 	image: ogImage,
 	author: {
@@ -78,8 +79,8 @@ const structuredData = {
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content={ogImage} />
-		<meta property="og:image:width" content={ogWidth} />
-		<meta property="og:image:height" content={ogHeight} />
+		<meta property="og:image:width" content={ogWidth.toString()} />
+		<meta property="og:image:height" content={ogHeight.toString()} />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
@@ -91,9 +92,14 @@ const structuredData = {
 		<!-- Structured Data -->
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-		<!-- Preload fonts for performance -->
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+		<!-- Preload critical font stylesheets with async loading -->
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+		<noscript>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+		</noscript>
+
+		<!-- Include font loader component -->
+		<FontLoader />
 
 		<title>{title}</title>
 
