@@ -1,31 +1,35 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../../styles/components/VirtualizedInlineTokenDisplay.module.css";
+import { TOKEN_COLORS } from "../../utils/tokenColors";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
 
-interface TokenItem {
-  id: number;
-  tokenId: number;
-  color: string;
-  text: string;
-}
+// Global canvas context cache - created once and reused
+const measurementCanvas = typeof document !== 'undefined' ? document.createElement("canvas") : null;
+const measurementCtx = measurementCanvas ? measurementCanvas.getContext("2d") : null;
 
 interface VirtualizedInlineTokenDisplayProps {
-  items: TokenItem[];
+  tokens: number[];
+  tokenTexts: string[];
   containerHeight: number;
 }
 
 interface LineInfo {
-  tokens: TokenItem[];
+  tokens: Array<{
+    tokenId: number;
+    color: string;
+    text: string;
+  }>;
   startIndex: number;
   endIndex: number;
   height: number;
 }
 
 export function VirtualizedInlineTokenDisplay({
-  items,
+  tokens,
+  tokenTexts,
   containerHeight,
 }: VirtualizedInlineTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -44,7 +48,7 @@ export function VirtualizedInlineTokenDisplay({
   };
 
   const measureLineBreaks = useCallback(() => {
-    if (!parentRef.current || items.length === 0) {
+    if (!parentRef.current || tokens.length === 0) {
       setLineBreaks([]);
       return;
     }
@@ -53,35 +57,36 @@ export function VirtualizedInlineTokenDisplay({
     if (containerWidth <= 0) return;
 
     // 1. Calibrate Font Metrics (Fast, run once per measure)
-    // We create a temporary canvas to get the EXACT width of a character
-    // since we are using a Monospace font.
+    // Use cached canvas context for better performance
     let charWidthId = CONSTANTS.DEFAULT_CHAR_WIDTH_ID;
     let charWidthText = CONSTANTS.DEFAULT_CHAR_WIDTH_TEXT;
 
-    try {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
+    if (measurementCtx) {
+      try {
         // Measure ID font (10px)
-        ctx.font =
+        measurementCtx.font =
           '10px "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP", "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace';
-        const m1 = ctx.measureText("0");
+        const m1 = measurementCtx.measureText("0");
         if (m1.width > 0) charWidthId = m1.width;
 
         // Measure Text font (12px 500 weight)
-        ctx.font =
+        measurementCtx.font =
           '500 12px "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Menlo", "Monaco", "Courier New", "Noto Sans Mono SC", "Noto Sans Mono JP", "Noto Sans Mono KR", "Noto Sans Arabic", "Tahoma", "Arial Unicode MS", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace';
-        const m2 = ctx.measureText("M");
+        const m2 = measurementCtx.measureText("M");
         if (m2.width > 0) charWidthText = m2.width;
+      } catch (error) {
+        console.error("Font measurement failed:", error);
+        // Fallback to defaults if canvas fails
       }
-    } catch (error) {
-      console.error("Font measurement failed:", error);
-      // Fallback to defaults if canvas fails
     }
 
     // 2. Calculate Lines (Pure Math, No DOM)
     const lines: LineInfo[] = [];
-    let currentLine: TokenItem[] = [];
+    let currentLine: Array<{
+      tokenId: number;
+      color: string;
+      text: string;
+    }> = [];
     let currentLineWidth = 0;
     let currentLineStartIndex = 0;
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import styles from "../../styles/components/TokenDisplay.module.css";
 import { TOKEN_COLORS, CONTAINER_HEIGHT } from "../../utils/tokenColors";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
@@ -27,43 +27,7 @@ export function TokenDisplay({
     "inline",
   );
 
-  // Highly optimized token item generation using actual decoded token texts
-  const tokenItems = useMemo(() => {
-    if (tokens.length === 0) return [];
-
-    const result = new Array(tokens.length);
-    const colorsLen = TOKEN_COLORS.length;
-
-    for (let i = 0; i < tokens.length; i++) {
-      const tokenId = tokens[i];
-      // Fast modulo
-      const color = TOKEN_COLORS[i % colorsLen];
-
-      // Use the actual decoded text for this token if available
-      // This shows what each token actually represents, fixing the duplicate issue
-      let displayText = tokenTexts[i] || `[${tokenId}]`;
-
-      // Clean up whitespace-only tokens for better display
-      if (displayText.trim() === "") {
-        displayText = `[${tokenId}]`;
-      }
-
-      // Truncate very long tokens for display
-      if (displayText.length > 20) {
-        displayText = displayText.substring(0, 20) + "...";
-      }
-
-      result[i] = {
-        id: i,
-        tokenId,
-        color,
-        text: displayText,
-      };
-    }
-
-    return result;
-  }, [tokens, tokenTexts]);
-
+  
   if (error) return <div className={styles.error}>ERR: {error}</div>;
 
   // For chat mode, we don't need text to show tokens
@@ -110,13 +74,15 @@ export function TokenDisplay({
       <div className={styles.tokensContainer}>
         {viewMode === "inline" && (
           <VirtualizedInlineTokenDisplay
-            items={tokenItems}
+            tokens={tokens}
+            tokenTexts={tokenTexts}
             containerHeight={CONTAINER_HEIGHT}
           />
         )}
         {viewMode === "compact" && (
           <VirtualizedCompactTokenDisplay
-            items={tokenItems}
+            tokens={tokens}
+            tokenTexts={tokenTexts}
             containerHeight={CONTAINER_HEIGHT}
             tokensPerRow={32} // Will be dynamically calculated
             itemWidth={48} // Increased for more horizontal space
@@ -126,7 +92,8 @@ export function TokenDisplay({
         )}
         {viewMode === "detailed" && (
           <VirtualTokenDisplay
-            items={tokenItems}
+            tokens={tokens}
+            tokenTexts={tokenTexts}
             containerHeight={CONTAINER_HEIGHT}
             estimatedItemHeight={40}
           />

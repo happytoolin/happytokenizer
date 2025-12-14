@@ -10,15 +10,8 @@ export interface SidebarProps {
   encoding: string;
   mode: "text" | "chat";
   onModeChange?: () => void;
-  // Text mode specific props
-  onSampleText?: () => void;
-  onLargeText?: () => void;
-  onEssayText?: () => void;
-  onClearText?: () => void;
-  // Chat mode specific props
-  chatMessages?: ChatMessage[];
-  onExampleChat?: () => void;
-  onClearChat?: () => void;
+  // Generic actions for flexible content
+  actions?: React.ReactNode;
   isLoading?: boolean;
 }
 
@@ -28,12 +21,7 @@ export function Sidebar({
   modelOptions,
   encoding,
   mode,
-  onSampleText,
-  onLargeText,
-  onEssayText,
-  onClearText,
-  onExampleChat,
-  onClearChat,
+  actions,
   isLoading,
 }: SidebarProps) {
   return (
@@ -124,65 +112,15 @@ export function Sidebar({
           </span>
         </div>
 
-        {/* Input Source - Consistent for both modes */}
-        <div className="flex flex-col gap-3">
-          <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
-            Input Source
-          </label>
-          {mode === "text" ? (
-            <>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    onSampleText?.();
-                  }}
-                  className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-                >
-                  Sample
-                </button>
-                <button
-                  onClick={() => {
-                    onLargeText?.();
-                  }}
-                  className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-                >
-                  Large
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => onEssayText?.()}
-                  className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-                >
-                  Essay
-                </button>
-                <button
-                  onClick={() => onClearText?.()}
-                  className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
-                >
-                  Clear
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => onExampleChat?.()}
-                disabled={isLoading}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black disabled:opacity-50"
-              >
-                Example
-              </button>
-              <button
-                onClick={() => onClearChat?.()}
-                disabled={isLoading}
-                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none disabled:opacity-50"
-              >
-                Clear All
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Input Source - Generic actions */}
+        {actions && (
+          <div className="flex flex-col gap-3">
+            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
+              Input Source
+            </label>
+            {actions}
+          </div>
+        )}
 
         {/* Loading State */}
         <div className="h-[80px] shrink-0 max-[768px]:h-0 max-[768px]:overflow-hidden">

@@ -1,16 +1,11 @@
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { useMemo, useRef, useState, useEffect } from "react";
 import styles from "../../styles/components/VirtualizedCompactTokenDisplay.module.css";
-
-interface TokenItem {
-  id: number;
-  tokenId: number;
-  color: string;
-  text: string;
-}
+import { TOKEN_COLORS } from "../../utils/tokenColors";
 
 interface VirtualizedCompactTokenDisplayProps {
-  items: TokenItem[];
+  tokens: number[];
+  tokenTexts: string[];
   containerHeight: number;
   tokensPerRow: number;
   itemWidth: number;
@@ -19,7 +14,8 @@ interface VirtualizedCompactTokenDisplayProps {
 }
 
 export function VirtualizedCompactTokenDisplay({
-  items,
+  tokens,
+  tokenTexts,
   containerHeight,
   tokensPerRow,
   itemWidth,
@@ -39,7 +35,7 @@ export function VirtualizedCompactTokenDisplay({
       ? Math.floor((containerWidth - 32 - gap) / (itemWidth + gap))
       : tokensPerRow;
 
-  const rowCount = Math.ceil(items.length / effectiveTokensPerRow);
+  const rowCount = Math.ceil(tokens.length / effectiveTokensPerRow);
 
   // Update container width on resize
   useEffect(() => {
@@ -71,9 +67,31 @@ export function VirtualizedCompactTokenDisplay({
 
   const virtualRows = rowVirtualizer.getVirtualItems();
 
-  const visibleItems = useMemo(() => {
+  // Computation helper for individual token data
+const getTokenData = (index: number) => {
+  const tokenId = tokens[index];
+  const color = TOKEN_COLORS[index % TOKEN_COLORS.length];
+
+  let displayText = tokenTexts[index] || `[${tokenId}]`;
+
+  // Clean up whitespace-only tokens for better display
+  if (displayText.trim() === "") {
+    displayText = `[${tokenId}]`;
+  }
+
+  // Truncate very long tokens for display and tooltips (CSS perf optimization)
+  if (displayText.length > 30) {
+    displayText = displayText.substring(0, 30) + "...";
+  }
+
+  return { tokenId, color, text: displayText };
+};
+
+const visibleItems = useMemo(() => {
     const result: Array<{
-      token: TokenItem;
+      tokenId: number;
+      color: string;
+      text: string;
       virtualRow: VirtualItem;
       colIndex: number;
     }> = [];
@@ -82,12 +100,13 @@ export function VirtualizedCompactTokenDisplay({
       const startIndex = virtualRow.index * effectiveTokensPerRow;
       const endIndex = Math.min(
         startIndex + effectiveTokensPerRow,
-        items.length,
+        tokens.length,
       );
 
       for (let i = startIndex; i < endIndex; i++) {
+        const tokenData = getTokenData(i);
         result.push({
-          token: items[i],
+          ...tokenData,
           virtualRow,
           colIndex: i - startIndex,
         });
@@ -95,7 +114,7 @@ export function VirtualizedCompactTokenDisplay({
     });
 
     return result;
-  }, [virtualRows, items, effectiveTokensPerRow]);
+  }, [virtualRows, tokens, tokenTexts, effectiveTokensPerRow]);
 
   return (
     <div className={styles.virtualCompactContainer}>
@@ -113,35 +132,38 @@ export function VirtualizedCompactTokenDisplay({
             flexDirection: "column",
           }}
         >
-          {visibleItems.map(({ token, virtualRow, colIndex }) => (
-            <span
-              key={token.id}
-              className={styles.compactToken}
-              style={{
-                position: "absolute",
-                top: virtualRow.start,
-                left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
-                width: itemWidth,
-                backgroundColor: token.color + "33", // 20% opacity hex
-                borderBottom: `2px solid ${token.color}`, // Underline style instead of full border
-              }}
-              data-tooltip={token.text}
-            >
-              {token.tokenId}
-            </span>
-          ))}
+          {visibleItems.map(({ tokenId, color, text, virtualRow, colIndex }, index) => {
+            const tokenIndex = virtualRow.index * effectiveTokensPerRow + colIndex;
+            return (
+              <span
+                key={tokenIndex}
+                className={styles.compactToken}
+                style={{
+                  position: "absolute",
+                  top: virtualRow.start,
+                  left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
+                  width: itemWidth,
+                  backgroundColor: color + "33", // 20% opacity hex
+                  borderBottom: `2px solid ${color}`, // Underline style instead of full border
+                }}
+                data-tooltip={text}
+              >
+                {tokenId}
+              </span>
+            );
+          })}
         </div>
       </div>
 
-      {items.length > 0 && (
+      {tokens.length > 0 && (
         <div className={styles.scrollIndicator}>
           {virtualRows[0]?.index * effectiveTokensPerRow + 1 || 0}-
           {Math.min(
             (virtualRows[virtualRows.length - 1]?.index + 1) *
               effectiveTokensPerRow,
-            items.length,
+            tokens.length,
           )}{" "}
-          of {items.length} tokens
+          of {tokens.length} tokens
         </div>
       )}
     </div>
