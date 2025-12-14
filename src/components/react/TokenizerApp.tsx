@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import {
   getEncodingForModel,
   isEncodingType,
+  MODEL_ENCODINGS,
+  MODEL_DISPLAY_NAMES,
 } from "../../utils/modelEncodings";
 import { VERSION } from "../../utils/version";
 import {
@@ -11,11 +13,148 @@ import {
   LARGE_SAMPLE_TEXT,
 } from "../../utils/constants";
 import { TokenDisplay } from "./TokenDisplay";
+import {
+  ComboboxShadcn,
+  type ComboboxOption,
+} from "../../components/ui/combobox-shadcn";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<string>("gpt-4o"); // Default to a specific model
+  const [model, setModel] = useState<string>("gpt-5"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
+
+  // Generate combobox options from model encodings
+  const modelOptions = useMemo(() => {
+    const options: ComboboxOption[] = [];
+
+    // Define group names without emojis and encoding details
+    const groupNames: Record<string, string> = {
+      o200k_base: "Modern Models",
+      cl100k_base: "Chat Models",
+      p50k_base: "Completion Models",
+      p50k_edit: "Edit Models",
+      r50k_base: "Legacy Models",
+      o200k_harmony: "OpenAI OSS",
+    };
+
+    // Group specific models for better organization
+    const specialGroups: Record<
+      string,
+      { models: string[]; groupName: string }
+    > = {
+      search: {
+        models: [
+          "text-search-ada-doc-001",
+          "text-search-ada-query-001",
+          "text-search-babbage-doc-001",
+          "text-search-babbage-query-001",
+          "text-search-curie-doc-001",
+          "text-search-curie-query-001",
+          "text-search-davinci-doc-001",
+          "text-search-davinci-query-001",
+        ],
+        groupName: "Search & Similarity",
+      },
+      similarity: {
+        models: [
+          "text-similarity-ada-001",
+          "text-similarity-babbage-001",
+          "text-similarity-curie-001",
+          "text-similarity-davinci-001",
+        ],
+        groupName: "Search & Similarity",
+      },
+      audioMedia: {
+        models: [
+          "whisper-1",
+          "tts-1",
+          "tts-1-hd",
+          "dall-e-2",
+          "dall-e-3",
+          "gpt-audio",
+          "gpt-audio-mini",
+          "sora-2",
+          "sora-2-pro",
+        ],
+        groupName: "Audio & Media",
+      },
+      codeSearch: {
+        models: [
+          "code-search-ada-code-001",
+          "code-search-ada-text-001",
+          "code-search-babbage-code-001",
+          "code-search-babbage-text-001",
+        ],
+        groupName: "Legacy Models",
+      },
+    };
+
+    // Process models by encoding type
+    Object.entries(MODEL_ENCODINGS).forEach(([encoding, models]) => {
+      if (encoding === "r50k_base") {
+        // For r50k_base, we need to handle special grouping
+        models.forEach((modelName) => {
+          let groupName = groupNames[encoding];
+          let isInSpecialGroup = false;
+
+          // Check if model belongs to a special group
+          Object.entries(specialGroups).forEach(([key, group]) => {
+            if (group.models.includes(modelName)) {
+              groupName = group.groupName;
+              isInSpecialGroup = true;
+            }
+          });
+
+          // Only add if not already in a special group
+          if (!isInSpecialGroup) {
+            options.push({
+              value: modelName,
+              label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+              group: groupName,
+            });
+          }
+        });
+
+        // Add special groups
+        Object.values(specialGroups).forEach((group) => {
+          if (
+            group.groupName.includes("Search") ||
+            group.groupName.includes("Similarity") ||
+            group.groupName.includes("Code") ||
+            group.groupName.includes("Legacy")
+          ) {
+            group.models.forEach((modelName) => {
+              if (MODEL_ENCODINGS.r50k_base.includes(modelName as any)) {
+                options.push({
+                  value: modelName,
+                  label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+                  group: group.groupName,
+                });
+              }
+            });
+          }
+        });
+      } else {
+        // For other encodings, add models normally
+        models.forEach((modelName) => {
+          let groupName = groupNames[encoding];
+
+          // Check for audio/media special group
+          if (specialGroups.audioMedia.models.includes(modelName)) {
+            groupName = specialGroups.audioMedia.groupName;
+          }
+
+          options.push({
+            value: modelName,
+            label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+            group: groupName,
+          });
+        });
+      }
+    });
+
+    return options;
+  }, []);
 
   // --- TAB STATE ---
   const [activeTab, setActiveTab] = useState<"input" | "upload">("input");
@@ -135,152 +274,13 @@ export function TokenizerApp() {
             <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
               Model Selection
             </label>
-            <div className="relative">
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="w-full appearance-none bg-brand-paper border border-brand-black rounded-none p-3 font-body font-semibold text-sm text-brand-black cursor-pointer transition-all hover:bg-gray-200 focus:outline-none focus:bg-brand-black focus:text-white"
-              >
-                <optgroup label="🚀 Modern Models (o200k_base)">
-                  <option value="gpt-4o">GPT-4o</option>
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
-                  <option value="o1">O1</option>
-                  <option value="o1-mini">O1 Mini</option>
-                  <option value="o1-pro">O1 Pro</option>
-                  <option value="o3">O3</option>
-                  <option value="o3-mini">O3 Mini</option>
-                  <option value="o3-pro">O3 Pro</option>
-                  <option value="gpt-5">GPT-5</option>
-                  <option value="gpt-5-pro">GPT-5 Pro</option>
-                  <option value="gpt-5-mini">GPT-5 Mini</option>
-                  <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
-                  <option value="gpt-4.1">GPT-4.1</option>
-                  <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-                </optgroup>
-
-                <optgroup label="💬 Chat Models (cl100k_base)">
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                  <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo 0125</option>
-                  <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo 0613</option>
-                  <option value="gpt-4">GPT-4</option>
-                  <option value="gpt-4-0613">GPT-4 0613</option>
-                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                  <option value="gpt-4-turbo-preview">
-                    GPT-4 Turbo Preview
-                  </option>
-                  <option value="gpt-4-1106-preview">GPT-4 1106 Preview</option>
-                  <option value="gpt-4-32k">GPT-4 32k</option>
-                  <option value="gpt-3.5-turbo-instruct">
-                    GPT-3.5 Turbo Instruct
-                  </option>
-                </optgroup>
-
-                <optgroup label="🔧 Completion Models (p50k_base)">
-                  <option value="text-davinci-003">Text Davinci 003</option>
-                  <option value="text-davinci-002">Text Davinci 002</option>
-                  <option value="code-davinci-001">Code Davinci 001</option>
-                  <option value="code-davinci-002">Code Davinci 002</option>
-                  <option value="code-cushman-001">Code Cushman 001</option>
-                  <option value="code-cushman-002">Code Cushman 002</option>
-                  <option value="cushman-codex">Cushman Codex</option>
-                  <option value="davinci-codex">Davinci Codex</option>
-                </optgroup>
-
-                <optgroup label="✏️ Edit Models (p50k_edit)">
-                  <option value="text-davinci-edit-001">
-                    Text Davinci Edit 001
-                  </option>
-                  <option value="code-davinci-edit-001">
-                    Code Davinci Edit 001
-                  </option>
-                </optgroup>
-
-                <optgroup label="🏛️ Legacy Models (r50k_base)">
-                  <option value="text-davinci-001">Text Davinci 001</option>
-                  <option value="ada">Ada</option>
-                  <option value="babbage">Babbage</option>
-                  <option value="curie">Curie</option>
-                  <option value="davinci">Davinci</option>
-                  <option value="text-ada-001">Text Ada 001</option>
-                  <option value="text-babbage-001">Text Babbage 001</option>
-                  <option value="text-curie-001">Text Curie 001</option>
-                </optgroup>
-
-                <optgroup label="🔍 Search & Similarity (r50k_base)">
-                  <option value="text-search-ada-doc-001">
-                    Text Search Ada Doc 001
-                  </option>
-                  <option value="text-search-ada-query-001">
-                    Text Search Ada Query 001
-                  </option>
-                  <option value="text-search-babbage-doc-001">
-                    Text Search Babbage Doc 001
-                  </option>
-                  <option value="text-search-babbage-query-001">
-                    Text Search Babbage Query 001
-                  </option>
-                  <option value="text-search-curie-doc-001">
-                    Text Search Curie Doc 001
-                  </option>
-                  <option value="text-search-curie-query-001">
-                    Text Search Curie Query 001
-                  </option>
-                  <option value="text-search-davinci-doc-001">
-                    Text Search Davinci Doc 001
-                  </option>
-                  <option value="text-search-davinci-query-001">
-                    Text Search Davinci Query 001
-                  </option>
-                  <option value="text-similarity-ada-001">
-                    Text Similarity Ada 001
-                  </option>
-                  <option value="text-similarity-babbage-001">
-                    Text Similarity Babbage 001
-                  </option>
-                  <option value="text-similarity-curie-001">
-                    Text Similarity Curie 001
-                  </option>
-                  <option value="text-similarity-davinci-001">
-                    Text Similarity Davinci 001
-                  </option>
-                </optgroup>
-
-                <optgroup label="🎵 Audio & Media (o200k_base)">
-                  <option value="whisper-1">Whisper 1</option>
-                  <option value="tts-1">TTS-1</option>
-                  <option value="tts-1-hd">TTS-1 HD</option>
-                  <option value="dall-e-2">DALL-E 2</option>
-                  <option value="dall-e-3">DALL-E 3</option>
-                  <option value="gpt-audio">GPT Audio</option>
-                  <option value="gpt-audio-mini">GPT Audio Mini</option>
-                  <option value="sora">Sora</option>
-                </optgroup>
-
-                <optgroup label="🎵 OpenAI OSS (o200k_harmony)">
-                  <option value="gpt-4o-mini-audiopreview">
-                    GPT-4o Mini AudioPreview
-                  </option>
-                  <option value="gpt-4o-audiopreview">
-                    GPT-4o AudioPreview
-                  </option>
-                  <option value="gpt-4o-realtime-preview">
-                    GPT-4o Realtime Preview
-                  </option>
-                  <option value="gpt-4o-mini-realtime-preview">
-                    GPT-4o Mini Realtime Preview
-                  </option>
-                  <option value="chatgpt-4o-latest-audiopreview">
-                    ChatGPT-4o Latest AudioPreview
-                  </option>
-                  <option value="realtime-model-preview-2024-10-01">
-                    Realtime Model Preview 2024-10-01
-                  </option>
-                </optgroup>
-              </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-brand-orange">
-                ↓
-              </span>
-            </div>
+            <ComboboxShadcn
+              options={modelOptions}
+              value={model}
+              onValueChange={setModel}
+              placeholder="Select a model..."
+              className="w-full"
+            />
           </div>
 
           {/* Model Info */}
@@ -498,11 +498,11 @@ export function TokenizerApp() {
             <div className="h-1 bg-gray-200 w-full mt-2 relative overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
-                style={{ width: `${progress * 100}%` }}
+                style={{ width: `${progress ? progress.percentage : 100}%` }}
               />
             </div>
             <p className="font-mono text-xxs text-gray-400 mt-1 text-right">
-              Processing... {Math.round(progress * 100)}%
+              Processing... {progress ? Math.round(progress.percentage) : 0}%
             </p>
           </div>
         )}
@@ -518,7 +518,6 @@ export function TokenizerApp() {
             text={debouncedText}
             tokens={tokens || []}
             tokenTexts={tokenTexts || []}
-            encoding={encoding!}
           />
         )}
       </div>
