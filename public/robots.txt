@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://happytokenizer.com/sitemap-index.xml
+
+# Block common bot paths
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_astro/
+Disallow: /node_modules/
+
+# Allow specific bot agents
+User-agent: Googlebot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
