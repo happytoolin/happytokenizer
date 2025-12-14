@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import { useModelOptions } from "../../hooks/useModelOptions";
 import {
@@ -17,9 +17,8 @@ import { StatusDisplay } from "../ui/StatusDisplay";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<string>("gpt-5"); // Default to a specific model
-  const [tokenizeTarget, setTokenizeTarget] = useState(DEFAULT_ESSAY);
-  const [isPending, startTransition] = useTransition();
+  const [model, setModel] = useState<string>("gpt-5");
+  const [debouncedText, setDebouncedText] = useState("");
 
   // Use the extracted model options hook
   const modelOptions = useModelOptions();
@@ -35,33 +34,21 @@ export function TokenizerApp() {
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
     useTokenizer();
 
-  // Trigger tokenization when tokenizeTarget changes (updated via useTransition)
+  // Debounce text input
   useEffect(() => {
-    if (tokenizeTarget && encoding) {
-      tokenize(tokenizeTarget, encoding, { isChatMode: false });
+    const timer = setTimeout(() => {
+      setDebouncedText(text);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [text]);
+
+  // Trigger tokenization when debounced text or encoding changes
+  useEffect(() => {
+    if (debouncedText && encoding) {
+      tokenize(debouncedText, encoding, { isChatMode: false });
     }
-  }, [tokenizeTarget, encoding, tokenize]);
-
-  // Handle text changes with immediate input update and deferred tokenization
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newText = e.target.value;
-    setText(newText); // Updates input immediately (High Priority)
-
-    startTransition(() => {
-      // Updates tokenization (Low Priority)
-      setTokenizeTarget(newText);
-    });
-  };
-
-  // Helper function to update both text states for preset buttons
-  const updateTextWithTransition = (newText: string) => {
-    setText(newText); // Updates input immediately (High Priority)
-
-    startTransition(() => {
-      // Updates tokenization (Low Priority)
-      setTokenizeTarget(newText);
-    });
-  };
+  }, [debouncedText, encoding, tokenize]);
 
   // --- FILE HANDLERS ---
   const processFile = (file: File) => {
@@ -79,8 +66,7 @@ export function TokenizerApp() {
       const content = e.target?.result;
       if (typeof content === "string") {
         setText(content);
-        setTokenizeTarget(content);
-        setActiveTab("input"); // Switch back to editor view to see content
+        setActiveTab("input");
       }
     };
     reader.onerror = () => setUploadError("Failed to read file");
@@ -116,7 +102,6 @@ export function TokenizerApp() {
 
   const handleClear = () => {
     setText("");
-    setTokenizeTarget("");
   };
 
   return (
@@ -133,13 +118,13 @@ export function TokenizerApp() {
             <>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => updateTextWithTransition(SAMPLE_TEXT)}
+                  onClick={() => setText(SAMPLE_TEXT)}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Sample
                 </button>
                 <button
-                  onClick={() => updateTextWithTransition(LARGE_SAMPLE_TEXT)}
+                  onClick={() => setText(LARGE_SAMPLE_TEXT)}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Large
@@ -147,7 +132,7 @@ export function TokenizerApp() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => updateTextWithTransition(DEFAULT_ESSAY)}
+                  onClick={() => setText(DEFAULT_ESSAY)}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Essay
@@ -193,7 +178,7 @@ export function TokenizerApp() {
             {activeTab === "input" ? (
               <textarea
                 value={text}
-                onChange={handleTextChange}
+                onChange={(e) => setText(e.target.value)}
                 placeholder="Paste or type your text here to see how it gets tokenized..."
                 className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50 max-[768px]:p-4 max-[480px]:p-3 max-[480px]:text-xs"
               />
@@ -280,7 +265,7 @@ export function TokenizerApp() {
 
           {!isLoading && !error && (
             <TokenDisplay
-              text={tokenizeTarget}
+              text={debouncedText}
               tokens={Array.isArray(tokens) ? tokens : Array.from(tokens || [])}
               tokenTexts={tokenTexts || []}
             />

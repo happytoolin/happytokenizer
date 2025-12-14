@@ -2,7 +2,6 @@ import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { useMemo, useRef, useState, useEffect } from "react";
 import styles from "../../styles/components/VirtualizedCompactTokenDisplay.module.css";
 import { TOKEN_COLORS } from "../../utils/tokenColors";
-import { VIRTUAL_CONFIG } from "../../constants/virtual";
 
 interface VirtualizedCompactTokenDisplayProps {
   tokens: number[];
@@ -25,19 +24,15 @@ export function VirtualizedCompactTokenDisplay({
 }: VirtualizedCompactTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Calculate optimal tokens per row based on container width
-  // This will be updated dynamically when container is available
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Recalculate tokens per row when container width changes
   const effectiveTokensPerRow =
     containerWidth > 0
-      ? Math.floor((containerWidth - VIRTUAL_CONFIG.COMPACT.HORIZONTAL_PADDING - gap) / (itemWidth + gap))
+      ? Math.floor((containerWidth - 32 - gap) / (itemWidth + gap))
       : tokensPerRow;
 
   const rowCount = Math.ceil(tokens.length / effectiveTokensPerRow);
 
-  // Update container width on resize
   useEffect(() => {
     const container = parentRef.current;
     if (!container) return;
@@ -46,10 +41,8 @@ export function VirtualizedCompactTokenDisplay({
       setContainerWidth(container.clientWidth);
     };
 
-    // Initial width
     updateWidth();
 
-    // Setup resize observer
     const resizeObserver = new ResizeObserver(updateWidth);
     resizeObserver.observe(container);
 
@@ -62,26 +55,23 @@ export function VirtualizedCompactTokenDisplay({
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => itemHeight + gap,
-    overscan: VIRTUAL_CONFIG.OVERSCAN.DEFAULT,
+    overscan: 5,
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
 
-  // Computation helper for individual token data
   const getTokenData = (index: number) => {
     const tokenId = tokens[index];
     const color = TOKEN_COLORS[index % TOKEN_COLORS.length];
 
     let displayText = tokenTexts[index] || `[${tokenId}]`;
 
-    // Clean up whitespace-only tokens for better display
     if (displayText.trim() === "") {
       displayText = `[${tokenId}]`;
     }
 
-    // Truncate very long tokens for display and tooltips (CSS perf optimization)
-    if (displayText.length > VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) {
-      displayText = displayText.substring(0, VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) + "...";
+    if (displayText.length > 20) {
+      displayText = displayText.substring(0, 20) + "...";
     }
 
     return { tokenId, color, text: displayText };
@@ -114,7 +104,7 @@ export function VirtualizedCompactTokenDisplay({
     });
 
     return result;
-  }, [virtualRows, tokens, tokenTexts, effectiveTokensPerRow]);
+  }, [virtualRows, tokens, effectiveTokensPerRow]);
 
   return (
     <div className={styles.virtualCompactContainer}>
@@ -143,10 +133,10 @@ export function VirtualizedCompactTokenDisplay({
                   style={{
                     position: "absolute",
                     top: virtualRow.start,
-                    left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
+                    left: 16 + colIndex * (itemWidth + gap),
                     width: itemWidth,
-                    backgroundColor: color + VIRTUAL_CONFIG.TOKEN.COLOR_OPACITY,
-                    borderBottom: `2px solid ${color}`, // Underline style instead of full border
+                    backgroundColor: color + "33",
+                    borderBottom: `2px solid ${color}`,
                   }}
                   data-tooltip={text}
                 >

@@ -1,10 +1,8 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import styles from "../../styles/components/VirtualTokenDisplay.module.css";
 import { TOKEN_COLORS } from "../../utils/tokenColors";
-import { VIRTUAL_CONFIG } from "../../constants/virtual";
 
-// "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
 
 interface VirtualTokenDisplayProps {
@@ -22,20 +20,11 @@ export function VirtualTokenDisplay({
 }: VirtualTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Add cleanup for any potential async operations
-  useEffect(() => {
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
-
   const rowVirtualizer = useVirtualizer({
     count: tokens.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimatedItemHeight,
-    // Overscan determines how many items to render outside the visible area.
-    // Increasing this slightly prevents white flickers during fast scrolling.
-    overscan: VIRTUAL_CONFIG.OVERSCAN.DETAILED,
+    overscan: 10,
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
@@ -49,10 +38,10 @@ export function VirtualTokenDisplay({
       >
         <div
           style={{
-            height: `${rowVirtualizer.getTotalSize() + VIRTUAL_CONFIG.DETAILED.TOP_PADDING}px`,
+            height: `${rowVirtualizer.getTotalSize() + 24}px`,
             width: "100%",
             position: "relative",
-            paddingTop: `${VIRTUAL_CONFIG.DETAILED.TOP_PADDING}px`,
+            paddingTop: "24px",
           }}
         >
           {virtualItems.map((virtualItem) => {
@@ -62,14 +51,12 @@ export function VirtualTokenDisplay({
 
             let displayText = tokenTexts[index] || `[${tokenId}]`;
 
-            // Clean up whitespace-only tokens for better display
             if (displayText.trim() === "") {
               displayText = `[${tokenId}]`;
             }
 
-            // Truncate very long tokens for display
-            if (displayText.length > VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) {
-              displayText = displayText.substring(0, VIRTUAL_CONFIG.TOKEN.MAX_DISPLAY_LENGTH) + "...";
+            if (displayText.length > 20) {
+              displayText = displayText.substring(0, 20) + "...";
             }
 
             return (
@@ -82,12 +69,11 @@ export function VirtualTokenDisplay({
                   left: 0,
                   width: "100%",
                   height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start + VIRTUAL_CONFIG.DETAILED.TOP_PADDING}px)`,
-                  willChange: "transform", // Performance optimization
+                  transform: `translateY(${virtualItem.start + 24}px)`,
+                  willChange: "transform",
                 }}
               >
                 <div className={styles.token}>
-                  {/* Mechanical color bar indicator */}
                   <div
                     className={styles.colorIndicator}
                     style={{ backgroundColor: color }}

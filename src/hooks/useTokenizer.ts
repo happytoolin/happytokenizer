@@ -6,7 +6,6 @@ import type {
 } from "../workers/tokenizer.worker";
 import type { EncodingType } from "../utils/modelEncodings";
 import type { ChatMessage } from "../types/chat";
-import { VIRTUAL_CONFIG } from "../constants/virtual";
 
 // Use the exported EncodingType as our ModelType for consistency
 export type ModelType = EncodingType;
@@ -140,7 +139,7 @@ export function useTokenizer() {
           chatMessages: options?.chatMessages,
         };
         workerRef.current?.postMessage(message);
-      }, VIRTUAL_CONFIG.WORKER.DEBOUNCE_DELAY);
+      }, 150);
     },
     [],
   );

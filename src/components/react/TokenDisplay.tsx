@@ -1,7 +1,6 @@
 import { useState } from "react";
 import styles from "../../styles/components/TokenDisplay.module.css";
 import { TOKEN_COLORS, CONTAINER_HEIGHT } from "../../utils/tokenColors";
-import { VIRTUAL_CONFIG } from "../../constants/virtual";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
@@ -88,10 +87,10 @@ export function TokenDisplay({
               tokens={tokens}
               tokenTexts={tokenTexts}
               containerHeight={CONTAINER_HEIGHT}
-              tokensPerRow={VIRTUAL_CONFIG.COMPACT.TOKENS_PER_ROW} // Will be dynamically calculated
-              itemWidth={VIRTUAL_CONFIG.COMPACT.ITEM_WIDTH}
-              itemHeight={VIRTUAL_CONFIG.COMPACT.ITEM_HEIGHT}
-              gap={VIRTUAL_CONFIG.COMPACT.GAP}
+              tokensPerRow={32}
+              itemWidth={48}
+              itemHeight={32}
+              gap={4}
             />
           </VirtualErrorBoundary>
         )}
@@ -101,7 +100,7 @@ export function TokenDisplay({
               tokens={tokens}
               tokenTexts={tokenTexts}
               containerHeight={CONTAINER_HEIGHT}
-              estimatedItemHeight={VIRTUAL_CONFIG.DETAILED.ITEM_HEIGHT}
+              estimatedItemHeight={40}
             />
           </VirtualErrorBoundary>
         )}

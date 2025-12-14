@@ -227,7 +227,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           isChatMode: true,
           chatMessages,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] } // Transferable: zero-copy
+        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
       );
       return;
     }
@@ -256,7 +256,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           tokenTexts,
           isChatMode: false,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] } // Transferable: zero-copy
+        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
       );
     } else {
       // Direct tokenization for small texts
@@ -273,7 +273,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           tokenTexts,
           isChatMode: false,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] } // Transferable: zero-copy
+        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
       );
     }
   } catch (error) {
