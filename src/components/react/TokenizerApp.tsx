@@ -16,12 +16,20 @@ import {
   MODEL_ENCODINGS,
 } from "../../utils/modelEncodings";
 import { VERSION } from "../../utils/version";
+import { ChatMessageEditor } from "./ChatMessageEditor";
 import { TokenDisplay } from "./TokenDisplay";
+import type { ChatMessage } from "../../types/chat";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
   const [model, setModel] = useState<string>("gpt-5"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
+  const [activeMode, setActiveMode] = useState<"text" | "chat">("text");
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [debouncedChatMessages, setDebouncedChatMessages] = useState<
+    ChatMessage[]
+  >([]);
 
   // Generate combobox options from model encodings
   const modelOptions = useMemo(() => {
@@ -164,8 +172,15 @@ export function TokenizerApp() {
 
   // Get encoding for the current model - if model is an encoding itself, use it directly
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
-  const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
-    useTokenizer();
+  const {
+    tokens,
+    tokenTexts,
+    isLoading,
+    error,
+    progress,
+    tokenize,
+    isChatMode,
+  } = useTokenizer();
 
   // Debounce text input
   useEffect(() => {
@@ -176,12 +191,48 @@ export function TokenizerApp() {
     return () => clearTimeout(timer);
   }, [text]);
 
-  // Trigger tokenization when debounced text or encoding changes
+  // Debounce chat messages
   useEffect(() => {
-    if (debouncedText && encoding) {
-      tokenize(debouncedText, encoding);
+    const timer = setTimeout(() => {
+      // Create a deep copy of chat messages to avoid reference issues
+      setDebouncedChatMessages(JSON.parse(JSON.stringify(chatMessages)));
+    }, 300); // Slightly longer debounce for chat to avoid rapid re-tokenization
+
+    return () => clearTimeout(timer);
+  }, [chatMessages]);
+
+  // Clear debounced values when switching modes to avoid showing stale data
+  useEffect(() => {
+    if (activeMode === "text") {
+      setDebouncedChatMessages([]);
+    } else if (activeMode === "chat") {
+      setDebouncedText("");
     }
-  }, [debouncedText, encoding, tokenize]);
+  }, [activeMode]);
+
+  // Trigger tokenization when debounced text or encoding changes (for text mode)
+  useEffect(() => {
+    if (activeMode === "text" && debouncedText && encoding) {
+      tokenize(debouncedText, encoding, { isChatMode: false });
+    }
+  }, [debouncedText, encoding, tokenize, activeMode]);
+
+  // Trigger tokenization when debounced chat messages change (for chat mode)
+  useEffect(() => {
+    if (activeMode === "chat" && debouncedChatMessages.length > 0 && encoding) {
+      // Create a combined text representation for the UI
+      const combinedText = debouncedChatMessages
+        .map((msg) => `[${msg.role}]: ${msg.content}`)
+        .join("\n\n");
+      tokenize(combinedText, encoding, {
+        isChatMode: true,
+        chatMessages: debouncedChatMessages,
+      });
+    } else if (activeMode === "chat" && debouncedChatMessages.length === 0) {
+      // Clear tokens when there are no chat messages
+      tokenize("", encoding, { isChatMode: true, chatMessages: [] });
+    }
+  }, [debouncedChatMessages, encoding, tokenize, activeMode]);
 
   // --- FILE HANDLERS ---
   const processFile = (file: File) => {
@@ -281,6 +332,35 @@ export function TokenizerApp() {
               placeholder="Select a model..."
               className="w-full"
             />
+          </div>
+
+          {/* Mode Toggle */}
+          <div className="flex flex-col gap-3">
+            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
+              Tokenization Mode
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setActiveMode("text")}
+                className={`font-mono text-xs px-3 py-2 border rounded transition-all ${
+                  activeMode === "text"
+                    ? "bg-brand-orange text-brand-black border-brand-black"
+                    : "bg-transparent border-gray-300 text-gray-600 hover:border-brand-black hover:text-brand-black"
+                }`}
+              >
+                Text
+              </button>
+              <button
+                onClick={() => setActiveMode("chat")}
+                className={`font-mono text-xs px-3 py-2 border rounded transition-all ${
+                  activeMode === "chat"
+                    ? "bg-brand-orange text-brand-black border-brand-black"
+                    : "bg-transparent border-gray-300 text-gray-600 hover:border-brand-black hover:text-brand-black"
+                }`}
+              >
+                Chat
+              </button>
+            </div>
           </div>
 
           {/* Model Info */}
@@ -387,106 +467,161 @@ export function TokenizerApp() {
       <div className="flex flex-col gap-6 max-[768px]:pb-32 max-[600px]:pb-20 max-[480px]:pb-24">
         {/* Editor Section */}
         <div className="bg-white border border-brand-black shadow-hard">
-          <div className="flex border-b border-brand-black bg-brand-paper">
-            <button
-              onClick={() => setActiveTab("input")}
-              className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
-                activeTab === "input"
-                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
-                  : "text-gray-500"
-              }`}
-            >
-              Input Stream
-            </button>
-            <button
-              onClick={() => setActiveTab("upload")}
-              className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
-                activeTab === "upload"
-                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
-                  : "text-gray-500"
-              }`}
-            >
-              Upload File
-            </button>
-          </div>
-
-          {activeTab === "input" ? (
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Paste or type your text here to see how it gets tokenized..."
-              className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50 max-[768px]:p-4 max-[480px]:p-3 max-[480px]:text-xs"
-            />
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px] max-[768px]:p-4 max-[480px]:p-3">
-              <div
-                className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
-                  isDragging
-                    ? "border-brand-orange bg-brand-orange/2 scale-[0.98]"
-                    : "hover:border-brand-orange hover:bg-brand-orange/2"
+          {/* Tab Header - Only show for text mode */}
+          {activeMode === "text" && (
+            <div className="flex border-b border-brand-black bg-brand-paper">
+              <button
+                onClick={() => setActiveTab("input")}
+                className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
+                  activeTab === "input"
+                    ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                    : "text-gray-500"
                 }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
               >
-                <svg
-                  className={`w-12 h-12 transition-colors ${
-                    isDragging ? "text-brand-orange" : "text-gray-400"
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-                <div className="text-center">
-                  <p className="font-display font-bold text-base text-brand-black">
-                    Drop File Here
-                  </p>
-                  <p className="font-mono text-xs text-gray-500 max-w-[250px] text-center leading-6">
-                    Supports .txt, .md, .json, .js, .py (Max 5MB)
-                  </p>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.py,.html,.css"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              </div>
-              {uploadError && (
-                <p className="text-red-500 font-mono text-xs mt-4">
-                  {uploadError}
-                </p>
-              )}
+                Input Stream
+              </button>
+              <button
+                onClick={() => setActiveTab("upload")}
+                className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
+                  activeTab === "upload"
+                    ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                    : "text-gray-500"
+                }`}
+              >
+                Upload File
+              </button>
             </div>
           )}
 
+          {/* Chat Mode Header - Only show for chat mode */}
+          {activeMode === "chat" && (
+            <div className="border-b border-brand-black bg-brand-paper p-4">
+              <h3 className="font-mono text-sm font-semibold text-brand-black">
+                Chat Conversation Editor
+              </h3>
+              <p className="font-mono text-xs text-gray-500 mt-1">
+                Build a conversation to see how OpenAI tokenizes chat messages
+                with special formatting tokens
+              </p>
+            </div>
+          )}
+
+          {/* Content Area */}
+          <div className="min-h-[200px]">
+            {activeMode === "text" ? (
+              activeTab === "input" ? (
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Paste or type your text here to see how it gets tokenized..."
+                  className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50 max-[768px]:p-4 max-[480px]:p-3 max-[480px]:text-xs"
+                />
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px] max-[768px]:p-4 max-[480px]:p-3">
+                  <div
+                    className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
+                      isDragging
+                        ? "border-brand-orange bg-brand-orange/2 scale-[0.98]"
+                        : "hover:border-brand-orange hover:bg-brand-orange/2"
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <svg
+                      className={`w-12 h-12 transition-colors ${
+                        isDragging ? "text-brand-orange" : "text-gray-400"
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <div className="text-center">
+                      <p className="font-display font-bold text-base text-brand-black">
+                        Drop File Here
+                      </p>
+                      <p className="font-mono text-xs text-gray-500 max-w-[250px] text-center leading-6">
+                        Supports .txt, .md, .json, .js, .py (Max 5MB)
+                      </p>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.py,.html,.css"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </div>
+                  {uploadError && (
+                    <p className="text-red-500 font-mono text-xs mt-4">
+                      {uploadError}
+                    </p>
+                  )}
+                </div>
+              )
+            ) : (
+              <div className="p-6">
+                <ChatMessageEditor
+                  messages={chatMessages}
+                  onMessagesChange={setChatMessages}
+                  disabled={isLoading}
+                  isProcessing={
+                    isLoading && chatMessages !== debouncedChatMessages
+                  }
+                />
+              </div>
+            )}
+          </div>
+
           {/* Meta Bar */}
           <div className="flex gap-6 border-t border-brand-black p-2 bg-white">
-            <div className="flex gap-2 items-center">
-              <span className="font-mono text-xxs text-gray-400 font-bold">
-                CH
-              </span>
-              <span className="font-mono text-xs font-medium">
-                {text.length}
-              </span>
-            </div>
-            <div className="flex gap-2 items-center">
-              <span className="font-mono text-xxs text-gray-400 font-bold">
-                WORD
-              </span>
-              <span className="font-mono text-xs font-medium">
-                {text.split(/\s+/).filter((w) => w).length}
-              </span>
-            </div>
+            {activeMode === "text" ? (
+              <>
+                <div className="flex gap-2 items-center">
+                  <span className="font-mono text-xxs text-gray-400 font-bold">
+                    CH
+                  </span>
+                  <span className="font-mono text-xs font-medium">
+                    {text.length}
+                  </span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <span className="font-mono text-xxs text-gray-400 font-bold">
+                    WORD
+                  </span>
+                  <span className="font-mono text-xs font-medium">
+                    {text.split(/\s+/).filter((w) => w).length}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex gap-2 items-center">
+                  <span className="font-mono text-xxs text-gray-400 font-bold">
+                    MESSAGES
+                  </span>
+                  <span className="font-mono text-xs font-medium">
+                    {chatMessages.length}
+                  </span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <span className="font-mono text-xxs text-gray-400 font-bold">
+                    MODE
+                  </span>
+                  <span className="font-mono text-xs font-medium text-brand-orange">
+                    CHAT
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -516,6 +651,8 @@ export function TokenizerApp() {
             text={debouncedText}
             tokens={tokens || []}
             tokenTexts={tokenTexts || []}
+            isChatMode={isChatMode}
+            chatMessages={chatMessages}
           />
         )}
       </div>

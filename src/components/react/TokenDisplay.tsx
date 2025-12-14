@@ -4,12 +4,15 @@ import { TOKEN_COLORS, CONTAINER_HEIGHT } from "../../utils/tokenColors";
 import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay";
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
+import type { ChatMessage } from "../../types/chat";
 
 interface TokenDisplayProps {
   text: string;
   tokens: number[];
   tokenTexts: string[];
   error?: string | null;
+  isChatMode?: boolean;
+  chatMessages?: ChatMessage[];
 }
 
 export function TokenDisplay({
@@ -17,6 +20,8 @@ export function TokenDisplay({
   tokens,
   tokenTexts,
   error,
+  isChatMode = false,
+  chatMessages,
 }: TokenDisplayProps) {
   const [viewMode, setViewMode] = useState<"inline" | "compact" | "detailed">(
     "inline",
@@ -60,10 +65,16 @@ export function TokenDisplay({
   }, [tokens, tokenTexts]);
 
   if (error) return <div className={styles.error}>ERR: {error}</div>;
-  if (!text || tokens.length === 0)
+
+  // For chat mode, we don't need text to show tokens
+  const shouldShowEmpty =
+    (!isChatMode && (!text || text.trim() === "")) || tokens.length === 0;
+
+  if (shouldShowEmpty)
     return (
       <div className={styles.empty}>
-        // HAPPYTOKENIZER: WAITING FOR INPUT STREAM
+        // HAPPYTOKENIZER:{" "}
+        {isChatMode ? "ADD MESSAGES TO SEE TOKENS" : "WAITING FOR INPUT STREAM"}
       </div>
     );
 
@@ -71,7 +82,7 @@ export function TokenDisplay({
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.title}>
-          <span>TOKEN MAP</span>
+          <span>TOKEN MAP {isChatMode && "[CHAT]"}</span>
           <span className={styles.countBadge}>{tokens.length}</span>
         </div>
         <div className={styles.viewToggle}>
@@ -123,26 +134,55 @@ export function TokenDisplay({
       </div>
 
       <div className={styles.stats}>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>Token Count</span>
-          <span className={styles.statValue}>{tokens.length}</span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>Char Count</span>
-          <span className={styles.statValue}>{text.length}</span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>Est. Cost (Input)</span>
-          <span className={styles.statValue}>
-            ${((tokens.length / 1000) * 0.005).toFixed(4)}
-          </span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>Density</span>
-          <span className={styles.statValue}>
-            {(text.length / tokens.length).toFixed(2)}
-          </span>
-        </div>
+        {isChatMode ? (
+          <>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Mode</span>
+              <span className={styles.statValue} style={{ color: "#ea580c" }}>
+                CHAT
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Messages</span>
+              <span className={styles.statValue}>
+                {chatMessages?.length || 0}
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Total Tokens</span>
+              <span className={styles.statValue}>{tokens.length}</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Est. Cost</span>
+              <span className={styles.statValue}>
+                ${((tokens.length / 1000) * 0.005).toFixed(4)}
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Token Count</span>
+              <span className={styles.statValue}>{tokens.length}</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Char Count</span>
+              <span className={styles.statValue}>{text.length}</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Est. Cost (Input)</span>
+              <span className={styles.statValue}>
+                ${((tokens.length / 1000) * 0.005).toFixed(4)}
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Density</span>
+              <span className={styles.statValue}>
+                {(text.length / tokens.length).toFixed(2)}
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import type {
   TokenizerResponse,
 } from "../workers/tokenizer.worker";
 import type { EncodingType } from "../utils/modelEncodings";
+import type { ChatMessage } from "../types/chat";
 
 // Use the exported EncodingType as our ModelType for consistency
 export type ModelType = EncodingType;
@@ -23,6 +24,8 @@ export interface TokenizerResult {
   isLoading: boolean;
   error: string | null;
   progress?: TokenizerProgress;
+  isChatMode?: boolean;
+  chatMessages?: ChatMessage[];
 }
 
 export function useTokenizer() {
@@ -79,6 +82,8 @@ export function useTokenizer() {
           isLoading: false,
           error: null,
           progress: undefined, // Clear progress when done
+          isChatMode: tokenizerResponse.isChatMode,
+          chatMessages: tokenizerResponse.chatMessages,
         }));
       }
     };
@@ -103,7 +108,14 @@ export function useTokenizer() {
   }, []);
 
   const tokenize = useCallback(
-    (text: string, model: ModelType = "o200k_base") => {
+    (
+      text: string,
+      model: ModelType = "o200k_base",
+      options?: {
+        isChatMode?: boolean;
+        chatMessages?: ChatMessage[];
+      },
+    ) => {
       if (!workerRef.current) return;
 
       // Clear previous debounce
@@ -120,7 +132,12 @@ export function useTokenizer() {
 
       // Debounce tokenization
       debounceTimeoutRef.current = setTimeout(() => {
-        const message: TokenizerMessage = { text, model };
+        const message: TokenizerMessage = {
+          text,
+          model,
+          isChatMode: options?.isChatMode || false,
+          chatMessages: options?.chatMessages,
+        };
         workerRef.current?.postMessage(message);
       }, 150);
     },
