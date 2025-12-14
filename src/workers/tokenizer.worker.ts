@@ -1,4 +1,6 @@
-import { decode, encode } from "gpt-tokenizer";
+import { decode, encode, encodeChat } from "gpt-tokenizer";
+import type { ChatMessage } from "../types/chat";
+import type { EncodingType } from "../utils/modelEncodings";
 import {
   decode as decodeCl100k,
   encode as encodeCl100k,
@@ -15,7 +17,6 @@ import {
   decode as decodeR50k,
   encode as encodeR50k,
 } from "gpt-tokenizer/encoding/r50k_base";
-import type { EncodingType } from "../utils/modelEncodings";
 
 // Re-export EncodingType for other modules
 export type { EncodingType };
@@ -24,6 +25,8 @@ export interface TokenizerMessage {
   text: string;
   model?: EncodingType;
   chunkSize?: number;
+  chatMessages?: ChatMessage[];
+  isChatMode?: boolean;
 }
 
 export interface TokenizerResponse {
@@ -36,6 +39,8 @@ export interface TokenizerResponse {
     total: number;
     percentage: number;
   };
+  isChatMode?: boolean;
+  chatMessages?: ChatMessage[];
 }
 
 export interface ChunkProgressResponse {
@@ -219,9 +224,51 @@ async function tokenizeWithChunks(
 }
 
 self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
-  const { text, model = "o200k_base" } = e.data;
+  const { text, model = "o200k_base", chatMessages, isChatMode } = e.data;
 
   try {
+    // Handle chat mode
+    if (isChatMode && chatMessages && chatMessages.length > 0) {
+      // For chat mode, we need to use a model name that supports chat
+      // Common chat-enabled models that use different encodings
+      let chatModel = "gpt-4o"; // Default to gpt-4o which uses o200k_base
+
+      // Map the encoding to a compatible chat model
+      if (model === "cl100k_base") {
+        chatModel = "gpt-3.5-turbo";
+      } else if (model === "o200k_base" || model === "o200k_harmony") {
+        chatModel = "gpt-4o";
+      } else if (model === "p50k_base") {
+        chatModel = "text-davinci-003";
+      } else if (model === "p50k_edit") {
+        chatModel = "code-davinci-edit-001";
+      } else if (model === "r50k_base") {
+        chatModel = "text-davinci-001";
+      }
+
+      console.log(
+        "Tokenizing chat with model:",
+        chatModel,
+        "from encoding:",
+        model,
+      );
+
+      // Cast chatMessages to any to handle type mismatch between our interface and library's interface
+      const tokens = encodeChat(chatMessages as any, chatModel as any);
+      const tokenTexts = decodeTokens(tokens, model);
+
+      self.postMessage({
+        tokens,
+        count: tokens.length,
+        model,
+        tokenTexts,
+        isChatMode: true,
+        chatMessages,
+      } as TokenizerResponse);
+      return;
+    }
+
+    // Regular text tokenization
     // Check if we should use chunked processing
     const shouldChunk = text.length > 20000; // Increased threshold to match chunk size
 
@@ -241,6 +288,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         count: tokens.length,
         model,
         tokenTexts,
+        isChatMode: false,
       } as TokenizerResponse);
     } else {
       // Direct tokenization for small texts
@@ -273,6 +321,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         count: tokens.length,
         model,
         tokenTexts,
+        isChatMode: false,
       } as TokenizerResponse);
     }
   } catch (error) {
@@ -282,6 +331,8 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       count: 0,
       model,
       tokenTexts: [],
+      isChatMode: isChatMode || false,
+      chatMessages,
     } as TokenizerResponse);
   }
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ComboboxShadcn,
-  type ComboboxOption,
+  type ComboboxOption
 } from "../../components/ui/combobox-shadcn";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import {
@@ -15,7 +14,7 @@ import {
   MODEL_DISPLAY_NAMES,
   MODEL_ENCODINGS,
 } from "../../utils/modelEncodings";
-import { VERSION } from "../../utils/version";
+import { Sidebar } from "./Sidebar";
 import { TokenDisplay } from "./TokenDisplay";
 
 export function TokenizerApp() {
@@ -179,7 +178,7 @@ export function TokenizerApp() {
   // Trigger tokenization when debounced text or encoding changes
   useEffect(() => {
     if (debouncedText && encoding) {
-      tokenize(debouncedText, encoding);
+      tokenize(debouncedText, encoding, { isChatMode: false });
     }
   }, [debouncedText, encoding, tokenize]);
 
@@ -240,148 +239,18 @@ export function TokenizerApp() {
   return (
     <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[1024px]:gap-6 max-[900px]:grid-cols-1 max-[900px]:p-4 max-[768px]:p-3 max-[480px]:p-2">
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className="sticky top-10 h-[calc(100vh-3rem)] max-h-[900px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[1024px]:h-[calc(100vh-2.5rem)] max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:max-h-none max-[900px]:shadow-none max-[768px]:mb-4">
-        <div className="p-6 border-b border-brand-black bg-brand-black text-white max-[768px]:p-4 max-[480px]:p-3">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
-            <a
-              href="https://happytokenizer.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="no-underline inline-block"
-            >
-              <h1 className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
-                HappyTokenizer
-              </h1>
-            </a>
-          </div>
-          <div className="flex gap-2 items-center">
-            <span className="font-mono text-xxs text-gray-400">{VERSION}</span>
-            <a
-              href="https://happytoolin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="font-mono text-xxs bg-white text-brand-black px-1 py-0.5 font-bold">
-                by happytoolin
-              </span>
-            </a>
-          </div>
-        </div>
-
-        <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical max-[768px]:p-4 max-[768px]:gap-6 max-[480px]:p-3 max-[480px]:gap-4">
-          <div className="flex flex-col gap-3">
-            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
-              Model Selection
-            </label>
-            <ComboboxShadcn
-              options={modelOptions}
-              value={model}
-              onValueChange={setModel}
-              placeholder="Select a model..."
-              className="w-full"
-            />
-          </div>
-
-          {/* Model Info */}
-          <div className="flex justify-between items-center p-2 bg-brand-paper border border-gray-300">
-            <span className="font-mono text-xxs text-gray-400 uppercase font-semibold">
-              Encoding
-            </span>
-            <span className="font-mono text-xs text-brand-black font-semibold">
-              {encoding}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
-              Input Source
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => {
-                  setText(SAMPLE_TEXT);
-                  setActiveTab("input");
-                }}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-              >
-                Sample
-              </button>
-              <button
-                onClick={() => {
-                  setText(LARGE_SAMPLE_TEXT);
-                  setActiveTab("input");
-                }}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-              >
-                Large
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setText(DEFAULT_ESSAY)}
-                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
-              >
-                Essay
-              </button>
-              <button
-                onClick={handleClear}
-                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-          {/* Always reserve space for loading state to prevent layout shift */}
-          <div className="h-[80px] shrink-0 max-[768px]:h-0 max-[768px]:overflow-hidden">
-            {isLoading && (
-              <div className="bg-brand-paper p-3 border border-gray-300 h-full">
-                <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] mb-2">
-                  Processing Stream
-                </div>
-                <div className="h-1 bg-gray-300 w-full relative overflow-hidden">
-                  <div
-                    className="h-full bg-linear-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
-                    style={{
-                      width: `${progress ? progress.percentage : 100}%`,
-                    }}
-                  />
-                </div>
-                <div className="font-mono text-xxs text-gray-400 mt-1 text-right">
-                  {progress
-                    ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
-                    : "Calculating..."}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Privacy Section */}
-          <div className="flex flex-col items-center gap-0.5 p-1.5 m-2 text-center">
-            <span className="font-mono text-xxs text-gray-400 uppercase leading-none mb-1">
-              Privacy
-            </span>
-            <span className="font-mono text-xs text-brand-black font-semibold leading-none">
-              100% Client-Side
-            </span>
-          </div>
-        </div>
-
-        <div className="p-6 border-t border-gray-200 bg-brand-paper max-[768px]:p-4 max-[480px]:p-3">
-          <div className="font-mono text-xxs text-gray-400 uppercase mb-1 text-center block">
-            Open Source Software
-          </div>
-          <a
-            href="https://github.com/happytoolin/happytokenizer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors"
-          >
-            github.com/happytoolin
-          </a>
-        </div>
-      </aside>
+      <Sidebar
+        model={model}
+        onModelChange={setModel}
+        modelOptions={modelOptions}
+        encoding={encoding}
+        mode="text"
+        onSampleText={() => setText(SAMPLE_TEXT)}
+        onLargeText={() => setText(LARGE_SAMPLE_TEXT)}
+        onEssayText={() => setText(DEFAULT_ESSAY)}
+        onClearText={handleClear}
+        isLoading={isLoading}
+      />
 
       {/* --- RIGHT PANEL: WORKSPACE --- */}
       <div className="flex flex-col gap-6 max-[768px]:pb-32 max-[600px]:pb-20 max-[480px]:pb-24">
@@ -420,7 +289,7 @@ export function TokenizerApp() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px] max-[768px]:p-4 max-[480px]:p-3">
               <div
-                className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
+                className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
                   isDragging
                     ? "border-brand-orange bg-brand-orange/2 scale-[0.98]"
                     : "hover:border-brand-orange hover:bg-brand-orange/2"
@@ -506,7 +375,7 @@ export function TokenizerApp() {
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-sm">
+          <div className="bg-red-50 border border-red-200 p-4">
             <p className="font-mono text-sm text-red-600">Error: {error}</p>
           </div>
         )}
