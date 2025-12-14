@@ -45,7 +45,8 @@ export function ChatTokenizer() {
 
   // Get encoding for the current model
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
-  const { tokens, tokenTexts, isLoading, error, progress, tokenize } = useTokenizer();
+  const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
+    useTokenizer();
 
   // Memoize callback functions to prevent unnecessary re-renders
   const handleExampleChat = useCallback(() => {

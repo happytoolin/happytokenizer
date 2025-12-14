@@ -27,7 +27,6 @@ export function TokenDisplay({
     "inline",
   );
 
-  
   if (error) return <div className={styles.error}>ERR: {error}</div>;
 
   // For chat mode, we don't need text to show tokens

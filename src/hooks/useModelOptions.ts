@@ -1,9 +1,6 @@
 import { useMemo } from "react";
 import { type ComboboxOption } from "../components/ui/combobox-shadcn";
-import {
-  MODEL_DISPLAY_NAMES,
-  MODEL_ENCODINGS,
-} from "../utils/modelEncodings";
+import { MODEL_DISPLAY_NAMES, MODEL_ENCODINGS } from "../utils/modelEncodings";
 
 export function useModelOptions() {
   return useMemo(() => {

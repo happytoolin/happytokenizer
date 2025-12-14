@@ -7,8 +7,11 @@ import { TOKEN_COLORS } from "../../utils/tokenColors";
 /* @react-no-memo */
 
 // Global canvas context cache - created once and reused
-const measurementCanvas = typeof document !== 'undefined' ? document.createElement("canvas") : null;
-const measurementCtx = measurementCanvas ? measurementCanvas.getContext("2d") : null;
+const measurementCanvas =
+  typeof document !== "undefined" ? document.createElement("canvas") : null;
+const measurementCtx = measurementCanvas
+  ? measurementCanvas.getContext("2d")
+  : null;
 
 interface VirtualizedInlineTokenDisplayProps {
   tokens: number[];
@@ -94,8 +97,23 @@ export function VirtualizedInlineTokenDisplay({
     const tokenBaseWidth =
       CONSTANTS.PADDING_X + CONSTANTS.BORDER + CONSTANTS.INNER_GAP;
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (let i = 0; i < tokens.length; i++) {
+      const tokenId = tokens[i];
+      const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
+
+      let displayText = tokenTexts[i] || `[${tokenId}]`;
+
+      // Clean up whitespace-only tokens for better display
+      if (displayText.trim() === "") {
+        displayText = `[${tokenId}]`;
+      }
+
+      // Truncate very long tokens for display
+      if (displayText.length > 30) {
+        displayText = displayText.substring(0, 30) + "...";
+      }
+
+      const item = { tokenId, color, text: displayText };
 
       // Calculate ID width: number of digits * char width
       // Optimization: Get digit count without converting to string for small numbers
@@ -153,14 +171,15 @@ export function VirtualizedInlineTokenDisplay({
       lines.push({
         tokens: currentLine,
         startIndex: currentLineStartIndex,
-        endIndex: items.length - 1,
+        endIndex: tokens.length - 1,
         height: CONSTANTS.LINE_HEIGHT,
       });
     }
 
     setLineBreaks(lines);
   }, [
-    items,
+    tokens,
+    tokenTexts,
     CONSTANTS.PADDING_X,
     CONSTANTS.BORDER,
     CONSTANTS.INNER_GAP,
@@ -266,15 +285,15 @@ export function VirtualizedInlineTokenDisplay({
         </div>
       </div>
 
-      {items.length > 0 && lineBreaks.length > 0 && virtualItems.length > 0 && (
+      {tokens.length > 0 && lineBreaks.length > 0 && virtualItems.length > 0 && (
         <div className={styles.scrollIndicator}>
           {lineBreaks[virtualItems[0].index]?.startIndex + 1 || 1}-
           {Math.min(
             lineBreaks[virtualItems[virtualItems.length - 1].index]?.endIndex +
-              1 || items.length,
-            items.length,
+              1 || tokens.length,
+            tokens.length,
           )}{" "}
-          of {items.length} tokens
+          of {tokens.length} tokens
         </div>
       )}
     </div>

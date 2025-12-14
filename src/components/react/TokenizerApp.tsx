@@ -53,6 +53,16 @@ export function TokenizerApp() {
     });
   };
 
+  // Helper function to update both text states for preset buttons
+  const updateTextWithTransition = (newText: string) => {
+    setText(newText); // Updates input immediately (High Priority)
+
+    startTransition(() => {
+      // Updates tokenization (Low Priority)
+      setTokenizeTarget(newText);
+    });
+  };
+
   // --- FILE HANDLERS ---
   const processFile = (file: File) => {
     setUploadError(null);
@@ -123,13 +133,13 @@ export function TokenizerApp() {
             <>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setText(SAMPLE_TEXT)}
+                  onClick={() => updateTextWithTransition(SAMPLE_TEXT)}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Sample
                 </button>
                 <button
-                  onClick={() => setText(LARGE_SAMPLE_TEXT)}
+                  onClick={() => updateTextWithTransition(LARGE_SAMPLE_TEXT)}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Large
@@ -137,7 +147,7 @@ export function TokenizerApp() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setText(DEFAULT_ESSAY)}
+                  onClick={() => updateTextWithTransition(DEFAULT_ESSAY)}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Essay

@@ -1,32 +1,28 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import styles from "../../styles/components/VirtualTokenDisplay.module.css";
+import { TOKEN_COLORS } from "../../utils/tokenColors";
 
 // "use no memo" directive to disable React Compiler for this component
 /* @react-no-memo */
 
-interface TokenItem {
-  id: number;
-  tokenId: number;
-  color: string;
-  text: string;
-}
-
 interface VirtualTokenDisplayProps {
-  items: TokenItem[];
+  tokens: number[];
+  tokenTexts: string[];
   containerHeight: number;
   estimatedItemHeight: number;
 }
 
 export function VirtualTokenDisplay({
-  items,
+  tokens,
+  tokenTexts,
   containerHeight,
   estimatedItemHeight,
 }: VirtualTokenDisplayProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
-    count: items.length,
+    count: tokens.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimatedItemHeight,
     // Overscan determines how many items to render outside the visible area.
@@ -52,7 +48,22 @@ export function VirtualTokenDisplay({
           }}
         >
           {virtualItems.map((virtualItem) => {
-            const item = items[virtualItem.index];
+            const index = virtualItem.index;
+            const tokenId = tokens[index];
+            const color = TOKEN_COLORS[index % TOKEN_COLORS.length];
+
+            let displayText = tokenTexts[index] || `[${tokenId}]`;
+
+            // Clean up whitespace-only tokens for better display
+            if (displayText.trim() === "") {
+              displayText = `[${tokenId}]`;
+            }
+
+            // Truncate very long tokens for display
+            if (displayText.length > 30) {
+              displayText = displayText.substring(0, 30) + "...";
+            }
+
             return (
               <div
                 key={virtualItem.key}
@@ -71,12 +82,12 @@ export function VirtualTokenDisplay({
                   {/* Mechanical color bar indicator */}
                   <div
                     className={styles.colorIndicator}
-                    style={{ backgroundColor: item.color }}
+                    style={{ backgroundColor: color }}
                   />
                   <span className={styles.tokenId}>
-                    {item.id + 1}. #{item.tokenId}
+                    {index + 1}. #{tokenId}
                   </span>
-                  <span className={styles.tokenText}>{item.text}</span>
+                  <span className={styles.tokenText}>{displayText}</span>
                 </div>
               </div>
             );

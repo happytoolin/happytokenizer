@@ -68,26 +68,26 @@ export function VirtualizedCompactTokenDisplay({
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   // Computation helper for individual token data
-const getTokenData = (index: number) => {
-  const tokenId = tokens[index];
-  const color = TOKEN_COLORS[index % TOKEN_COLORS.length];
+  const getTokenData = (index: number) => {
+    const tokenId = tokens[index];
+    const color = TOKEN_COLORS[index % TOKEN_COLORS.length];
 
-  let displayText = tokenTexts[index] || `[${tokenId}]`;
+    let displayText = tokenTexts[index] || `[${tokenId}]`;
 
-  // Clean up whitespace-only tokens for better display
-  if (displayText.trim() === "") {
-    displayText = `[${tokenId}]`;
-  }
+    // Clean up whitespace-only tokens for better display
+    if (displayText.trim() === "") {
+      displayText = `[${tokenId}]`;
+    }
 
-  // Truncate very long tokens for display and tooltips (CSS perf optimization)
-  if (displayText.length > 30) {
-    displayText = displayText.substring(0, 30) + "...";
-  }
+    // Truncate very long tokens for display and tooltips (CSS perf optimization)
+    if (displayText.length > 30) {
+      displayText = displayText.substring(0, 30) + "...";
+    }
 
-  return { tokenId, color, text: displayText };
-};
+    return { tokenId, color, text: displayText };
+  };
 
-const visibleItems = useMemo(() => {
+  const visibleItems = useMemo(() => {
     const result: Array<{
       tokenId: number;
       color: string;
@@ -132,26 +132,29 @@ const visibleItems = useMemo(() => {
             flexDirection: "column",
           }}
         >
-          {visibleItems.map(({ tokenId, color, text, virtualRow, colIndex }, index) => {
-            const tokenIndex = virtualRow.index * effectiveTokensPerRow + colIndex;
-            return (
-              <span
-                key={tokenIndex}
-                className={styles.compactToken}
-                style={{
-                  position: "absolute",
-                  top: virtualRow.start,
-                  left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
-                  width: itemWidth,
-                  backgroundColor: color + "33", // 20% opacity hex
-                  borderBottom: `2px solid ${color}`, // Underline style instead of full border
-                }}
-                data-tooltip={text}
-              >
-                {tokenId}
-              </span>
-            );
-          })}
+          {visibleItems.map(
+            ({ tokenId, color, text, virtualRow, colIndex }, index) => {
+              const tokenIndex =
+                virtualRow.index * effectiveTokensPerRow + colIndex;
+              return (
+                <span
+                  key={tokenIndex}
+                  className={styles.compactToken}
+                  style={{
+                    position: "absolute",
+                    top: virtualRow.start,
+                    left: 16 + colIndex * (itemWidth + gap), // Add 16px for left padding
+                    width: itemWidth,
+                    backgroundColor: color + "33", // 20% opacity hex
+                    borderBottom: `2px solid ${color}`, // Underline style instead of full border
+                  }}
+                  data-tooltip={text}
+                >
+                  {tokenId}
+                </span>
+              );
+            },
+          )}
         </div>
       </div>
 
