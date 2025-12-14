@@ -1,4 +1,4 @@
-import { MODEL_ENCODINGS, getEncodingForModel } from "./modelEncodings";
+import { getEncodingForModel } from "./modelEncodings";
 
 // Context window limits for various models
 export const CONTEXT_WINDOW_LIMITS = {
@@ -151,12 +151,24 @@ export const PRICING = {
   },
 } as const;
 
+// Type definitions
+export interface PricingInfo {
+  input: number;
+  output: number;
+  cached: number;
+}
+
 // Helper functions
 export function getContextWindowLimit(modelName: string): number {
-  return (
-    CONTEXT_WINDOW_LIMITS[modelName as keyof typeof CONTEXT_WINDOW_LIMITS] ||
-    getDefaultContextLimit(getEncodingForModel(modelName))
-  );
+  const limit =
+    CONTEXT_WINDOW_LIMITS[modelName as keyof typeof CONTEXT_WINDOW_LIMITS];
+
+  // Handle the case where limit might be an object (for default)
+  if (typeof limit === "number") {
+    return limit;
+  }
+
+  return getDefaultContextLimit(getEncodingForModel(modelName));
 }
 
 export function getDefaultContextLimit(encodingType: string): number {
@@ -168,11 +180,26 @@ export function getDefaultContextLimit(encodingType: string): number {
 }
 
 export function getPricing(modelName: string): PricingInfo {
-  return (
-    PRICING[modelName as keyof typeof PRICING] ||
-    PRICING.default[
-      getEncodingForModel(modelName) as keyof typeof PRICING.default
-    ] ||
-    PRICING.default.o200k_base
-  );
+  const directPricing = PRICING[modelName as keyof typeof PRICING];
+
+  // Check if direct pricing exists and is a PricingInfo object
+  if (
+    directPricing &&
+    typeof directPricing === "object" &&
+    "input" in directPricing
+  ) {
+    return directPricing as PricingInfo;
+  }
+
+  // Fall back to default pricing by encoding type
+  const encodingType = getEncodingForModel(modelName);
+  const defaultPricing =
+    PRICING.default[encodingType as keyof typeof PRICING.default];
+
+  if (defaultPricing) {
+    return defaultPricing as PricingInfo;
+  }
+
+  // Final fallback
+  return PRICING.default.o200k_base as PricingInfo;
 }

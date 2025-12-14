@@ -1,14 +1,13 @@
-import React from "react";
+import styles from "../../styles/components/TokenDisplay.module.css";
 import { getContextWindowLimit } from "../../utils/contextLimits";
 import { MODEL_DISPLAY_NAMES } from "../../utils/modelEncodings";
-import styles from "../../styles/components/TokenDisplay.module.css";
 
 interface TotalContextProps {
   tokenCount: number;
   modelName: string;
 }
 
-export function TotalContext({ tokenCount, modelName }: TotalContextProps) {
+export function TotalContext({ modelName }: TotalContextProps) {
   const contextLimit = getContextWindowLimit(modelName);
 
   return (

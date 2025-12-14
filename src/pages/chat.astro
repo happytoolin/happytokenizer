@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/MainLayout.astro";
 import { ChatTokenizer } from "../components/react/ChatTokenizer";
+import { LeapOCRPromotionMobile } from "../components/react/LeapOCRPromotionMobile";
 ---
 
 <Layout title="Chat Tokenizer - HappyTokenizer">
   <ChatTokenizer client:visible />
+  <LeapOCRPromotionMobile client:visible />
 </Layout>

@@ -112,6 +112,49 @@
   color: var(--c-black);
 }
 
+/* --- MOBILE RESPONSIVE STATS --- */
+@media (max-width: 768px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat {
+    padding: 10px 12px;
+  }
+
+  .statValue {
+    font-size: 16px;
+  }
+
+  .statLabel {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat {
+    padding: 8px 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .statLabel {
+    font-size: 8px;
+    flex-shrink: 0;
+  }
+
+  .statValue {
+    font-size: 14px;
+    text-align: right;
+  }
+}
+
 .empty,
 .error {
   padding: 40px;

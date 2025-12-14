@@ -1,6 +1,7 @@
 ---
 import Footer from '../components/Footer.astro';
 import { TokenizerApp } from '../components/react/TokenizerApp';
+import { LeapOCRPromotionMobile } from '../components/react/LeapOCRPromotionMobile';
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
@@ -9,5 +10,6 @@ import MainLayout from '../layouts/MainLayout.astro';
   description="Visualize how LLM models tokenize your text in real-time. Support for all LLM models including GPT-5, GPT-4o, GPT-3.5, and more. Privacy-focused client-side processing."
 >
   <TokenizerApp client:visible />
+  <LeapOCRPromotionMobile client:visible />
   <Footer />
 </MainLayout>
