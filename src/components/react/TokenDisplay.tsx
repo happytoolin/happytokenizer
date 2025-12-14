@@ -5,6 +5,9 @@ import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
 import { VirtualErrorBoundary } from "../ui/VirtualErrorBoundary";
+import { TokenLimitIndicator } from "./TokenLimitIndicator";
+import { CostEstimator } from "./CostEstimator";
+import { TotalContext } from "./TotalContext";
 import type { ChatMessage } from "../../types/chat";
 
 interface TokenDisplayProps {
@@ -14,6 +17,8 @@ interface TokenDisplayProps {
   error?: string | null;
   isChatMode?: boolean;
   chatMessages?: ChatMessage[];
+  modelName?: string;
+  showLimitAndCost?: boolean;
 }
 
 export function TokenDisplay({
@@ -23,6 +28,8 @@ export function TokenDisplay({
   error,
   isChatMode = false,
   chatMessages,
+  modelName = "gpt-5",
+  showLimitAndCost = true,
 }: TokenDisplayProps) {
   const [viewMode, setViewMode] = useState<"inline" | "compact" | "detailed">(
     "inline",
@@ -125,12 +132,22 @@ export function TokenDisplay({
               <span className={styles.statLabel}>Total Tokens</span>
               <span className={styles.statValue}>{tokens.length}</span>
             </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Est. Cost</span>
-              <span className={styles.statValue}>
-                ${((tokens.length / 1000) * 0.005).toFixed(4)}
-              </span>
-            </div>
+            {showLimitAndCost && (
+              <>
+                <TokenLimitIndicator
+                  tokenCount={tokens.length}
+                  modelName={modelName}
+                />
+                <TotalContext
+                  tokenCount={tokens.length}
+                  modelName={modelName}
+                />
+                <CostEstimator
+                  tokenCount={tokens.length}
+                  modelName={modelName}
+                />
+              </>
+            )}
           </>
         ) : (
           <>
@@ -143,17 +160,27 @@ export function TokenDisplay({
               <span className={styles.statValue}>{text.length}</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statLabel}>Est. Cost (Input)</span>
-              <span className={styles.statValue}>
-                ${((tokens.length / 1000) * 0.005).toFixed(4)}
-              </span>
-            </div>
-            <div className={styles.stat}>
               <span className={styles.statLabel}>Density</span>
               <span className={styles.statValue}>
                 {(text.length / tokens.length).toFixed(2)}
               </span>
             </div>
+            {showLimitAndCost && (
+              <>
+                <TokenLimitIndicator
+                  tokenCount={tokens.length}
+                  modelName={modelName}
+                />
+                <TotalContext
+                  tokenCount={tokens.length}
+                  modelName={modelName}
+                />
+                <CostEstimator
+                  tokenCount={tokens.length}
+                  modelName={modelName}
+                />
+              </>
+            )}
           </>
         )}
       </div>

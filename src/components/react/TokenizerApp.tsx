@@ -268,6 +268,8 @@ export function TokenizerApp() {
               text={debouncedText}
               tokens={Array.isArray(tokens) ? tokens : Array.from(tokens || [])}
               tokenTexts={tokenTexts || []}
+              modelName={model}
+              showLimitAndCost={true}
             />
           )}
         </>

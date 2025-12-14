@@ -172,6 +172,8 @@ export function ChatTokenizer() {
               tokenTexts={tokenTexts || []}
               isChatMode={true}
               chatMessages={chatMessages}
+              modelName={model}
+              showLimitAndCost={true}
             />
           )}
         </>
