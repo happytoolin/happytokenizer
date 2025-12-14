@@ -1,11 +1,181 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { ModelsPage } from '../components/react/ModelsPage';
+import { MODEL_ENCODINGS, MODEL_DISPLAY_NAMES } from '../utils/modelEncodings';
+
+// Reconstruct the category logic here in server-side JS
+const MODEL_CATEGORIES = [
+  {
+    id: "modern",
+    title: "Modern Models",
+    icon: "🚀",
+    encoding: "o200k_base",
+    description: "Latest encoding for modern models",
+    color: "#FF6600", // Orange
+    models: MODEL_ENCODINGS.o200k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "chat",
+    title: "Chat Models",
+    icon: "💬",
+    encoding: "cl100k_base",
+    description: "Standard encoding for chat models",
+    color: "#00CC99", // Mint
+    models: MODEL_ENCODINGS.cl100k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "oss",
+    title: "OpenAI OSS",
+    icon: "🎵",
+    encoding: "o200k_harmony",
+    description: "Special encoding for open-source",
+    color: "#CCFF00", // Volt
+    models: MODEL_ENCODINGS.o200k_harmony.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "code",
+    title: "Code Models",
+    icon: "📝",
+    encoding: "p50k_base",
+    description: "Optimized for code generation",
+    color: "#0066FF", // Blue
+    models: MODEL_ENCODINGS.p50k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "edit",
+    title: "Edit Models",
+    icon: "✏️",
+    encoding: "p50k_edit",
+    description: "Designed for text editing tasks",
+    color: "#FF3366", // Red
+    models: MODEL_ENCODINGS.p50k_edit.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+  {
+    id: "legacy",
+    title: "Legacy Models",
+    icon: "🏛️",
+    encoding: "r50k_base",
+    description: "Original GPT-3 encoding",
+    color: "#666666", // Grey
+    models: MODEL_ENCODINGS.r50k_base.map(
+      (model) => MODEL_DISPLAY_NAMES[model] || model,
+    ),
+  },
+].map((category) => ({
+  ...category,
+  models: category.models.sort((a, b) => a.localeCompare(b)),
+}));
 ---
 
 <MainLayout
   title="System Manifest - HappyTokenizer"
   description="Complete system manifest of all GPT models supported by HappyTokenizer with their encodings and technical specifications."
 >
-  <ModelsPage client:visible />
+  <div class="max-w-6xl mx-auto p-5">
+    <header class="flex justify-between items-center mb-10 py-5 border-b-2 border-brand-black max-md:flex-col max-md:gap-5 max-md:items-start">
+      <div class="flex items-center gap-5">
+        <a href="/" class="bg-transparent border-none text-sm font-medium text-brand-orange cursor-pointer no-underline px-4 py-2 rounded-xs transition-all duration-200 ease-mechanical hover:text-brand-steel hover:underline">← BACK</a>
+        <h1 class="text-xxxl font-bold m-0 font-display">System Manifest</h1>
+      </div>
+      <div class="flex items-center bg-white border-2 border-brand-black rounded-sm px-4 py-2 min-w-[300px] max-md:w-full max-md:min-w-0">
+        <span class="mr-3 text-base">⚡</span>
+        <input type="text" id="model-search" placeholder="FILTER MODELS..." class="border-none bg-transparent text-sm font-medium outline-none w-full font-body placeholder:text-brand-steel" />
+      </div>
+    </header>
+
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6" id="model-grid">
+      {MODEL_CATEGORIES.map((cat) => (
+        <div class="bg-white border-2 border-brand-black rounded-sm overflow-hidden model-category" data-keywords={`${cat.title} ${cat.encoding}`}>
+          <div class="px-5 py-4 flex justify-between items-center bg-white" style={`border-bottom: 2px solid ${cat.color}`}>
+            <div class="flex items-center gap-3">
+              <span class="text-xl">{cat.icon}</span>
+              <h2 class="text-lg font-bold m-0 font-display">{cat.title}</h2>
+            </div>
+            <div class="text-xs font-semibold bg-brand-concrete px-2 py-1 rounded-xs font-mono">{cat.encoding}</div>
+          </div>
+
+          <div class="px-5 py-3 flex justify-between items-center bg-brand-paper border-b border-brand-concrete">
+            <span class="text-xs text-brand-steel font-medium">{cat.description}</span>
+            <span class="text-xxs font-semibold text-brand-black font-mono">{cat.models.length} MODELS</span>
+          </div>
+
+          <div class="max-h-[300px] overflow-y-auto p-2 scrollbar-mechanical">
+            {cat.models.map((model) => (
+              <div class="flex items-center gap-3 px-3 py-2 rounded-xs mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem" data-name={model}>
+                <div class="w-2 h-2 rounded-full flex-shrink-0" style={`background: ${cat.color}`}></div>
+                <span class="text-xs font-medium font-mono break-words">{model}</span>
+              </div>
+            ))}
+            {cat.models.length === 0 && (
+              <div class="text-center p-5 text-brand-steel text-xs font-medium">No matches in this category</div>
+            )}
+          </div>
+        </div>
+      ))}
+
+      <div class="col-span-full text-center p-10 text-base font-medium text-brand-steel noResults" style="display: none;">
+        No models found matching "<span id="search-term"></span>"
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    // Simple vanilla JS filter
+    const input = document.getElementById('model-search');
+    const categories = document.querySelectorAll('.model-category');
+    const noResults = document.querySelector('.noResults');
+    const searchTerm = document.getElementById('search-term');
+
+    input.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      let hasVisibleCategories = false;
+
+      categories.forEach(cat => {
+        const title = cat.dataset.keywords.toLowerCase();
+        const modelItems = cat.querySelectorAll('.modelItem');
+        let hasVisibleModels = false;
+
+        // Check if category title matches
+        const categoryMatches = title.includes(term);
+
+        // Filter individual models
+        modelItems.forEach(item => {
+          const modelName = item.dataset.name.toLowerCase();
+          const modelMatches = modelName.includes(term);
+
+          if (term === '' || categoryMatches || modelMatches) {
+            item.style.display = 'flex';
+            hasVisibleModels = true;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        // Show/hide category based on whether it has visible models or matches title
+        if (term === '' || categoryMatches || hasVisibleModels) {
+          cat.style.display = 'block';
+          hasVisibleCategories = true;
+        } else {
+          cat.style.display = 'none';
+        }
+      });
+
+      // Show/hide no results message
+      if (hasVisibleCategories) {
+        noResults.style.display = 'none';
+      } else {
+        noResults.style.display = 'block';
+        searchTerm.textContent = e.target.value;
+      }
+    });
+  </script>
 </MainLayout>

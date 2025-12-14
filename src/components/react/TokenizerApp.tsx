@@ -1,49 +1,160 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
-import styles from "../../styles/components/TokenizerApp.module.css";
 import {
   getEncodingForModel,
   isEncodingType,
+  MODEL_ENCODINGS,
+  MODEL_DISPLAY_NAMES,
 } from "../../utils/modelEncodings";
 import { VERSION } from "../../utils/version";
-import { Footer } from "../Footer";
+import {
+  DEFAULT_ESSAY,
+  SAMPLE_TEXT,
+  LARGE_SAMPLE_TEXT,
+} from "../../utils/constants";
 import { TokenDisplay } from "./TokenDisplay";
-
-const DEFAULT_ESSAY = `HappyTokenizer by happytoolin represents a new approach to understanding and optimizing AI context windows. As developers increasingly work with Large Language Models, the efficient management of token usage has become crucial for both cost optimization and model performance. HappyTokenizer provides precise token counting and visualization tools that help developers understand exactly how their text is being processed by models like GPT-4o and GPT-3.5.
-
-The HappyTokenizer philosophy centers on transparency and education. Rather than treating tokenization as a black box, it provides detailed visualizations that show exactly how text is broken down into tokens, helping developers write more efficient prompts and better understand model limitations. This is particularly important given that different models have different token limits and tokenization strategies.
-
-HappyTokenizer is part of the broader happytoolin ecosystem, which includes the comprehensive HappyFormatter suite. HappyFormatter offers a wide range of code formatting and validation tools for developers, including:
-
-• HTML Formatter and Minifier
-• CSS Formatter and Minifier
-• JavaScript Formatter and Minifier
-• TypeScript Formatter and Validator
-• JSON Formatter and Validator
-• YAML Formatter
-• SQL Formatter
-• Go, Dart, Lua, Python, and many more language formatters
-
-Together, HappyTokenizer and HappyFormatter provide a complete toolkit for developers working with modern AI systems and code formatting. The tools share a common design philosophy: make complex technical operations simple, transparent, and accessible while maintaining the precision that professional developers require.
-
-Whether you're optimizing prompts for production AI applications, formatting code for consistency, or simply learning about how tokenization works, HappyTokenizer offers the precision and clarity needed to work effectively with modern language models.`;
-
-const SAMPLE_TEXT = `GPT-4o is a large multimodal model that can accept image and text inputs and produce text outputs. It exhibits remarkable capabilities across various domains and tasks.`;
-
-const LARGE_SAMPLE_TEXT = `Artificial intelligence (AI) is intelligence demonstrated by machines, in contrast to the natural intelligence displayed by humans and animals. Leading AI textbooks define the field as the study of "intelligent agents": any device that perceives its environment and takes actions that maximize its chance of successfully achieving its goals. Colloquially, the term "artificial intelligence" is often used to describe machines that mimic "cognitive" functions that humans associate with the human mind, such as "learning" and "problem solving".
-
-AI applications include advanced web search engines, recommendation systems (used by YouTube, Amazon and Netflix), understanding human speech (such as Siri and Alexa), self-driving cars (e.g., Tesla), and competing at the highest level in strategic games (such as chess and Go). As machines become increasingly capable, tasks considered to require "intelligence" are often removed from the definition of AI, a phenomenon known as the AI effect. For instance, optical character recognition is frequently excluded from things considered to be AI, having become a routine technology.
-
-Artificial intelligence was founded as an academic discipline in 1956, and in the years since has experienced several waves of optimism, followed by disappointment and the loss of funding (known as an "AI winter"), followed by new approaches, success and renewed funding. AI research has tried and discarded many different approaches since its founding, including simulating the brain, modeling human problem solving, formal logic, large databases of knowledge and imitating animal behavior. In the first decades of the 21st century, highly mathematical statistical machine learning has dominated the field, and this technique has proved highly successful, helping to solve many challenging problems throughout industry and academia.
-
-The various sub-fields of AI research are centered around particular goals and the use of particular tools. The traditional goals of AI research include reasoning, knowledge representation, planning, learning, natural language processing, perception and the ability to move and manipulate objects. General intelligence (the ability to solve an arbitrary problem) is among the field's long-term goals. To solve these problems, AI researchers have adapted and integrated a wide range of problem-solving techniques—including search and mathematical optimization, formal logic, artificial neural networks, and methods based on statistics, probability and economics. AI also draws upon computer science, psychology, linguistics, philosophy, and many other fields.
-
-${`The history of machine learning dates back to the 1950s when Arthur Samuel created a program that could play checkers and improve its performance through experience. This early example of machine learning demonstrated the potential for computers to learn from data without being explicitly programmed for every possible scenario. Throughout the 1960s and 1970s, researchers developed various learning algorithms, including nearest neighbor algorithms, decision trees, and early neural network models. However, progress was often hindered by limited computational power and the scarcity of large datasets. The 1980s saw a resurgence of interest in neural networks with the development of backpropagation, a key algorithm for training multi-layer networks. The 1990s brought support vector machines and ensemble methods, which became powerful tools for classification and regression tasks. The real revolution began in the 2000s and accelerated dramatically in the 2010s, driven by three key factors: the availability of massive datasets (often called "big data"), exponential improvements in GPU computing power, and breakthroughs in algorithm design. Deep learning, which uses neural networks with many layers, has transformed fields like computer vision, natural language processing, and speech recognition. Today, machine learning is ubiquitous, powering everything from recommendation systems and fraud detection to autonomous vehicles and medical diagnosis. `.repeat(20)}`;
+import {
+  ComboboxShadcn,
+  type ComboboxOption,
+} from "../../components/ui/combobox-shadcn";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<string>("gpt-4o"); // Default to a specific model
+  const [model, setModel] = useState<string>("gpt-5"); // Default to a specific model
   const [debouncedText, setDebouncedText] = useState("");
+
+  // Generate combobox options from model encodings
+  const modelOptions = useMemo(() => {
+    const options: ComboboxOption[] = [];
+
+    // Define group names without emojis and encoding details
+    const groupNames: Record<string, string> = {
+      o200k_base: "Modern Models",
+      cl100k_base: "Chat Models",
+      p50k_base: "Completion Models",
+      p50k_edit: "Edit Models",
+      r50k_base: "Legacy Models",
+      o200k_harmony: "OpenAI OSS",
+    };
+
+    // Group specific models for better organization
+    const specialGroups: Record<
+      string,
+      { models: string[]; groupName: string }
+    > = {
+      search: {
+        models: [
+          "text-search-ada-doc-001",
+          "text-search-ada-query-001",
+          "text-search-babbage-doc-001",
+          "text-search-babbage-query-001",
+          "text-search-curie-doc-001",
+          "text-search-curie-query-001",
+          "text-search-davinci-doc-001",
+          "text-search-davinci-query-001",
+        ],
+        groupName: "Search & Similarity",
+      },
+      similarity: {
+        models: [
+          "text-similarity-ada-001",
+          "text-similarity-babbage-001",
+          "text-similarity-curie-001",
+          "text-similarity-davinci-001",
+        ],
+        groupName: "Search & Similarity",
+      },
+      audioMedia: {
+        models: [
+          "whisper-1",
+          "tts-1",
+          "tts-1-hd",
+          "dall-e-2",
+          "dall-e-3",
+          "gpt-audio",
+          "gpt-audio-mini",
+          "sora-2",
+          "sora-2-pro",
+        ],
+        groupName: "Audio & Media",
+      },
+      codeSearch: {
+        models: [
+          "code-search-ada-code-001",
+          "code-search-ada-text-001",
+          "code-search-babbage-code-001",
+          "code-search-babbage-text-001",
+        ],
+        groupName: "Legacy Models",
+      },
+    };
+
+    // Process models by encoding type
+    Object.entries(MODEL_ENCODINGS).forEach(([encoding, models]) => {
+      if (encoding === "r50k_base") {
+        // For r50k_base, we need to handle special grouping
+        models.forEach((modelName) => {
+          let groupName = groupNames[encoding];
+          let isInSpecialGroup = false;
+
+          // Check if model belongs to a special group
+          Object.entries(specialGroups).forEach(([key, group]) => {
+            if (group.models.includes(modelName)) {
+              groupName = group.groupName;
+              isInSpecialGroup = true;
+            }
+          });
+
+          // Only add if not already in a special group
+          if (!isInSpecialGroup) {
+            options.push({
+              value: modelName,
+              label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+              group: groupName,
+            });
+          }
+        });
+
+        // Add special groups
+        Object.values(specialGroups).forEach((group) => {
+          if (
+            group.groupName.includes("Search") ||
+            group.groupName.includes("Similarity") ||
+            group.groupName.includes("Code") ||
+            group.groupName.includes("Legacy")
+          ) {
+            group.models.forEach((modelName) => {
+              if (MODEL_ENCODINGS.r50k_base.includes(modelName as any)) {
+                options.push({
+                  value: modelName,
+                  label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+                  group: group.groupName,
+                });
+              }
+            });
+          }
+        });
+      } else {
+        // For other encodings, add models normally
+        models.forEach((modelName) => {
+          let groupName = groupNames[encoding];
+
+          // Check for audio/media special group
+          if (specialGroups.audioMedia.models.includes(modelName)) {
+            groupName = specialGroups.audioMedia.groupName;
+          }
+
+          options.push({
+            value: modelName,
+            label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+            group: groupName,
+          });
+        });
+      }
+    });
+
+    return options;
+  }, []);
 
   // --- TAB STATE ---
   const [activeTab, setActiveTab] = useState<"input" | "upload">("input");
@@ -127,213 +238,72 @@ export function TokenizerApp() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="max-w-7xl mx-auto p-10 min-h-screen grid grid-cols-[320px_1fr] gap-8 items-start max-[900px]:grid-cols-1 max-[900px]:p-4">
       {/* --- CONTROL DECK (Sidebar) --- */}
-      <aside className={styles.controlDeck}>
-        <div className={styles.brand}>
-          <div className={styles.logoRow}>
-            <div className={styles.statusDot}></div>
+      <aside className="sticky top-10 h-[800px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:shadow-none">
+        <div className="p-6 border-b border-brand-black bg-brand-black text-white">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
             <a
               href="https://happytokenizer.com"
               target="_blank"
               rel="noopener noreferrer"
-              className={styles.titleLink}
+              className="no-underline inline-block"
             >
-              <h1 className={styles.title}>HappyTokenizer</h1>
+              <h1 className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
+                HappyTokenizer
+              </h1>
             </a>
           </div>
-          <div className={styles.metaRow}>
-            <span className={styles.versionBadge}>{VERSION}</span>
+          <div className="flex gap-2 items-center">
+            <span className="font-mono text-xxs text-gray-400">{VERSION}</span>
             <a
               href="https://happytoolin.com"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className={styles.ownerBadge}>by happytoolin</span>
+              <span className="font-mono text-xxs bg-white text-brand-black px-1 py-0.5 font-bold">
+                by happytoolin
+              </span>
             </a>
           </div>
         </div>
 
-        <div className={styles.scrollableControls}>
-          <div className={styles.controlGroup}>
-            <label className={styles.label}>Model Selection</label>
-            <div className={styles.selectWrapper}>
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className={styles.select}
-              >
-                <optgroup label="🚀 Modern Models (o200k_base)">
-                  <option value="gpt-4o">GPT-4o</option>
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
-                  <option value="o1">O1</option>
-                  <option value="o1-mini">O1 Mini</option>
-                  <option value="o1-pro">O1 Pro</option>
-                  <option value="o3">O3</option>
-                  <option value="o3-mini">O3 Mini</option>
-                  <option value="o3-pro">O3 Pro</option>
-                  <option value="gpt-5">GPT-5</option>
-                  <option value="gpt-5-pro">GPT-5 Pro</option>
-                  <option value="gpt-5-mini">GPT-5 Mini</option>
-                  <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
-                  <option value="gpt-4.1">GPT-4.1</option>
-                  <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-                </optgroup>
-
-                <optgroup label="💬 Chat Models (cl100k_base)">
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                  <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo 0125</option>
-                  <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo 0613</option>
-                  <option value="gpt-4">GPT-4</option>
-                  <option value="gpt-4-0613">GPT-4 0613</option>
-                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                  <option value="gpt-4-turbo-preview">
-                    GPT-4 Turbo Preview
-                  </option>
-                  <option value="gpt-4-1106-preview">GPT-4 1106 Preview</option>
-                  <option value="gpt-4-32k">GPT-4 32k</option>
-                  <option value="gpt-3.5-turbo-instruct">
-                    GPT-3.5 Turbo Instruct
-                  </option>
-                </optgroup>
-
-                <optgroup label="🔧 Completion Models (p50k_base)">
-                  <option value="text-davinci-003">Text Davinci 003</option>
-                  <option value="text-davinci-002">Text Davinci 002</option>
-                  <option value="code-davinci-001">Code Davinci 001</option>
-                  <option value="code-davinci-002">Code Davinci 002</option>
-                  <option value="code-cushman-001">Code Cushman 001</option>
-                  <option value="code-cushman-002">Code Cushman 002</option>
-                  <option value="cushman-codex">Cushman Codex</option>
-                  <option value="davinci-codex">Davinci Codex</option>
-                </optgroup>
-
-                <optgroup label="✏️ Edit Models (p50k_edit)">
-                  <option value="text-davinci-edit-001">
-                    Text Davinci Edit 001
-                  </option>
-                  <option value="code-davinci-edit-001">
-                    Code Davinci Edit 001
-                  </option>
-                </optgroup>
-
-                <optgroup label="🏛️ Legacy Models (r50k_base)">
-                  <option value="text-davinci-001">Text Davinci 001</option>
-                  <option value="ada">Ada</option>
-                  <option value="babbage">Babbage</option>
-                  <option value="curie">Curie</option>
-                  <option value="davinci">Davinci</option>
-                  <option value="text-ada-001">Text Ada 001</option>
-                  <option value="text-babbage-001">Text Babbage 001</option>
-                  <option value="text-curie-001">Text Curie 001</option>
-                </optgroup>
-
-                <optgroup label="🔍 Search & Similarity (r50k_base)">
-                  <option value="text-search-ada-doc-001">
-                    Text Search Ada Doc 001
-                  </option>
-                  <option value="text-search-ada-query-001">
-                    Text Search Ada Query 001
-                  </option>
-                  <option value="text-search-babbage-doc-001">
-                    Text Search Babbage Doc 001
-                  </option>
-                  <option value="text-search-babbage-query-001">
-                    Text Search Babbage Query 001
-                  </option>
-                  <option value="text-search-curie-doc-001">
-                    Text Search Curie Doc 001
-                  </option>
-                  <option value="text-search-curie-query-001">
-                    Text Search Curie Query 001
-                  </option>
-                  <option value="text-search-davinci-doc-001">
-                    Text Search Davinci Doc 001
-                  </option>
-                  <option value="text-search-davinci-query-001">
-                    Text Search Davinci Query 001
-                  </option>
-                  <option value="text-similarity-ada-001">
-                    Text Similarity Ada 001
-                  </option>
-                  <option value="text-similarity-babbage-001">
-                    Text Similarity Babbage 001
-                  </option>
-                  <option value="text-similarity-curie-001">
-                    Text Similarity Curie 001
-                  </option>
-                  <option value="text-similarity-davinci-001">
-                    Text Similarity Davinci 001
-                  </option>
-                </optgroup>
-
-                <optgroup label="🎵 Audio & Media (o200k_base)">
-                  <option value="whisper-1">Whisper 1</option>
-                  <option value="tts-1">TTS-1</option>
-                  <option value="tts-1-hd">TTS-1 HD</option>
-                  <option value="dall-e-2">DALL-E 2</option>
-                  <option value="dall-e-3">DALL-E 3</option>
-                  <option value="gpt-audio">GPT Audio</option>
-                  <option value="gpt-audio-mini">GPT Audio Mini</option>
-                  <option value="gpt-image-1">GPT Image 1</option>
-                  <option value="gpt-realtime">GPT Realtime</option>
-                  <option value="gpt-realtime-mini">GPT Realtime Mini</option>
-                  <option value="sora-2">Sora 2</option>
-                  <option value="sora-2-pro">Sora 2 Pro</option>
-                </optgroup>
-
-                <optgroup label="🧪 Open Source (o200k_harmony)">
-                  <option value="gpt-oss-20b">GPT-OSS 20B</option>
-                  <option value="gpt-oss-120b">GPT-OSS 120B</option>
-                </optgroup>
-
-                <optgroup label="📊 Embeddings (cl100k_base)">
-                  <option value="text-embedding-3-small">
-                    Text Embedding 3 Small
-                  </option>
-                  <option value="text-embedding-3-large">
-                    Text Embedding 3 Large
-                  </option>
-                  <option value="text-embedding-ada-002">
-                    Text Embedding Ada 002
-                  </option>
-                </optgroup>
-
-                <optgroup label="🛡️ Moderation (o200k_base)">
-                  <option value="text-moderation-stable">
-                    Text Moderation Stable
-                  </option>
-                  <option value="text-moderation-latest">
-                    Text Moderation Latest
-                  </option>
-                  <option value="text-moderation-007">
-                    Text Moderation 007
-                  </option>
-                  <option value="omni-moderation-latest">
-                    Omni Moderation Latest
-                  </option>
-                </optgroup>
-              </select>
-              <div className={styles.selectArrow}>↓</div>
-            </div>
+        <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical">
+          <div className="flex flex-col gap-3">
+            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
+              Model Selection
+            </label>
+            <ComboboxShadcn
+              options={modelOptions}
+              value={model}
+              onValueChange={setModel}
+              placeholder="Select a model..."
+              className="w-full"
+            />
           </div>
 
-          <div className={styles.controlGroup}>
-            <div className={styles.modelInfo}>
-              <span className={styles.modelInfoLabel}>Current Encoding:</span>
-              <span className={styles.modelInfoValue}>{encoding}</span>
-            </div>
+          {/* Model Info */}
+          <div className="flex justify-between items-center p-2 bg-brand-paper border border-gray-300">
+            <span className="font-mono text-xxs text-gray-400 uppercase font-semibold">
+              Encoding
+            </span>
+            <span className="font-mono text-xs text-brand-black font-semibold">
+              {encoding}
+            </span>
           </div>
 
-          <div className={styles.controlGroup}>
-            <label className={styles.label}>Input Source</label>
-            <div className={styles.buttonGrid}>
+          <div className="flex flex-col gap-3">
+            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
+              Input Source
+            </label>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
                   setText(SAMPLE_TEXT);
                   setActiveTab("input");
                 }}
-                className={styles.buttonSecondary}
+                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
                 Sample
               </button>
@@ -342,177 +312,215 @@ export function TokenizerApp() {
                   setText(LARGE_SAMPLE_TEXT);
                   setActiveTab("input");
                 }}
-                className={styles.buttonSecondary}
+                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
-                Large Sample
+                Large
               </button>
             </div>
-            <div className={styles.buttonGrid}>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setText(DEFAULT_ESSAY)}
-                className={styles.buttonSecondary}
+                className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
               >
                 Essay
               </button>
-              <button onClick={handleClear} className={styles.button}>
+              <button
+                onClick={handleClear}
+                className="bg-brand-orange text-brand-black border border-brand-black px-3 py-3 font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+              >
                 Clear
               </button>
             </div>
           </div>
 
-          {isLoading && (
-            <div className={styles.processingState}>
-              <div className={styles.label}>Processing Stream</div>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{ width: `${progress ? progress.percentage : 100}%` }}
-                />
+          {/* Always reserve space for loading state to prevent layout shift */}
+          <div className="h-[80px] flex-shrink-0">
+            {isLoading && (
+              <div className="bg-brand-paper p-3 border border-gray-300 h-full">
+                <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] mb-2">
+                  Processing Stream
+                </div>
+                <div className="h-1 bg-gray-300 w-full relative overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
+                    style={{
+                      width: `${progress ? progress.percentage : 100}%`,
+                    }}
+                  />
+                </div>
+                <div className="font-mono text-xxs text-gray-400 mt-1 text-right">
+                  {progress
+                    ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
+                    : "Calculating..."}
+                </div>
               </div>
-              <div className={styles.processingMeta}>
-                {progress
-                  ? `Chunk ${progress.chunkIndex}/${progress.totalChunks}`
-                  : "Calculating..."}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Privacy Section */}
+          <div className="flex flex-col items-center gap-0.5 p-1.5 m-2 text-center">
+            <span className="font-mono text-xxs text-gray-400 uppercase leading-none mb-1">
+              Privacy
+            </span>
+            <span className="font-mono text-xs text-brand-black font-semibold leading-none">
+              100% Client-Side
+            </span>
+          </div>
         </div>
 
-        <div className={styles.privacySection}>
-          <span className={styles.privacyLabel}>Client-Side Processing</span>
-          <span className={styles.privacyDesc}>No data sent to servers</span>
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.footerLabel}>Open Source Software</div>
+        <div className="p-6 border-t border-gray-200 bg-brand-paper">
+          <div className="font-mono text-xxs text-gray-400 uppercase mb-1 text-center block">
+            Open Source Software
+          </div>
           <a
             href="https://github.com/happytoolin/happytokenizer"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.footerLink}
+            className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors"
           >
             github.com/happytoolin
           </a>
         </div>
       </aside>
 
-      <main className={styles.workspace}>
-        <section className={styles.editorSection}>
-          <div className={styles.editorHeader}>
+      {/* --- RIGHT PANEL: WORKSPACE --- */}
+      <div className="flex flex-col gap-6">
+        {/* Editor Section */}
+        <div className="bg-white border border-brand-black shadow-hard">
+          <div className="flex border-b border-brand-black bg-brand-paper">
             <button
-              className={`${styles.tabButton} ${activeTab === "input" ? styles.tabActive : ""}`}
               onClick={() => setActiveTab("input")}
+              className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/[0.02] ${
+                activeTab === "input"
+                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                  : "text-gray-500"
+              }`}
             >
               Input Stream
             </button>
             <button
-              className={`${styles.tabButton} ${activeTab === "upload" ? styles.tabActive : ""}`}
               onClick={() => setActiveTab("upload")}
+              className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/[0.02] ${
+                activeTab === "upload"
+                  ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
+                  : "text-gray-500"
+              }`}
             >
               Upload File
             </button>
           </div>
 
-          {/* TAB CONTENT: INPUT */}
-          {activeTab === "input" && (
-            <>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Enter your text here to see how it gets tokenized..."
-                className={styles.textarea}
-              />
-              <div className={styles.metaBar}>
-                <div className={styles.metaItem}>
-                  <span className={styles.metaLabel}>CHARS</span>
-                  <span className={styles.metaValue}>{text.length}</span>
-                </div>
-                <div className={styles.metaItem}>
-                  <span className={styles.metaLabel}>WORDS</span>
-                  <span className={styles.metaValue}>
-                    {
-                      text
-                        .trim()
-                        .split(/\s+/)
-                        .filter((w) => w.length > 0).length
-                    }
-                  </span>
-                </div>
-                <div className={styles.metaItem}>
-                  <span className={styles.metaLabel}>STATUS</span>
-                  <span className={styles.metaValue}>
-                    {error ? (
-                      <span style={{ color: "var(--c-red)" }}>
-                        Processing Error
-                      </span>
-                    ) : isLoading ? (
-                      "Processing..."
-                    ) : (
-                      <span style={{ color: "var(--c-orange)" }}>READY</span>
-                    )}
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* TAB CONTENT: UPLOAD */}
-          {activeTab === "upload" && (
-            <div className={styles.uploadContainer}>
+          {activeTab === "input" ? (
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste or type your text here to see how it gets tokenized..."
+              className="w-full border-none p-6 font-mono text-sm leading-7 text-brand-black resize-y min-h-[200px] focus:outline-none focus:bg-gray-50"
+            />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-white min-h-[235px]">
               <div
-                className={`${styles.dropZone} ${isDragging ? styles.dropZoneActive : ""}`}
+                className={`w-full h-full max-h-[216px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer relative bg-gray-50 transition-all ${
+                  isDragging || isDragging
+                    ? "border-brand-orange bg-brand-orange/[0.02] scale-[0.98]"
+                    : "hover:border-brand-orange hover:bg-brand-orange/[0.02]"
+                }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className={styles.fileInput}
-                  onChange={handleFileSelect}
-                  accept=".txt,.md,.json,.js,.ts,.tsx,.csv,.py"
-                />
-
-                {/* Upload Icon SVG */}
                 <svg
-                  className={styles.uploadIcon}
-                  viewBox="0 0 24 24"
+                  className={`w-12 h-12 transition-colors ${
+                    isDragging || isDragging
+                      ? "text-brand-orange"
+                      : "text-gray-400"
+                  }`}
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                   />
                 </svg>
-
-                <div style={{ textAlign: "center" }}>
-                  <div className={styles.uploadTitle}>Drop File Here</div>
-                  <div className={styles.uploadSub}>
+                <div className="text-center">
+                  <p className="font-display font-bold text-base text-brand-black">
+                    Drop File Here
+                  </p>
+                  <p className="font-mono text-xs text-gray-500 max-w-[250px] text-center leading-6">
                     Supports .txt, .md, .json, .js, .py (Max 5MB)
-                  </div>
+                  </p>
                 </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt,.md,.json,.js,.ts,.jsx,.tsx,.py,.html,.css"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
               </div>
-
               {uploadError && (
-                <div className={styles.errorMsg}>⚠️ {uploadError}</div>
+                <p className="text-red-500 font-mono text-xs mt-4">
+                  {uploadError}
+                </p>
               )}
             </div>
           )}
-        </section>
 
-        {/* --- TOKEN DISPLAY --- */}
-        <TokenDisplay
-          text={debouncedText}
-          tokens={tokens}
-          tokenTexts={tokenTexts}
-          error={error}
-        />
-      </main>
-      <Footer />
+          {/* Meta Bar */}
+          <div className="flex gap-6 border-t border-brand-black p-2 bg-white">
+            <div className="flex gap-2 items-center">
+              <span className="font-mono text-xxs text-gray-400 font-bold">
+                CH
+              </span>
+              <span className="font-mono text-xs font-medium">
+                {text.length}
+              </span>
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="font-mono text-xxs text-gray-400 font-bold">
+                WORD
+              </span>
+              <span className="font-mono text-xs font-medium">
+                {text.split(/\s+/).filter((w) => w).length}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Token Display */}
+        {isLoading && (
+          <div className="bg-gray-50 p-3 border border-gray-200">
+            <div className="h-1 bg-gray-200 w-full mt-2 relative overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out"
+                style={{ width: `${progress ? progress.percentage : 100}%` }}
+              />
+            </div>
+            <p className="font-mono text-xxs text-gray-400 mt-1 text-right">
+              Processing... {progress ? Math.round(progress.percentage) : 0}%
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 p-4 rounded-sm">
+            <p className="font-mono text-sm text-red-600">Error: {error}</p>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <TokenDisplay
+            text={debouncedText}
+            tokens={tokens || []}
+            tokenTexts={tokenTexts || []}
+          />
+        )}
+      </div>
     </div>
   );
 }

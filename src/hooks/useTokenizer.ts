@@ -4,15 +4,10 @@ import type {
   TokenizerMessage,
   TokenizerResponse,
 } from "../workers/tokenizer.worker";
+import type { EncodingType } from "../utils/modelEncodings";
 
-// Define EncodingType directly to avoid import issues
-export type ModelType =
-  | "o200k_base"
-  | "cl100k_base"
-  | "p50k_base"
-  | "p50k_edit"
-  | "r50k_base"
-  | "o200k_harmony";
+// Use the exported EncodingType as our ModelType for consistency
+export type ModelType = EncodingType;
 
 export interface TokenizerProgress {
   chunkIndex: number;
