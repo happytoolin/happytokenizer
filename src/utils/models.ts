@@ -1,30 +1,33 @@
-// Centralized model definitions with all associated data
-
-// Model data interfaces
 export interface ModelPricing {
-  input: number;    // USD per 1K input tokens
-  output: number;   // USD per 1K output tokens
-  cached: number;   // USD per 1K cached tokens
+  input: number; // USD per 1K input tokens
+  output: number; // USD per 1K output tokens
+  cached: number; // USD per 1K cached tokens
 }
 
 export interface ModelData {
-  id: string;                    // Model identifier
-  displayName: string;           // Human-readable display name
-  encoding: EncodingType;        // Token encoding type
-  contextWindow: number;         // Context window limit
-  pricing: ModelPricing;         // API pricing information
+  id: string; // Model identifier
+  displayName: string; // Human-readable display name
+  encoding: EncodingType; // Token encoding type
+  contextWindow: number; // Context window limit
+  pricing: ModelPricing; // API pricing information
 }
 
-export type EncodingType = "o200k_base" | "cl100k_base" | "p50k_base" | "p50k_edit" | "r50k_base" | "o200k_harmony";
+export type EncodingType =
+  | "o200k_base"
+  | "cl100k_base"
+  | "p50k_base"
+  | "p50k_edit"
+  | "r50k_base"
+  | "o200k_harmony";
 
-// Default pricing by encoding type
+// Default pricing by encoding type (USD per 1K tokens)
 const DEFAULT_PRICING: Record<EncodingType, ModelPricing> = {
-  o200k_base: { input: 0.005, output: 0.015, cached: 0.0025 },
+  o200k_base: { input: 0.0025, output: 0.01, cached: 0.00125 },
   cl100k_base: { input: 0.01, output: 0.03, cached: 0.005 },
   p50k_base: { input: 0.002, output: 0.002, cached: 0.001 },
   p50k_edit: { input: 0.002, output: 0.002, cached: 0.001 },
   r50k_base: { input: 0.002, output: 0.002, cached: 0.001 },
-  o200k_harmony: { input: 0.005, output: 0.015, cached: 0.0025 },
+  o200k_harmony: { input: 0.0025, output: 0.01, cached: 0.00125 },
 };
 
 // Default context limits by encoding type
@@ -45,42 +48,105 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "GPT-5",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
   },
   "gpt-5-chat-latest": {
     id: "gpt-5-chat-latest",
     displayName: "GPT-5 Chat Latest",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
   },
   "gpt-5-codex": {
     id: "gpt-5-codex",
     displayName: "GPT-5 Codex",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
   },
   "gpt-5-mini": {
     id: "gpt-5-mini",
     displayName: "GPT-5 Mini",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00025, output: 0.002, cached: 0.000025 }, // $0.25/$2.00/$0.025 per M → per 1K
   },
   "gpt-5-nano": {
     id: "gpt-5-nano",
     displayName: "GPT-5 Nano",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00005, output: 0.0004, cached: 0.000005 }, // $0.05/$0.40/$0.005 per M → per 1K
   },
   "gpt-5-pro": {
     id: "gpt-5-pro",
     displayName: "GPT-5 Pro",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.015, output: 0.12, cached: 0 }, // $15.00/$120.00 per M → per 1K (no cached)
+  },
+  "gpt-5.1": {
+    id: "gpt-5.1",
+    displayName: "GPT-5.1",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
+  },
+  "gpt-5.1-chat-latest": {
+    id: "gpt-5.1-chat-latest",
+    displayName: "GPT-5.1 Chat Latest",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
+  },
+  "gpt-5.1-codex": {
+    id: "gpt-5.1-codex",
+    displayName: "GPT-5.1 Codex",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
+  },
+  "gpt-5.1-codex-max": {
+    id: "gpt-5.1-codex-max",
+    displayName: "GPT-5.1 Codex Max",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
+  },
+  "gpt-5.1-codex-mini": {
+    id: "gpt-5.1-codex-mini",
+    displayName: "GPT-5.1 Codex Mini",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00025, output: 0.002, cached: 0.000025 }, // $0.25/$2.00/$0.025 per M → per 1K
+  },
+  "gpt-5.2": {
+    id: "gpt-5.2",
+    displayName: "GPT-5.2",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00175, output: 0.014, cached: 0.000175 }, // $1.75/$14.00/$0.175 per M → per 1K
+  },
+  "gpt-5.2-chat-latest": {
+    id: "gpt-5.2-chat-latest",
+    displayName: "GPT-5.2 Chat Latest",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00175, output: 0.014, cached: 0.000175 }, // $1.75/$14.00/$0.175 per M → per 1K
+  },
+  "gpt-5.2-pro": {
+    id: "gpt-5.2-pro",
+    displayName: "GPT-5.2 Pro",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.021, output: 0.168, cached: 0 }, // $21.00/$168.00 per M → per 1K (no cached)
+  },
+  "gpt-5-search-api": {
+    id: "gpt-5-search-api",
+    displayName: "GPT-5 Search API",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00125, output: 0.01, cached: 0.000125 }, // $1.25/$10.00/$0.125 per M → per 1K
   },
 
   // GPT-4o series
@@ -89,133 +155,77 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "GPT-4o",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.005, output: 0.015, cached: 0.0025 },
-  },
-  "gpt-4o-2024-08-06": {
-    id: "gpt-4o-2024-08-06",
-    displayName: "GPT-4o (2024-08-06)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.0025, output: 0.01, cached: 0.00125 },
-  },
-  "gpt-4o-2024-11-20": {
-    id: "gpt-4o-2024-11-20",
-    displayName: "GPT-4o (2024-11-20)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.0025, output: 0.01, cached: 0.00125 },
+    pricing: { input: 0.0025, output: 0.01, cached: 0.00125 }, // $2.50/$10.00/$1.25 per M → per 1K
   },
   "gpt-4o-audio-preview": {
     id: "gpt-4o-audio-preview",
     displayName: "GPT-4o Audio Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0025, output: 0.01, cached: 0 }, // $2.50/$10.00 per M → per 1K (no cached)
   },
   "gpt-4o-mini": {
     id: "gpt-4o-mini",
     displayName: "GPT-4o Mini",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.00015, output: 0.0006, cached: 0.000075 },
-  },
-  "gpt-4o-mini-2024-07-18": {
-    id: "gpt-4o-mini-2024-07-18",
-    displayName: "GPT-4o Mini (2024-07-18)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.00015, output: 0.0006, cached: 0.000075 },
+    pricing: { input: 0.00015, output: 0.0006, cached: 0.000075 }, // $0.15/$0.60/$0.075 per M → per 1K
   },
   "gpt-4o-mini-audio-preview": {
     id: "gpt-4o-mini-audio-preview",
     displayName: "GPT-4o Mini Audio Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00015, output: 0.0006, cached: 0 }, // $0.15/$0.60 per M → per 1K (no cached)
   },
   "gpt-4o-mini-realtime-preview": {
     id: "gpt-4o-mini-realtime-preview",
     displayName: "GPT-4o Mini Realtime Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0006, output: 0.0024, cached: 0.0003 }, // $0.60/$2.40/$0.30 per M → per 1K
   },
   "gpt-4o-mini-search-preview": {
     id: "gpt-4o-mini-search-preview",
     displayName: "GPT-4o Mini Search Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "gpt-4o-mini-search-preview-2025-03-11": {
-    id: "gpt-4o-mini-search-preview-2025-03-11",
-    displayName: "GPT-4o Mini Search Preview (2025-03-11)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00015, output: 0.0006, cached: 0 }, // $0.15/$0.60 per M → per 1K (no cached)
   },
   "gpt-4o-mini-transcribe": {
     id: "gpt-4o-mini-transcribe",
     displayName: "GPT-4o Mini Transcribe",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.00125, output: 0.005, cached: 0 }, // $1.25/$5.00 per M → per 1K (no cached)
   },
   "gpt-4o-mini-tts": {
     id: "gpt-4o-mini-tts",
     displayName: "GPT-4o Mini TTS",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0006, output: 0.012, cached: 0 }, // $0.60/$12.00 per M → per 1K (no cached)
   },
   "gpt-4o-realtime-preview": {
     id: "gpt-4o-realtime-preview",
     displayName: "GPT-4o Realtime Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "gpt-4o-realtime-preview-2024-10-01": {
-    id: "gpt-4o-realtime-preview-2024-10-01",
-    displayName: "GPT-4o Realtime Preview (2024-10-01)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "gpt-4o-realtime-preview-2024-12-17": {
-    id: "gpt-4o-realtime-preview-2024-12-17",
-    displayName: "GPT-4o Realtime Preview (2024-12-17)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "gpt-4o-realtime-preview-2025-06-03": {
-    id: "gpt-4o-realtime-preview-2025-06-03",
-    displayName: "GPT-4o Realtime Preview (2025-06-03)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.005, output: 0.02, cached: 0.0025 }, // $5.00/$20.00/$2.50 per M → per 1K
   },
   "gpt-4o-search-preview": {
     id: "gpt-4o-search-preview",
     displayName: "GPT-4o Search Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "gpt-4o-search-preview-2025-03-11": {
-    id: "gpt-4o-search-preview-2025-03-11",
-    displayName: "GPT-4o Search Preview (2025-03-11)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0025, output: 0.01, cached: 0 }, // $2.50/$10.00 per M → per 1K (no cached)
   },
   "gpt-4o-transcribe": {
     id: "gpt-4o-transcribe",
     displayName: "GPT-4o Transcribe",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0025, output: 0.01, cached: 0 }, // $2.50/$10.00 per M → per 1K (no cached)
   },
 
   // O1 series
@@ -224,56 +234,28 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "O1",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.015, output: 0.06, cached: 0.0075 },
-  },
-  "o1-2024-12-17": {
-    id: "o1-2024-12-17",
-    displayName: "O1 (2024-12-17)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.015, output: 0.06, cached: 0.0075 },
+    pricing: { input: 0.015, output: 0.06, cached: 0.0075 }, // $15.00/$60.00/$7.50 per M → per 1K
   },
   "o1-mini": {
     id: "o1-mini",
     displayName: "O1 Mini",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.003, output: 0.012, cached: 0.0015 },
-  },
-  "o1-mini-2024-09-12": {
-    id: "o1-mini-2024-09-12",
-    displayName: "O1 Mini (2024-09-12)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.003, output: 0.012, cached: 0.0015 },
+    pricing: { input: 0.0011, output: 0.0044, cached: 0.00055 }, // $1.10/$4.40/$0.55 per M → per 1K
   },
   "o1-preview": {
     id: "o1-preview",
     displayName: "O1 Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.015, output: 0.06, cached: 0.0075 },
-  },
-  "o1-preview-2024-09-12": {
-    id: "o1-preview-2024-09-12",
-    displayName: "O1 Preview (2024-09-12)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.015, output: 0.06, cached: 0.0075 },
+    pricing: { input: 0.015, output: 0.06, cached: 0.0075 }, // $15.00/$60.00/$7.50 per M → per 1K
   },
   "o1-pro": {
     id: "o1-pro",
     displayName: "O1 Pro",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.015, output: 0.06, cached: 0.0075 },
-  },
-  "o1-pro-2025-03-19": {
-    id: "o1-pro-2025-03-19",
-    displayName: "O1 Pro (2025-03-19)",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.015, output: 0.06, cached: 0.0075 },
+    pricing: { input: 0.15, output: 0.6, cached: 0 }, // $150.00/$600.00 per M → per 1K (no cached)
   },
 
   // O3 series
@@ -282,56 +264,28 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "O3",
     encoding: "o200k_base",
     contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "o3-2024-04-16": {
-    id: "o3-2024-04-16",
-    displayName: "O3 (2024-04-16)",
-    encoding: "o200k_base",
-    contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.002, output: 0.008, cached: 0.0005 }, // $2.00/$8.00/$0.50 per M → per 1K
   },
   "o3-deep-research": {
     id: "o3-deep-research",
     displayName: "O3 Deep Research",
     encoding: "o200k_base",
     contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "o3-deep-research-2025-06-26": {
-    id: "o3-deep-research-2025-06-26",
-    displayName: "O3 Deep Research (2025-06-26)",
-    encoding: "o200k_base",
-    contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.01, output: 0.04, cached: 0.0025 }, // $10.00/$40.00/$2.50 per M → per 1K
   },
   "o3-mini": {
     id: "o3-mini",
     displayName: "O3 Mini",
     encoding: "o200k_base",
     contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "o3-mini-2025-01-31": {
-    id: "o3-mini-2025-01-31",
-    displayName: "O3 Mini (2025-01-31)",
-    encoding: "o200k_base",
-    contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0011, output: 0.0044, cached: 0.00055 }, // $1.10/$4.40/$0.55 per M → per 1K
   },
   "o3-pro": {
     id: "o3-pro",
     displayName: "O3 Pro",
     encoding: "o200k_base",
     contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "o3-pro-2025-06-10": {
-    id: "o3-pro-2025-06-10",
-    displayName: "O3 Pro (2025-06-10)",
-    encoding: "o200k_base",
-    contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.02, output: 0.08, cached: 0 }, // $20.00/$80.00 per M → per 1K (no cached)
   },
 
   // O4 series
@@ -340,48 +294,20 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "O4 Mini",
     encoding: "o200k_base",
     contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "o4-mini-2025-04-16": {
-    id: "o4-mini-2025-04-16",
-    displayName: "O4 Mini (2025-04-16)",
-    encoding: "o200k_base",
-    contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0011, output: 0.0044, cached: 0.000275 }, // $1.10/$4.40/$0.275 per M → per 1K
   },
   "o4-mini-deep-research": {
     id: "o4-mini-deep-research",
     displayName: "O4 Mini Deep Research",
     encoding: "o200k_base",
     contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "o4-mini-deep-research-2025-06-26": {
-    id: "o4-mini-deep-research-2025-06-26",
-    displayName: "O4 Mini Deep Research (2025-06-26)",
-    encoding: "o200k_base",
-    contextWindow: 200000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.002, output: 0.008, cached: 0.0005 }, // $2.00/$8.00/$0.50 per M → per 1K
   },
 
   // Legacy GPT-4 series
   "gpt-4": {
     id: "gpt-4",
     displayName: "GPT-4",
-    encoding: "cl100k_base",
-    contextWindow: 8192,
-    pricing: { input: 0.03, output: 0.06, cached: 0.015 },
-  },
-  "gpt-4-0314": {
-    id: "gpt-4-0314",
-    displayName: "GPT-4 (0314)",
-    encoding: "cl100k_base",
-    contextWindow: 8192,
-    pricing: { input: 0.03, output: 0.06, cached: 0.015 },
-  },
-  "gpt-4-0613": {
-    id: "gpt-4-0613",
-    displayName: "GPT-4 (0613)",
     encoding: "cl100k_base",
     contextWindow: 8192,
     pricing: { input: 0.03, output: 0.06, cached: 0.015 },
@@ -400,13 +326,6 @@ export const MODELS: Record<string, ModelData> = {
     contextWindow: 128000,
     pricing: { input: 0.01, output: 0.03, cached: 0.005 },
   },
-  "gpt-4-turbo-2024-04-09": {
-    id: "gpt-4-turbo-2024-04-09",
-    displayName: "GPT-4 Turbo (2024-04-09)",
-    encoding: "cl100k_base",
-    contextWindow: 128000,
-    pricing: { input: 0.01, output: 0.03, cached: 0.005 },
-  },
   "gpt-4-turbo-preview": {
     id: "gpt-4-turbo-preview",
     displayName: "GPT-4 Turbo Preview",
@@ -414,19 +333,26 @@ export const MODELS: Record<string, ModelData> = {
     contextWindow: 128000,
     pricing: { input: 0.01, output: 0.03, cached: 0.005 },
   },
-  "gpt-4-1106-preview": {
-    id: "gpt-4-1106-preview",
-    displayName: "GPT-4 1106 Preview",
-    encoding: "cl100k_base",
+  "gpt-4.1": {
+    id: "gpt-4.1",
+    displayName: "GPT-4.1",
+    encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.01, output: 0.03, cached: 0.005 },
+    pricing: { input: 0.002, output: 0.008, cached: 0.0005 }, // $2.00/$8.00/$0.50 per M → per 1K
   },
-  "gpt-4-0125-preview": {
-    id: "gpt-4-0125-preview",
-    displayName: "GPT-4 0125 Preview",
-    encoding: "cl100k_base",
+  "gpt-4.1-mini": {
+    id: "gpt-4.1-mini",
+    displayName: "GPT-4.1 Mini",
+    encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: { input: 0.01, output: 0.03, cached: 0.005 },
+    pricing: { input: 0.0004, output: 0.0016, cached: 0.0001 }, // $0.40/$1.60/$0.10 per M → per 1K
+  },
+  "gpt-4.1-nano": {
+    id: "gpt-4.1-nano",
+    displayName: "GPT-4.1 Nano",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0001, output: 0.0004, cached: 0.000025 }, // $0.10/$0.40/$0.025 per M → per 1K
   },
 
   // GPT-3.5 series
@@ -435,49 +361,21 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "GPT-3.5",
     encoding: "cl100k_base",
     contextWindow: 4096,
-    pricing: { input: 0.0015, output: 0.002, cached: 0.00075 },
+    pricing: { input: 0.0015, output: 0.002, cached: 0 }, // No cached input
   },
   "gpt-3.5-turbo": {
     id: "gpt-3.5-turbo",
     displayName: "GPT-3.5 Turbo",
     encoding: "cl100k_base",
     contextWindow: 4096,
-    pricing: { input: 0.0015, output: 0.002, cached: 0.00075 },
+    pricing: { input: 0.0005, output: 0.0015, cached: 0 },
   },
   "gpt-3.5-turbo-instruct": {
     id: "gpt-3.5-turbo-instruct",
     displayName: "GPT-3.5 Turbo Instruct",
     encoding: "cl100k_base",
     contextWindow: 4096,
-    pricing: { input: 0.0015, output: 0.002, cached: 0.00075 },
-  },
-  "gpt-3.5-turbo-0125": {
-    id: "gpt-3.5-turbo-0125",
-    displayName: "GPT-3.5 Turbo (0125)",
-    encoding: "cl100k_base",
-    contextWindow: 16385,
-    pricing: { input: 0.0005, output: 0.0015, cached: 0.00025 },
-  },
-  "gpt-3.5-turbo-0613": {
-    id: "gpt-3.5-turbo-0613",
-    displayName: "GPT-3.5 Turbo (0613)",
-    encoding: "cl100k_base",
-    contextWindow: 4096,
-    pricing: { input: 0.0015, output: 0.002, cached: 0.00075 },
-  },
-  "gpt-3.5-turbo-1106": {
-    id: "gpt-3.5-turbo-1106",
-    displayName: "GPT-3.5 Turbo (1106)",
-    encoding: "cl100k_base",
-    contextWindow: 16385,
-    pricing: { input: 0.001, output: 0.002, cached: 0.0005 },
-  },
-  "gpt-3.5-turbo-16k-0613": {
-    id: "gpt-3.5-turbo-16k-0613",
-    displayName: "GPT-3.5 Turbo 16K (0613)",
-    encoding: "cl100k_base",
-    contextWindow: 16385,
-    pricing: { input: 0.003, output: 0.004, cached: 0.0015 },
+    pricing: { input: 0.0015, output: 0.002, cached: 0 },
   },
 
   // Specialized models
@@ -486,119 +384,107 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "ChatGPT-4o Latest",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.005, output: 0.015, cached: 0 }, // Legacy pricing
   },
   "codex-mini-latest": {
     id: "codex-mini-latest",
     displayName: "Codex Mini Latest",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0015, output: 0.006, cached: 0.000375 }, // $1.50/$6.00/$0.375 per M → per 1K
   },
   "computer-use-preview": {
     id: "computer-use-preview",
     displayName: "Computer Use Preview",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "dall-e-2": {
-    id: "dall-e-2",
-    displayName: "DALL-E 2",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "dall-e-3": {
-    id: "dall-e-3",
-    displayName: "DALL-E 3",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.003, output: 0.012, cached: 0 }, // No cached input
   },
   "gpt-audio": {
     id: "gpt-audio",
     displayName: "GPT Audio",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0025, output: 0.01, cached: 0 }, // No cached input
   },
   "gpt-audio-mini": {
     id: "gpt-audio-mini",
     displayName: "GPT Audio Mini",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0006, output: 0.0024, cached: 0 }, // No cached input
   },
   "gpt-image-1": {
     id: "gpt-image-1",
     displayName: "GPT Image 1",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.005, output: 0.04, cached: 0.00125 }, // $5.00/$40.00/$1.25 per M → per 1K
   },
   "gpt-image-1-mini": {
     id: "gpt-image-1-mini",
     displayName: "GPT Image 1 Mini",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.002, output: 0.008, cached: 0.0002 }, // $2.00/$8.00/$0.20 per M → per 1K
   },
   "gpt-realtime": {
     id: "gpt-realtime",
     displayName: "GPT Realtime",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.004, output: 0.016, cached: 0.0004 }, // $4.00/$16.00/$0.40 per M → per 1K
   },
   "gpt-realtime-mini": {
     id: "gpt-realtime-mini",
     displayName: "GPT Realtime Mini",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0006, output: 0.0024, cached: 0.00006 }, // $0.60/$2.40/$0.06 per M → per 1K
   },
   "omni-moderation-latest": {
     id: "omni-moderation-latest",
     displayName: "Omni Moderation Latest",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "sora-2": {
-    id: "sora-2",
-    displayName: "Sora 2",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "sora-2-pro": {
-    id: "sora-2-pro",
-    displayName: "Sora 2 Pro",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "tts-1": {
-    id: "tts-1",
-    displayName: "TTS-1",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
-  },
-  "tts-1-hd": {
-    id: "tts-1-hd",
-    displayName: "TTS-1 HD",
-    encoding: "o200k_base",
-    contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // Free
   },
   "whisper-1": {
     id: "whisper-1",
     displayName: "Whisper 1",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // $0.006 per minute, not per token
+  },
+  // Note: DALL-E models are priced per image, not per token
+  "tts-1": {
+    id: "tts-1",
+    displayName: "TTS-1",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0, output: 0.015, cached: 0 }, // $15 per 1M characters
+  },
+  "tts-1-hd": {
+    id: "tts-1-hd",
+    displayName: "TTS-1 HD",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0, output: 0.03, cached: 0 }, // $30 per 1M characters
+  },
+  // Sora models are priced per second, not per token
+  "sora-2": {
+    id: "sora-2",
+    displayName: "Sora 2",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // $0.10 per second
+  },
+  "sora-2-pro": {
+    id: "sora-2-pro",
+    displayName: "Sora 2 Pro",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // $0.30-$0.50 per second
   },
 
   // Embedding models
@@ -607,21 +493,21 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "Text Embedding 3 Large",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.00013, output: 0.0, cached: 0.00007 }, // Batch pricing: $0.065
   },
   "text-embedding-3-small": {
     id: "text-embedding-3-small",
     displayName: "Text Embedding 3 Small",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.00002, output: 0.0, cached: 0.00001 }, // Batch pricing: $0.01
   },
   "text-embedding-ada-002": {
     id: "text-embedding-ada-002",
     displayName: "Text Embedding Ada 002",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.0001, output: 0.0, cached: 0.00005 }, // Batch pricing: $0.05
   },
 
   // Open Source models
@@ -704,14 +590,14 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "Babbage 002",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.0004, output: 0.0004, cached: 0 }, // Fine-tuned version
   },
   "davinci-002": {
     id: "davinci-002",
     displayName: "Davinci 002",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.002, output: 0.002, cached: 0 }, // Fine-tuned version
   },
   ada: {
     id: "ada",
@@ -906,21 +792,37 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "Text Moderation 007",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // Free
   },
   "text-moderation-latest": {
     id: "text-moderation-latest",
     displayName: "Text Moderation Latest",
     encoding: "o200k_base",
     contextWindow: 128000,
-    pricing: DEFAULT_PRICING.o200k_base,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // Free
   },
   "text-moderation-stable": {
     id: "text-moderation-stable",
     displayName: "Text Moderation Stable",
     encoding: "cl100k_base",
     contextWindow: 8192,
-    pricing: DEFAULT_PRICING.cl100k_base,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // Free
+  },
+
+  // DALL-E models (priced per image, not per token)
+  "dall-e-2": {
+    id: "dall-e-2",
+    displayName: "DALL-E 2",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // Priced per image: $0.016-$0.020
+  },
+  "dall-e-3": {
+    id: "dall-e-3",
+    displayName: "DALL-E 3",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.0, output: 0.0, cached: 0 }, // Priced per image: $0.04-$0.12
   },
 };
 
@@ -960,7 +862,7 @@ export function getAllModelIds(): string[] {
 
 // Get models by encoding type
 export function getModelsByEncoding(encoding: EncodingType): ModelData[] {
-  return Object.values(MODELS).filter(model => model.encoding === encoding);
+  return Object.values(MODELS).filter((model) => model.encoding === encoding);
 }
 
 // Type exports

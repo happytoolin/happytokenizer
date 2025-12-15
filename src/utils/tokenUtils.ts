@@ -1,4 +1,5 @@
 import { getContextWindowLimit, getPricing } from "./contextLimits";
+import { getGptTokenizerEstimateCost } from "./gptTokenizerModels";
 
 // Types
 export interface PricingInfo {
@@ -49,9 +50,46 @@ export function estimateCost(
     cacheHitRate?: number; // 0-1, percentage of tokens that might be cached
   } = {},
 ): CostEstimate {
-  const pricing = getPricing(modelName);
   const { outputTokenCount = tokenCount, cacheHitRate = 0 } = options;
 
+  // Try to use gpt-tokenizer's estimateCost if the model is supported
+  const gptTokenizerEstimateCost = getGptTokenizerEstimateCost(modelName);
+
+  if (gptTokenizerEstimateCost) {
+    try {
+      const priceData = gptTokenizerEstimateCost(tokenCount);
+
+      // gpt-tokenizer returns pricing per million tokens
+      if (priceData?.main) {
+        const pricingPerMillion = priceData.main;
+        // Convert to per 1K tokens for our internal use
+        const inputPricing = (pricingPerMillion.input || 0) / 1000;
+        const outputPricing = (pricingPerMillion.output || 0) / 1000;
+        const cachedInputPricing = (pricingPerMillion.cached_input || 0) / 1000;
+        const cachedOutputPricing =
+          (pricingPerMillion.cached_output || 0) / 1000;
+
+        const inputCost = (tokenCount / 1000) * inputPricing;
+        const outputCost = (outputTokenCount / 1000) * outputPricing;
+        const cachedCost =
+          ((tokenCount * cacheHitRate) / 1000) * cachedInputPricing;
+
+        return {
+          input: inputPricing,
+          output: outputPricing,
+          cached: cachedInputPricing, // Use cached_input for cached tokens
+          totalInput: inputCost,
+          totalOutput: outputCost,
+          totalCached: cachedCost,
+        };
+      }
+    } catch (error) {
+      // If gpt-tokenizer fails, fall back to hardcoded pricing
+    }
+  }
+
+  // Fallback to our hardcoded pricing
+  const pricing = getPricing(modelName);
   const inputCost = (tokenCount / 1000) * pricing.input;
   const outputCost = (outputTokenCount / 1000) * pricing.output;
   const cachedCost = ((tokenCount * cacheHitRate) / 1000) * pricing.cached;

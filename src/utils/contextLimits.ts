@@ -16,7 +16,7 @@ export function getContextWindowLimit(modelName: string): number {
 
 export function getDefaultContextLimit(encodingType: string): number {
   // Find a model with this encoding type to get its context limit
-  const model = Object.values(MODELS).find(m => m.encoding === encodingType);
+  const model = Object.values(MODELS).find((m) => m.encoding === encodingType);
   return model?.contextWindow || 128000; // Default fallback
 }
 
