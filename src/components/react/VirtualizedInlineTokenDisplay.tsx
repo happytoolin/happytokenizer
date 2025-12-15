@@ -46,104 +46,110 @@ export function VirtualizedInlineTokenDisplay({
       return;
     }
 
-    const containerWidth = parentRef.current.clientWidth - 16;
-    if (containerWidth <= 0) return;
+    // Avoid forced reflow by using requestAnimationFrame
+    requestAnimationFrame(() => {
+      const container = parentRef.current;
+      if (!container) return;
 
-    let charWidthId = DEFAULT_CHAR_WIDTH_ID;
-    let charWidthText = DEFAULT_CHAR_WIDTH_TEXT;
+      const containerWidth = container.clientWidth - 16;
+      if (containerWidth <= 0) return;
 
-    try {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.font = '10px "JetBrains Mono", monospace';
-        const m1 = ctx.measureText("0");
-        if (m1.width > 0) charWidthId = m1.width;
+      let charWidthId = DEFAULT_CHAR_WIDTH_ID;
+      let charWidthText = DEFAULT_CHAR_WIDTH_TEXT;
 
-        ctx.font = '500 12px "JetBrains Mono", monospace';
-        const m2 = ctx.measureText("M");
-        if (m2.width > 0) charWidthText = m2.width;
-      }
-    } catch (error) {
-      console.error("Font measurement failed:", error);
-    }
+      try {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.font = '10px "JetBrains Mono", monospace';
+          const m1 = ctx.measureText("0");
+          if (m1.width > 0) charWidthId = m1.width;
 
-    const lines: LineInfo[] = [];
-    let currentLine: Array<{
-      id: number;
-      tokenId: number;
-      color: string;
-      text: string;
-    }> = [];
-    let currentLineWidth = 0;
-    let currentLineStartIndex = 0;
-
-    const tokenBaseWidth = PADDING_X + BORDER + INNER_GAP;
-
-    for (let i = 0; i < tokens.length; i++) {
-      const tokenId = tokens[i];
-      const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
-
-      let displayText = tokenTexts[i] || `[${tokenId}]`;
-
-      if (displayText.trim() === "") {
-        displayText = `[${tokenId}]`;
+          ctx.font = '500 12px "JetBrains Mono", monospace';
+          const m2 = ctx.measureText("M");
+          if (m2.width > 0) charWidthText = m2.width;
+        }
+      } catch (error) {
+        console.error("Font measurement failed:", error);
       }
 
-      if (displayText.length > 20) {
-        displayText = displayText.substring(0, 20) + "...";
+      const lines: LineInfo[] = [];
+      let currentLine: Array<{
+        id: number;
+        tokenId: number;
+        color: string;
+        text: string;
+      }> = [];
+      let currentLineWidth = 0;
+      let currentLineStartIndex = 0;
+
+      const tokenBaseWidth = PADDING_X + BORDER + INNER_GAP;
+
+      for (let i = 0; i < tokens.length; i++) {
+        const tokenId = tokens[i];
+        const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
+
+        let displayText = tokenTexts[i] || `[${tokenId}]`;
+
+        if (displayText.trim() === "") {
+          displayText = `[${tokenId}]`;
+        }
+
+        if (displayText.length > 20) {
+          displayText = displayText.substring(0, 20) + "...";
+        }
+
+        const item = { id: i, tokenId, color, text: displayText };
+
+        const idDigits =
+          item.tokenId < 10
+            ? 1
+            : item.tokenId < 100
+              ? 2
+              : item.tokenId < 1000
+                ? 3
+                : item.tokenId < 10000
+                  ? 4
+                  : item.tokenId < 100000
+                    ? 5
+                    : 6;
+
+        const idWidth = idDigits * charWidthId;
+        const textWidth = item.text.length * charWidthText;
+        const itemWidth = Math.ceil(tokenBaseWidth + idWidth + textWidth);
+        const gap = currentLine.length > 0 ? TOKEN_GAP : 0;
+
+        if (
+          currentLine.length > 0 &&
+          currentLineWidth + gap + itemWidth > containerWidth
+        ) {
+          lines.push({
+            tokens: currentLine,
+            startIndex: currentLineStartIndex,
+            endIndex: i - 1,
+            height: LINE_HEIGHT,
+          });
+
+          currentLine = [item];
+          currentLineWidth = itemWidth;
+          currentLineStartIndex = i;
+        } else {
+          currentLine.push(item);
+          currentLineWidth += gap + itemWidth;
+        }
       }
 
-      const item = { id: i, tokenId, color, text: displayText };
-
-      const idDigits =
-        item.tokenId < 10
-          ? 1
-          : item.tokenId < 100
-            ? 2
-            : item.tokenId < 1000
-              ? 3
-              : item.tokenId < 10000
-                ? 4
-                : item.tokenId < 100000
-                  ? 5
-                  : 6;
-
-      const idWidth = idDigits * charWidthId;
-      const textWidth = item.text.length * charWidthText;
-      const itemWidth = Math.ceil(tokenBaseWidth + idWidth + textWidth);
-      const gap = currentLine.length > 0 ? TOKEN_GAP : 0;
-
-      if (
-        currentLine.length > 0 &&
-        currentLineWidth + gap + itemWidth > containerWidth
-      ) {
+      if (currentLine.length > 0) {
         lines.push({
           tokens: currentLine,
           startIndex: currentLineStartIndex,
-          endIndex: i - 1,
+          endIndex: tokens.length - 1,
           height: LINE_HEIGHT,
         });
-
-        currentLine = [item];
-        currentLineWidth = itemWidth;
-        currentLineStartIndex = i;
-      } else {
-        currentLine.push(item);
-        currentLineWidth += gap + itemWidth;
       }
-    }
 
-    if (currentLine.length > 0) {
-      lines.push({
-        tokens: currentLine,
-        startIndex: currentLineStartIndex,
-        endIndex: tokens.length - 1,
-        height: LINE_HEIGHT,
-      });
-    }
-
-    setLineBreaks(lines);
+      setLineBreaks(lines);
+    });
   }, [tokens, tokenTexts]);
 
   useEffect(() => {

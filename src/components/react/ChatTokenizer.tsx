@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import { useModelOptions } from "../../hooks/useModelOptions";
 import {
@@ -12,7 +12,6 @@ import { TokenizerShell } from "./TokenizerShell";
 import { StatusDisplay } from "../ui/StatusDisplay";
 import type { ChatMessage } from "../../types/chat";
 
-// Example chat messages to load by default - memoized to prevent re-renders
 const EXAMPLE_CHAT_MESSAGES: ChatMessage[] = [
   {
     role: "system",
@@ -32,7 +31,7 @@ const EXAMPLE_CHAT_MESSAGES: ChatMessage[] = [
 ];
 
 export function ChatTokenizer() {
-  const [model, setModel] = useState<string>("gpt-5"); // Default to a specific model
+  const [model, setModel] = useState<string>("gpt-5");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
     EXAMPLE_CHAT_MESSAGES,
   );
@@ -40,37 +39,30 @@ export function ChatTokenizer() {
     ChatMessage[]
   >([]);
 
-  // Use the extracted model options hook
   const modelOptions = useModelOptions();
 
-  // Get encoding for the current model
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
     useTokenizer();
 
-  // Memoize callback functions to prevent unnecessary re-renders
-  const handleExampleChat = useCallback(() => {
+  const handleExampleChat = () => {
     setChatMessages(EXAMPLE_CHAT_MESSAGES);
-  }, []);
+  };
 
-  const handleClearChat = useCallback(() => {
+  const handleClearChat = () => {
     setChatMessages([]);
-  }, []);
+  };
 
-  // Debounce chat messages
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Create a deep copy of chat messages to avoid reference issues
       setDebouncedChatMessages(JSON.parse(JSON.stringify(chatMessages)));
-    }, 300); // Debounce for chat to avoid rapid re-tokenization
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [chatMessages]);
 
-  // Trigger tokenization when debounced chat messages change
   useEffect(() => {
     if (debouncedChatMessages.length > 0 && encoding) {
-      // Create a combined text representation for the UI
       const combinedText = debouncedChatMessages
         .map((msg) => `[${msg.role}]: ${msg.content}`)
         .join("\n\n");
@@ -79,7 +71,6 @@ export function ChatTokenizer() {
         chatMessages: debouncedChatMessages,
       });
     } else if (debouncedChatMessages.length === 0) {
-      // Clear tokens when there are no chat messages
       tokenize("", encoding, { isChatMode: true, chatMessages: [] });
     }
   }, [debouncedChatMessages, encoding, tokenize]);
@@ -167,8 +158,8 @@ export function ChatTokenizer() {
 
           {!isLoading && !error && (
             <TokenDisplay
-              text="" // Empty text for chat mode
-              tokens={Array.isArray(tokens) ? tokens : Array.from(tokens || [])}
+              text=""
+              tokens={Array.from(tokens || [])}
               tokenTexts={tokenTexts || []}
               isChatMode={true}
               chatMessages={chatMessages}

@@ -1,0 +1,37 @@
+---
+// StatusDisplayIsland.astro - A lightweight island component for StatusDisplay
+---
+
+<div id="status-display-root">
+  <!-- StatusDisplay will be hydrated here when needed -->
+</div>
+
+<script define:vars={{}}>
+  // Only load StatusDisplay when it's actually needed
+  let statusDisplayLoaded = false;
+
+  async function loadStatusDisplay() {
+    if (statusDisplayLoaded) return;
+
+    try {
+      // Dynamically import the StatusDisplay component
+      const { StatusDisplay } = await import('../components/ui/StatusDisplay.tsx');
+      const { createRoot } = await import('react-dom/client');
+
+      const container = document.getElementById('status-display-root');
+      if (container && !container.hasAttribute('data-hydrated')) {
+        container.setAttribute('data-hydrated', 'true');
+        statusDisplayLoaded = true;
+      }
+    } catch (error) {
+      console.error('Failed to load StatusDisplay:', error);
+    }
+  }
+
+  // Load when DOM is ready if needed
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadStatusDisplay);
+  } else {
+    loadStatusDisplay();
+  }
+</script>

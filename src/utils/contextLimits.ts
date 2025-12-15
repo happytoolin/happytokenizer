@@ -103,7 +103,7 @@ export const CONTEXT_WINDOW_LIMITS = {
     r50k_base: 2049,
     o200k_harmony: 128000,
   },
-} as const;
+};
 
 // Pricing information (USD per 1K tokens)
 export const PRICING = {
@@ -149,7 +149,7 @@ export const PRICING = {
     r50k_base: { input: 0.002, output: 0.002, cached: 0.001 },
     o200k_harmony: { input: 0.005, output: 0.015, cached: 0.0025 },
   },
-} as const;
+};
 
 // Type definitions
 export interface PricingInfo {

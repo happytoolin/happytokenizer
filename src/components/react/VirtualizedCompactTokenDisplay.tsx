@@ -38,7 +38,10 @@ export function VirtualizedCompactTokenDisplay({
     if (!container) return;
 
     const updateWidth = () => {
-      setContainerWidth(container.clientWidth);
+      // Use requestAnimationFrame to avoid forced reflow
+      requestAnimationFrame(() => {
+        setContainerWidth(container.clientWidth);
+      });
     };
 
     updateWidth();

@@ -92,11 +92,29 @@ const structuredData = {
 		<!-- Structured Data -->
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-		<!-- Preload critical font stylesheets with async loading -->
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+		<!-- Preload critical font stylesheets with async loading and preload -->
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" media="print" onload="this.media='all'" />
 		<noscript>
 			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
 		</noscript>
+
+		<!-- DNS prefetch and preconnect for external resources -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="dns-prefetch" href="//www.googletagmanager.com" />
+
+		<!-- Preload critical JavaScript resources -->
+		<link rel="modulepreload" href="/_astro/TokenizerApp.DmfdzUqG.js" />
+		<link rel="modulepreload" href="/_astro/tokenizer.worker-BMxY3bDY.js" />
+
+		<!-- Critical CSS inlined above the fold -->
+		<style is:inline>
+			/* Critical CSS for above-the-fold content */
+			body{margin:0;padding:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#fff}
+			.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+			.min-h-screen{min-height:100vh}
+		</style>
 
 		<!-- Include font loader component -->
 		<FontLoader />

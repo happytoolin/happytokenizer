@@ -37,7 +37,6 @@ export function TokenDisplay({
 
   if (error) return <div className={styles.error}>ERR: {error}</div>;
 
-  // For chat mode, we don't need text to show tokens
   const shouldShowEmpty =
     (!isChatMode && (!text || text.trim() === "")) || tokens.length === 0;
 
