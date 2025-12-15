@@ -50,10 +50,7 @@ export default defineConfig({
             if (id.includes("lucide-react")) {
               return "vendor-icons";
             }
-            if (id.includes("gpt-tokenizer")) {
-              return "vendor-tokenizer";
-            }
-              if (id.includes("components/react/TokenizerApp")) {
+            if (id.includes("components/react/TokenizerApp")) {
               return "components-critical";
             }
             if (id.includes("components/react/TokenDisplay")) {
@@ -65,10 +62,25 @@ export default defineConfig({
           },
         },
       },
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 500, // Lower threshold to catch large chunks
     },
     optimizeDeps: {
       include: ["react", "react-dom"],
+    },
+    // Configure worker handling to avoid tokenizer in server build
+    worker: {
+      format: "es",
+    },
+    // Configure SSR build to exclude problematic dependencies
+    ssr: {
+      noExternal: [],
+      external: [
+        "gpt-tokenizer",
+        "gpt-tokenizer/encoding/cl100k_base",
+        "gpt-tokenizer/encoding/p50k_base",
+        "gpt-tokenizer/encoding/p50k_edit",
+        "gpt-tokenizer/encoding/r50k_base",
+      ],
     },
   },
 
