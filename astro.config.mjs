@@ -53,7 +53,7 @@ export default defineConfig({
             if (id.includes("gpt-tokenizer")) {
               return "vendor-tokenizer";
             }
-            if (id.includes("components/react/TokenizerApp")) {
+              if (id.includes("components/react/TokenizerApp")) {
               return "components-critical";
             }
             if (id.includes("components/react/TokenDisplay")) {

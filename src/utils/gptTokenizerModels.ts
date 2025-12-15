@@ -28,7 +28,7 @@ import * as codeDavinci002 from "gpt-tokenizer/model/code-davinci-002";
 
 export const GPT_TOKENIZER_MODELS: Record<
   string,
-  { estimateCost: (tokenCount: number) => any }
+  { estimateCost: (tokenCount: number) => { cost: number } }
 > = {
   "gpt-4o": gpt4o,
   "gpt-4o-2024-05-13": gpt4o2024_05_13,

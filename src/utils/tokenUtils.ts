@@ -66,8 +66,6 @@ export function estimateCost(
         const inputPricing = (pricingPerMillion.input || 0) / 1000;
         const outputPricing = (pricingPerMillion.output || 0) / 1000;
         const cachedInputPricing = (pricingPerMillion.cached_input || 0) / 1000;
-        const cachedOutputPricing =
-          (pricingPerMillion.cached_output || 0) / 1000;
 
         const inputCost = (tokenCount / 1000) * inputPricing;
         const outputCost = (outputTokenCount / 1000) * outputPricing;
@@ -83,7 +81,7 @@ export function estimateCost(
           totalCached: cachedCost,
         };
       }
-    } catch (error) {
+    } catch {
       // If gpt-tokenizer fails, fall back to hardcoded pricing
     }
   }
