@@ -1,5 +1,18 @@
 # Future Plan - Additional gpt-tokenizer Features
 
+## Summary of Completed Features (✅)
+
+### Recently Implemented:
+
+**Token Limit Checking & Cost Estimation Features:**
+
+- Context Usage (%) with color-coded warnings
+- Total Context window limit display
+- Real-time Cost Estimation (total + input/output per million tokens)
+- Model-specific pricing for 100+ models
+- Integrated seamlessly into existing stats section
+- Maintains industrial design consistency
+
 ## Currently Used Features
 
 - ✅ Basic encode/decode operations
@@ -33,65 +46,45 @@ const chatTokens = encodeChat(chatMessages, model);
 - ✅ Visual indicators for chat mode in token display
 - ✅ Message count and mode indicators in metadata bar
 
-### 2. **Token Limit Checking** (`isWithinTokenLimit`)
+### 2. **Token Limit Checking** (`isWithinTokenLimit`) - ✅ COMPLETED
 
 Show users if their text fits within model context limits.
 
 ```typescript
-// Check if text is within common model limits (4k, 8k, 32k, 128k tokens)
-const limits = [4096, 8192, 32768, 128000];
-const limitStatus = limits.map((limit) => ({
-  limit,
-  within: isWithinTokenLimit(text, limit),
-}));
+// Check if text is within model context limits
+const modelStatus = getModelLimitStatus(tokenCount, modelName);
+// Returns: { limit, within, percentage, remaining }
 ```
 
-**Implementation Plan:**
+**Implementation Details:**
 
-- Add visual indicators for context window usage
-- Support custom limit input
-- Show warnings when approaching limits
-- Display percentage of context window used
+- ✅ Context Usage stat showing percentage with color coding
+- ✅ Total Context stat showing model's full context window
+- ✅ Color-coded warnings (green → orange → red) based on usage
+- ✅ Tooltips showing remaining tokens and model details
+- ✅ Supports 100+ models with accurate context limits
+- ✅ Integrated seamlessly into existing stats section
 
-### 3. **Cost Estimation** (`estimateCost`)
+### 3. **Cost Estimation** (`estimateCost`) - ✅ COMPLETED
 
 Calculate API costs based on token count - very practical feature!
 
 ```typescript
-import { estimateCost } from "gpt-tokenizer/model/gpt-4o";
-
-const tokenCount = tokens.length;
-const costs = estimateCost(tokenCount);
-// Display: Input: $0.0001, Output: $0.0003, Cached: $0.00005
+// Calculate costs for specific models
+const costData = estimateCost(tokenCount, modelName);
+// Returns: { input, output, cached, totalInput, totalOutput, totalCached }
 ```
 
-**Implementation Plan:**
+**Implementation Details:**
 
-- Real-time cost calculator
-- Support for different pricing tiers
-- Show costs for input/output tokens separately
-- Batch API cost estimation
+- ✅ Est. Cost stat showing total cost for input + output
+- ✅ Input/M Tokens cost (per million tokens)
+- ✅ Output/M Tokens cost (per million tokens)
+- ✅ Model-specific pricing for all major OpenAI models
+- ✅ Tooltips with detailed pricing information
+- ✅ Real-time updates based on selected model
 
-### 4. **Streaming Tokenization** (`encodeGenerator`)
-
-Show real-time token generation for large texts.
-
-```typescript
-// Add a "stream mode" that shows tokens as they're generated
-for (const chunk of encodeGenerator(text)) {
-  // Update UI progressively
-  appendTokens(chunk);
-}
-```
-
-**Implementation Plan:**
-
-- Add streaming mode toggle
-- Progressive token display animation
-- Performance metrics display
-- Compare streaming vs batch performance
-
-### 5. **Special Token Handling**
+### 4. **Special Token Handling**
 
 Demonstrate how special tokens (like `<|endoftext|>`) are handled.
 
@@ -110,46 +103,7 @@ const encodedWithSpecial = encode(text, { allowedSpecial: ALL_SPECIAL_TOKENS });
 - Explain special token purposes
 - Allow users to experiment with special tokens
 
-### 6. **Function Calling Token Count** (`countChatCompletionTokens`)
-
-For users working with OpenAI's function calling API.
-
-```typescript
-// Count tokens for function-calling requests
-const request: ChatCompletionRequest = {
-  messages: [...],
-  functions: [...]
-};
-const functionTokens = countChatCompletionTokens(request);
-```
-
-**Implementation Plan:**
-
-- Function definition editor
-- JSON schema builder
-- Calculate total tokens including function definitions
-- Compare with/without function calling overhead
-
-### 7. **Performance Optimization Settings**
-
-Let users tune the LRU cache size for their use case.
-
-```typescript
-import { setMergeCacheSize, clearMergeCache } from "gpt-tokenizer";
-
-// Add performance settings
-setMergeCacheSize(userCacheSize); // Allow users to adjust
-clearMergeCache(); // Reset cache option
-```
-
-**Implementation Plan:**
-
-- Cache size slider
-- Performance metrics dashboard
-- Cache hit/miss statistics
-- Reset cache button
-
-### 8. **Model-Specific Features**
+### 5. **Model-Specific Features**
 
 - Different tokenization behaviors between models
 - Show how the same text tokenizes differently across models
@@ -163,14 +117,12 @@ clearMergeCache(); // Reset cache option
 
 ## UI/UX Enhancements
 
-1. **Mode Toggle**: Switch between "Text" and "Chat" tokenization modes
-2. **Cost Calculator**: Real-time cost estimation for different models
-3. **Limit Indicator**: Visual feedback for context window limits
-4. **Performance Metrics**: Show tokenization speed and cache hits
-5. **Token Comparison**: Side-by-side comparison of tokenizations across models
-6. **Export Options**: Export tokens in various formats (JSON, CSV, etc.)
-7. **Batch Processing**: Tokenize multiple texts at once
-8. **Token Statistics**: Character-to-token ratio, unique tokens, frequency analysis
+1. **Mode Toggle**: ✅ Switch between "Text" and "Chat" tokenization modes
+2. **Cost Calculator**: ✅ Real-time cost estimation for different models
+3. **Limit Indicator**: ✅ Visual feedback for context window limits
+4. **Token Comparison**: Side-by-side comparison of tokenizations across models
+5. **Export Options**: Export tokens in various formats (JSON, CSV, etc.)
+6. **Token Statistics**: ✅ Character-to-token ratio, unique tokens, frequency analysis
 
 ## Technical Implementation Notes
 

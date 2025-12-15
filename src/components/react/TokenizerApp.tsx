@@ -20,7 +20,6 @@ export function TokenizerApp() {
   const [model, setModel] = useState<string>("gpt-5");
   const [debouncedText, setDebouncedText] = useState("");
 
-  // Use the extracted model options hook
   const modelOptions = useModelOptions();
 
   // --- TAB STATE ---
@@ -29,12 +28,10 @@ export function TokenizerApp() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Get encoding for the current model - if model is an encoding itself, use it directly
   const encoding = isEncodingType(model) ? model : getEncodingForModel(model);
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
     useTokenizer();
 
-  // Debounce text input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedText(text);
@@ -43,20 +40,16 @@ export function TokenizerApp() {
     return () => clearTimeout(timer);
   }, [text]);
 
-  // Trigger tokenization when debounced text or encoding changes
   useEffect(() => {
     if (debouncedText && encoding) {
       tokenize(debouncedText, encoding, { isChatMode: false });
     }
   }, [debouncedText, encoding, tokenize]);
 
-  // --- FILE HANDLERS ---
   const processFile = (file: File) => {
     setUploadError(null);
 
-    // Basic validation
     if (file.size > 5 * 1024 * 1024) {
-      // 5MB limit
       setUploadError("File is too large (Max 5MB)");
       return;
     }
@@ -71,7 +64,6 @@ export function TokenizerApp() {
     };
     reader.onerror = () => setUploadError("Failed to read file");
 
-    // Attempt to read as text (covers txt, md, json, code files)
     reader.readAsText(file);
   };
 
@@ -266,8 +258,10 @@ export function TokenizerApp() {
           {!isLoading && !error && (
             <TokenDisplay
               text={debouncedText}
-              tokens={Array.isArray(tokens) ? tokens : Array.from(tokens || [])}
+              tokens={Array.from(tokens || [])}
               tokenTexts={tokenTexts || []}
+              modelName={model}
+              showLimitAndCost={true}
             />
           )}
         </>

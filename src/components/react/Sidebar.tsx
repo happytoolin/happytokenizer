@@ -1,6 +1,6 @@
 import React from "react";
-import { ComboboxShadcn, type ComboboxOption } from "../ui/combobox-shadcn";
 import { VERSION } from "../../utils/version";
+import { ComboboxShadcn, type ComboboxOption } from "../ui/combobox-shadcn";
 
 export interface SidebarProps {
   model: string;
@@ -24,7 +24,7 @@ export function Sidebar({
   isLoading,
 }: SidebarProps) {
   return (
-    <aside className="sticky top-10 h-[calc(100vh-3rem)] max-h-[900px] bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[1024px]:h-[calc(100vh-2.5rem)] max-[900px]:relative max-[900px]:top-0 max-[900px]:h-auto max-[900px]:max-h-none max-[900px]:shadow-none max-[768px]:mb-4">
+    <aside className="h-auto bg-white border border-brand-black shadow-hard-lg flex flex-col justify-between max-[768px]:mb-4">
       <div className="p-6 border-b border-brand-black bg-brand-black text-white max-[768px]:p-4 max-[480px]:p-3">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
@@ -55,9 +55,9 @@ export function Sidebar({
 
       <div className="p-6 flex flex-col gap-8 flex-1 overflow-y-auto scrollbar-mechanical max-[768px]:p-4 max-[768px]:gap-6 max-[480px]:p-3 max-[480px]:gap-4">
         <div className="flex flex-col gap-3">
-          <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
+          <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
             Model Selection
-          </label>
+          </div>
           <ComboboxShadcn
             options={modelOptions}
             value={model}
@@ -69,9 +69,9 @@ export function Sidebar({
 
         {/* Mode Selection */}
         <div className="flex flex-col gap-3">
-          <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
+          <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em] flex justify-between">
             Tokenization Mode
-          </label>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {mode === "text" ? (
               <>
@@ -114,9 +114,9 @@ export function Sidebar({
         {/* Input Source - Generic actions */}
         {actions && (
           <div className="flex flex-col gap-3">
-            <label className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
+            <div className="font-mono text-xxs uppercase text-gray-600 font-semibold tracking-[0.05em]">
               Input Source
-            </label>
+            </div>
             {actions}
           </div>
         )}
@@ -129,7 +129,7 @@ export function Sidebar({
                 {mode === "text" ? "Processing Text" : "Processing Chat"}
               </div>
               <div className="h-1 bg-gray-300 w-full relative overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out animate-pulse" />
+                <div className="h-full bg-linear-to-r from-brand-orange to-orange-400 transition-all duration-300 ease-out animate-pulse" />
               </div>
               <div className="font-mono text-xxs text-gray-400 mt-1 text-right">
                 {mode === "text"

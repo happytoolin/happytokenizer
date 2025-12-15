@@ -59,67 +59,79 @@ export function ComboboxShadcn({
   }, [options]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "w-full justify-between bg-brand-paper border-brand-black text-brand-black font-body font-semibold hover:bg-gray-200 focus:bg-brand-black focus:text-white min-h-10",
-            disabled && "cursor-not-allowed opacity-50",
-            className,
-          )}
-          disabled={disabled}
+    <div>
+      <span id="model-selection-description" className="sr-only">
+        Use arrow keys to navigate through available GPT models, press Enter to
+        select
+      </span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            aria-label={placeholder || "Select an option"}
+            aria-describedby="model-selection-description"
+            className={cn(
+              "w-full justify-between bg-brand-paper border-brand-black text-brand-black font-body font-semibold hover:bg-gray-200 focus:bg-brand-black focus:text-white min-h-10",
+              disabled && "cursor-not-allowed opacity-50",
+              className,
+            )}
+            disabled={disabled}
+          >
+            <span className="truncate mr-2">
+              {value
+                ? options.find((option) => option.value === value)?.label
+                : placeholder}
+            </span>
+            <ChevronDown className="h-4 w-4 shrink-0 text-brand-orange" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-full p-0 max-h-[260px] min-w-[var(--radix-popover-trigger-width)]"
+          align="start"
         >
-          <span className="truncate mr-2">
-            {value
-              ? options.find((option) => option.value === value)?.label
-              : placeholder}
-          </span>
-          <ChevronDown className="h-4 w-4 shrink-0 text-brand-orange" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-full p-0 max-h-[260px] min-w-[var(--radix-popover-trigger-width)]"
-        align="start"
-      >
-        <Command className="w-full">
-          <CommandInput placeholder="Search model..." />
-          <CommandEmpty>No model found.</CommandEmpty>
-          <CommandList>
-            {Object.entries(groupedOptions).map(([groupName, groupOptions]) => (
-              <CommandGroup
-                key={groupName}
-                heading={groupName !== "Other" ? groupName : undefined}
-              >
-                {groupOptions.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    value={option.value}
-                    onSelect={(currentValue) => {
-                      onValueChange?.(
-                        currentValue === value ? "" : currentValue,
-                      );
-                      setOpen(false);
-                    }}
-                    disabled={option.disabled}
-                    className="flex items-center gap-2"
+          <Command className="w-full">
+            <CommandInput placeholder="Search model..." />
+            <CommandEmpty>No model found.</CommandEmpty>
+            <CommandList>
+              {Object.entries(groupedOptions).map(
+                ([groupName, groupOptions]) => (
+                  <CommandGroup
+                    key={groupName}
+                    heading={groupName !== "Other" ? groupName : undefined}
                   >
-                    <Check
-                      className={cn(
-                        "h-3 w-3 text-brand-orange flex-shrink-0",
-                        value === option.value ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    <span className="truncate">{option.label}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ))}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                    {groupOptions.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={(currentValue) => {
+                          onValueChange?.(
+                            currentValue === value ? "" : currentValue,
+                          );
+                          setOpen(false);
+                        }}
+                        disabled={option.disabled}
+                        className="flex items-center gap-2"
+                      >
+                        <Check
+                          className={cn(
+                            "h-3 w-3 text-brand-orange flex-shrink-0",
+                            value === option.value
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <span className="truncate">{option.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                ),
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

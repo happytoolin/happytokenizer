@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { type ComboboxOption } from "../components/ui/combobox-shadcn";
-import { MODEL_DISPLAY_NAMES, MODEL_ENCODINGS } from "../utils/modelEncodings";
+import { MODEL_ENCODINGS } from "../utils/modelEncodings";
+import { getModelDisplayName } from "../utils/models";
 
 export function useModelOptions() {
   return useMemo(() => {
@@ -47,7 +48,7 @@ export function useModelOptions() {
 
         options.push({
           value: modelName,
-          label: MODEL_DISPLAY_NAMES[modelName] || modelName,
+          label: getModelDisplayName(modelName),
           group: groupName,
         });
       });

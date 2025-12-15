@@ -1,78 +1,61 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { MODEL_ENCODINGS, MODEL_DISPLAY_NAMES } from '../utils/modelEncodings';
+import { MODEL_ENCODINGS } from '../utils/modelEncodings';
+import { getModelDisplayName, getModelsByEncoding, getPricing } from '../utils/models';
 
 // Reconstruct the category logic here in server-side JS
 const MODEL_CATEGORIES = [
   {
     id: "modern",
     title: "Modern Models",
-    icon: "🚀",
     encoding: "o200k_base",
     description: "Latest encoding for modern models",
     color: "#FF6600", // Orange
-    models: MODEL_ENCODINGS.o200k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("o200k_base"),
   },
   {
     id: "chat",
     title: "Chat Models",
-    icon: "💬",
     encoding: "cl100k_base",
     description: "Standard encoding for chat models",
     color: "#00CC99", // Mint
-    models: MODEL_ENCODINGS.cl100k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("cl100k_base"),
   },
   {
     id: "oss",
     title: "OpenAI OSS",
-    icon: "🎵",
     encoding: "o200k_harmony",
     description: "Special encoding for open-source",
     color: "#CCFF00", // Volt
-    models: MODEL_ENCODINGS.o200k_harmony.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("o200k_harmony"),
   },
   {
     id: "code",
     title: "Code Models",
-    icon: "📝",
     encoding: "p50k_base",
     description: "Optimized for code generation",
     color: "#0066FF", // Blue
-    models: MODEL_ENCODINGS.p50k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("p50k_base"),
   },
   {
     id: "edit",
     title: "Edit Models",
-    icon: "✏️",
     encoding: "p50k_edit",
     description: "Designed for text editing tasks",
     color: "#FF3366", // Red
-    models: MODEL_ENCODINGS.p50k_edit.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("p50k_edit"),
   },
   {
     id: "legacy",
     title: "Legacy Models",
-    icon: "🏛️",
     encoding: "r50k_base",
     description: "Original GPT-3 encoding",
     color: "#666666", // Grey
-    models: MODEL_ENCODINGS.r50k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("r50k_base"),
   },
 ].map((category) => ({
   ...category,
-  models: category.models.sort((a, b) => a.localeCompare(b)),
+  models: category.models.sort((a, b) => a.displayName.localeCompare(b.displayName)),
 }));
 ---
 
@@ -86,35 +69,47 @@ const MODEL_CATEGORIES = [
         <a href="/" class="bg-transparent border-none text-sm font-medium text-brand-orange cursor-pointer no-underline px-4 py-2 rounded-xs transition-all duration-200 ease-mechanical hover:text-brand-steel hover:underline">← BACK</a>
         <h1 class="text-xxxl font-bold m-0 font-display">System Manifest</h1>
       </div>
-      <div class="flex items-center bg-white border-2 border-brand-black rounded-sm px-4 py-2 min-w-[300px] max-md:w-full max-md:min-w-0">
-        <span class="mr-3 text-base">⚡</span>
+      <div class="flex items-center bg-white border-2 border-brand-black px-4 py-2 min-w-[300px] max-md:w-full max-md:min-w-0">
         <input type="text" id="model-search" placeholder="FILTER MODELS..." class="border-none bg-transparent text-sm font-medium outline-none w-full font-body placeholder:text-brand-steel" />
       </div>
     </header>
 
     <div class="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6" id="model-grid">
       {MODEL_CATEGORIES.map((cat) => (
-        <div class="bg-white border-2 border-brand-black rounded-sm overflow-hidden model-category" data-keywords={`${cat.title} ${cat.encoding}`}>
+        <div class="bg-white border-2 border-brand-black overflow-hidden model-category" data-keywords={`${cat.title} ${cat.encoding}`}>
           <div class="px-5 py-4 flex justify-between items-center bg-white" style={`border-bottom: 2px solid ${cat.color}`}>
-            <div class="flex items-center gap-3">
-              <span class="text-xl">{cat.icon}</span>
-              <h2 class="text-lg font-bold m-0 font-display">{cat.title}</h2>
+            <h2 class="text-lg font-bold m-0 font-display">{cat.title}</h2>
+            <div class="text-xs font-semibold bg-brand-concrete px-2 py-1 font-mono">{cat.encoding}</div>
+          </div>
+
+          <div class="px-5 py-3 bg-brand-paper border-b border-brand-concrete">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs text-brand-steel font-medium">{cat.description}</span>
+              <span class="text-xxs font-semibold text-brand-black font-mono">{cat.models.length} MODELS</span>
             </div>
-            <div class="text-xs font-semibold bg-brand-concrete px-2 py-1 rounded-xs font-mono">{cat.encoding}</div>
+            <div class="text-xs text-brand-40 italic">Pricing shown as Input / Output per million tokens</div>
           </div>
 
-          <div class="px-5 py-3 flex justify-between items-center bg-brand-paper border-b border-brand-concrete">
-            <span class="text-xs text-brand-steel font-medium">{cat.description}</span>
-            <span class="text-xxs font-semibold text-brand-black font-mono">{cat.models.length} MODELS</span>
-          </div>
+          <div class="max-h-[400px] overflow-y-auto p-2 scrollbar-mechanical">
+            {cat.models.map((model) => {
+              const pricing = getPricing(model.id);
+              const inputPrice = (pricing.input * 1000).toFixed(2);
+              const outputPrice = (pricing.output * 1000).toFixed(2);
 
-          <div class="max-h-[300px] overflow-y-auto p-2 scrollbar-mechanical">
-            {cat.models.map((model) => (
-              <div class="flex items-center gap-3 px-3 py-2 rounded-xs mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem" data-name={model}>
-                <div class="w-2 h-2 rounded-full flex-shrink-0" style={`background: ${cat.color}`}></div>
-                <span class="text-xs font-medium font-mono break-words">{model}</span>
-              </div>
-            ))}
+              return (
+                <div class="px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem" data-name={model.displayName}>
+                  <div class="flex items-start gap-3">
+                    <div class="w-2 h-2 flex-shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-xs font-medium font-mono break-words">{model.displayName}</div>
+                      <div class="text-xs text-brand-60 font-mono mt-1">
+                        ${inputPrice} / ${outputPrice} per M tokens
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
             {cat.models.length === 0 && (
               <div class="text-center p-5 text-brand-steel text-xs font-medium">No matches in this category</div>
             )}

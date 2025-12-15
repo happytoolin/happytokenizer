@@ -27,6 +27,49 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes("react") || id.includes("react-dom")) {
+              return "vendor-react";
+            }
+            if (id.includes("@radix-ui")) {
+              return "vendor-ui";
+            }
+            if (
+              id.includes("clsx") ||
+              id.includes("tailwind-merge") ||
+              id.includes("class-variance-authority")
+            ) {
+              return "vendor-utils";
+            }
+            if (id.includes("@tanstack/react-virtual")) {
+              return "vendor-virtual";
+            }
+            if (id.includes("lucide-react")) {
+              return "vendor-icons";
+            }
+            if (id.includes("gpt-tokenizer")) {
+              return "vendor-tokenizer";
+            }
+            if (id.includes("components/react/TokenizerApp")) {
+              return "components-critical";
+            }
+            if (id.includes("components/react/TokenDisplay")) {
+              return "components-secondary";
+            }
+            if (id.includes("components/ui/StatusDisplay")) {
+              return "status-display";
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+    },
+    optimizeDeps: {
+      include: ["react", "react-dom"],
+    },
   },
 
   adapter: cloudflare({
