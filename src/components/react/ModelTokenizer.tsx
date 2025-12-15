@@ -88,9 +88,7 @@ export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
     <div className="bg-white border-2 border-brand-black shadow-hard">
       {/* Tab Navigation */}
       <div className="flex border-b border-brand-black bg-brand-paper">
-        <button
-          className="bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
-        >
+        <button className="bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]">
           Input Stream
         </button>
         <button
@@ -179,7 +177,9 @@ export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
           <span className="font-mono text-xxs text-gray-400 font-bold">
             ENCODING
           </span>
-          <span className="font-mono text-xs font-medium text-black">{encoding}</span>
+          <span className="font-mono text-xs font-medium text-black">
+            {encoding}
+          </span>
         </div>
       </div>
 

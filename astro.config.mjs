@@ -7,22 +7,22 @@ import { defineConfig } from "astro/config";
 
 import cloudflare from "@astrojs/cloudflare";
 
+import playformCompress from "@playform/compress";
+
 export default defineConfig({
   site: "https://happytokenizer.com",
 
-  integrations: [
-    react(),
-    sitemap({
-      changefreq: "weekly",
-      priority: 0.7,
-      lastmod: new Date(),
-    }),
-    partytown({
-      config: {
-        forward: ["dataLayer.push", "gtag"],
-      },
-    }),
-  ],
+  integrations: [react(), sitemap({
+    changefreq: "weekly",
+    priority: 0.7,
+    lastmod: new Date(),
+  }), partytown({
+    config: {
+      forward: ["dataLayer.push", "gtag"],
+    },
+  }), playformCompress()],
+
+  prefetch: true,
 
   vite: {
     plugins: [tailwindcss()],
