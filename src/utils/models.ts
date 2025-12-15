@@ -18,7 +18,23 @@ export type EncodingType =
   | "p50k_base"
   | "p50k_edit"
   | "r50k_base"
-  | "o200k_harmony";
+  | "o200k_harmony"
+  | "llama3"
+  | "llama2"
+  | "deepseek"
+  | "qwen"
+  | "gemma"
+  | "gemini"
+  | "gpt2"
+  | "mistral"
+  | "minicpm"
+  | "aya"
+  | "baichuan"
+  | "chatglm"
+  | "commandr"
+  | "internlm"
+  | "yi"
+  | "gptoss";
 
 const DEFAULT_PRICING: Record<EncodingType, ModelPricing> = {
   o200k_base: { input: 0.0025, output: 0.01, cached: 0.00125 },
@@ -27,6 +43,24 @@ const DEFAULT_PRICING: Record<EncodingType, ModelPricing> = {
   p50k_edit: { input: 0.002, output: 0.002, cached: 0.001 },
   r50k_base: { input: 0.002, output: 0.002, cached: 0.001 },
   o200k_harmony: { input: 0.0025, output: 0.01, cached: 0.00125 },
+
+  // Non-GPT model default pricing
+  llama3: { input: 0.0002, output: 0.0004, cached: 0.0001 },
+  llama2: { input: 0.0002, output: 0.0004, cached: 0.0001 },
+  deepseek: { input: 0.00014, output: 0.00028, cached: 0.00007 },
+  qwen: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  gemma: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  gemini: { input: 0.00025, output: 0.0005, cached: 0.0000625 },
+  gpt2: { input: 0.02, output: 0.02, cached: 0.005 },
+  mistral: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  minicpm: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  aya: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  baichuan: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  chatglm: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  commandr: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  internlm: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  yi: { input: 0.0002, output: 0.0002, cached: 0.00005 },
+  gptoss: { input: 0.0003, output: 0.0003, cached: 0.000075 },
 };
 
 const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
@@ -36,6 +70,24 @@ const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
   p50k_edit: 2049,
   r50k_base: 2049,
   o200k_harmony: 128000,
+
+  // Non-GPT model default context limits
+  llama3: 128000,
+  llama2: 4096,
+  deepseek: 128000,
+  qwen: 32768,
+  gemma: 8192,
+  gemini: 32768,
+  gpt2: 1024,
+  mistral: 128000,
+  minicpm: 8192,
+  aya: 8192,
+  baichuan: 4096,
+  chatglm: 8192,
+  commandr: 128000,
+  internlm: 32768,
+  yi: 4096,
+  gptoss: 8192,
 };
 
 export const MODELS: Record<string, ModelData> = {
