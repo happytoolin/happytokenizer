@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ChatMessage } from "../types/chat";
+import type { EncodingType } from "../utils/modelEncodings";
 import type {
   ChunkProgressResponse,
   TokenizerMessage,
   TokenizerResponse,
 } from "../workers/tokenizer.worker";
-import type { EncodingType } from "../utils/modelEncodings";
-import type { ChatMessage } from "../types/chat";
 
-// Use the exported EncodingType as our ModelType for consistency
-export type ModelType = EncodingType;
+// Extended model type that includes both GPT encoding types and non-GPT model IDs
+export type ModelType = EncodingType | (string & {});
 
 export interface TokenizerProgress {
   chunkIndex: number;
@@ -45,11 +45,11 @@ export function useTokenizer() {
   useEffect(() => {
     workerRef.current = new Worker(
       new URL("../workers/tokenizer.worker.ts", import.meta.url),
-      { type: "module" },
+      { type: "module" }
     );
 
     workerRef.current.onmessage = (
-      e: MessageEvent<TokenizerResponse | ChunkProgressResponse>,
+      e: MessageEvent<TokenizerResponse | ChunkProgressResponse>
     ) => {
       const message = e.data;
 
@@ -114,7 +114,7 @@ export function useTokenizer() {
       options?: {
         isChatMode?: boolean;
         chatMessages?: ChatMessage[];
-      },
+      }
     ) => {
       if (!workerRef.current) return;
 
@@ -141,7 +141,7 @@ export function useTokenizer() {
         workerRef.current?.postMessage(message);
       }, 150);
     },
-    [],
+    []
   );
 
   return {
