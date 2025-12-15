@@ -97,17 +97,18 @@ const MODEL_CATEGORIES = [
               const outputPrice = (pricing.output * 1000).toFixed(2);
 
               return (
-                <div class="px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem" data-name={model.displayName}>
+                <a href={`/models/${model.id}`} class="block px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem group" data-name={model.displayName}>
                   <div class="flex items-start gap-3">
-                    <div class="w-2 h-2 flex-shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
+                    <div class="w-2 h-2 shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
                     <div class="flex-1 min-w-0">
-                      <div class="text-xs font-medium font-mono break-words">{model.displayName}</div>
+                      <div class="text-xs font-medium font-mono wrap-break-word group-hover:text-brand-orange transition-colors">{model.displayName}</div>
                       <div class="text-xs text-brand-60 font-mono mt-1">
                         ${inputPrice} / ${outputPrice} per M tokens
                       </div>
                     </div>
+                    <div class="text-xs text-brand-40 opacity-0 group-hover:opacity-100 transition-opacity">→</div>
                   </div>
-                </div>
+                </a>
               );
             })}
             {cat.models.length === 0 && (
