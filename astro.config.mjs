@@ -71,17 +71,6 @@ export default defineConfig({
     worker: {
       format: "es",
     },
-    // Configure SSR build to exclude problematic dependencies
-    ssr: {
-      noExternal: [],
-      external: [
-        "gpt-tokenizer",
-        "gpt-tokenizer/encoding/cl100k_base",
-        "gpt-tokenizer/encoding/p50k_base",
-        "gpt-tokenizer/encoding/p50k_edit",
-        "gpt-tokenizer/encoding/r50k_base",
-      ],
-    },
   },
 
   adapter: cloudflare({
