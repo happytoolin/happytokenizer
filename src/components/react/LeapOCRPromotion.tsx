@@ -104,13 +104,12 @@ export function LeapOCRPromotion({
   // Vertical layout (default)
   return (
     <div className={`w-full ${className}`}>
-      {/* Container: Uncoated paper feel with brutalist border and hard shadow */}
       <div className="bg-white border-2 border-brand-black shadow-[6px_6px_0px_var(--c-black)] relative overflow-hidden group transition-transform hover:-translate-y-1">
-        {/* Decorative corner accent (Brand Orange Dog-ear) */}
+        {/* Decorative corner accent */}
         <div className="absolute top-0 right-0 border-t-[32px] border-r-[32px] border-t-brand-orange border-r-transparent z-10"></div>
 
         <div className="p-6 flex flex-col gap-6">
-          {/* Header - Limited Time Alert */}
+          {/* Header */}
           <div className="flex items-center justify-between border-b-2 border-brand-black pb-3">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-brand-orange animate-pulse rounded-none"></div>
@@ -123,7 +122,7 @@ export function LeapOCRPromotion({
             </span>
           </div>
 
-          {/* Title - Kinetic Typography */}
+          {/* Title */}
           <div className="space-y-2">
             <h3 className="font-display text-3xl font-black uppercase leading-[0.85] tracking-tighter text-brand-black mix-blend-multiply">
               Leap<span className="text-brand-orange">OCR</span>
@@ -134,7 +133,7 @@ export function LeapOCRPromotion({
             </p>
           </div>
 
-          {/* Discount Ticket - "Analog" Ticket Stub Look */}
+          {/* Discount Ticket */}
           <div className="bg-brand-paper border-2 border-dashed border-brand-black p-4 relative">
             {/* Ticket Notches */}
             <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-brand-black rounded-full"></div>
@@ -173,7 +172,7 @@ export function LeapOCRPromotion({
             </div>
           </div>
 
-          {/* CTA Buttons - High Contrast & Brutalist */}
+          {/* CTA Buttons */}
           <div className="flex flex-col gap-3 mt-1">
             <a
               href="https://leapocr.com"

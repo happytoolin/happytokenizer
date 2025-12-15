@@ -12,15 +12,20 @@ import playformCompress from "@playform/compress";
 export default defineConfig({
   site: "https://happytokenizer.com",
 
-  integrations: [react(), sitemap({
-    changefreq: "weekly",
-    priority: 0.7,
-    lastmod: new Date(),
-  }), partytown({
-    config: {
-      forward: ["dataLayer.push", "gtag"],
-    },
-  }), playformCompress()],
+  integrations: [
+    react(),
+    sitemap({
+      changefreq: "weekly",
+      priority: 0.7,
+      lastmod: new Date(),
+    }),
+    partytown({
+      config: {
+        forward: ["dataLayer.push", "gtag"],
+      },
+    }),
+    playformCompress(),
+  ],
 
   prefetch: true,
 
@@ -64,11 +69,18 @@ export default defineConfig({
       chunkSizeWarningLimit: 500, // Lower threshold to catch large chunks
     },
     optimizeDeps: {
-      include: ["react", "react-dom"],
+      include: ["react", "react-dom", "gpt-tokenizer"],
+      force: true,
     },
     // Configure worker handling to avoid tokenizer in server build
     worker: {
       format: "es",
+      rollupOptions: {
+        external: [],
+      },
+      optimizeDeps: {
+        include: ["gpt-tokenizer"],
+      },
     },
   },
 

@@ -1,5 +1,5 @@
 ---
-import { ModelTokenizer } from "../../components/react/ModelTokenizer";
+import { ModelTokenizerWithStats } from "../../components/react/ModelTokenizerWithStats";
 import { LeapOCRPromotion } from "../../components/react/LeapOCRPromotion";
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getEncodingForModel } from "../../utils/modelEncodings";
@@ -175,7 +175,7 @@ const structuredData = {
           </div>
 
           <div id="tokenizer-root" class="relative z-20">
-            <ModelTokenizer client:load selectedModel={modelId} />
+            <ModelTokenizerWithStats client:idle selectedModel={modelId} />
           </div>
         </div>
 

@@ -6,13 +6,20 @@ import {
 } from "../../utils/modelEncodings";
 import { StatusDisplay } from "../ui/StatusDisplay";
 import { TokenDisplay } from "./TokenDisplay";
+import { TokenStatistics } from "./TokenStatistics";
 
 interface ModelTokenizerProps {
   selectedModel: string;
+  onTokensChange?: (tokens: number[], text: string) => void;
 }
 
-export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
-  const [text, setText] = useState("");
+export function ModelTokenizer({
+  selectedModel,
+  onTokensChange,
+}: ModelTokenizerProps) {
+  const [text, setText] = useState(
+    "The quick brown fox jumps over the lazy dog.",
+  );
   const [debouncedText, setDebouncedText] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -38,6 +45,17 @@ export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
       tokenize(debouncedText, encoding, { isChatMode: false });
     }
   }, [debouncedText, encoding, tokenize]);
+
+  // Call onTokensChange when tokens are updated
+  useEffect(() => {
+    if (
+      onTokensChange &&
+      tokens &&
+      (tokens.length > 0 || debouncedText.length > 0)
+    ) {
+      onTokensChange(Array.from(tokens), debouncedText);
+    }
+  }, [tokens, debouncedText, onTokensChange]);
 
   const processFile = (file: File) => {
     setUploadError(null);
@@ -88,7 +106,7 @@ export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
     <div className="bg-white border-2 border-brand-black shadow-hard">
       {/* Tab Navigation */}
       <div className="flex border-b border-brand-black bg-brand-paper">
-        <button className="bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]">
+        <button className="border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]">
           Input Stream
         </button>
         <button
@@ -116,7 +134,7 @@ export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
         className="hidden"
       />
 
-      {/* Drag & Drop Area (Hidden by default, shown when dragging) */}
+      {/* Drag & Drop Area */}
       {isDragging && (
         <div
           className="p-6 border-t border-brand-black bg-brand-orange/2"
@@ -198,7 +216,7 @@ export function ModelTokenizer({ selectedModel }: ModelTokenizerProps) {
           tokens={Array.from(tokens || [])}
           tokenTexts={tokenTexts || []}
           modelName={selectedModel}
-          showLimitAndCost={true}
+          showLimitAndCost={false}
         />
       )}
     </div>
