@@ -1,6 +1,4 @@
 import { decode, encode, encodeChat } from "gpt-tokenizer";
-import type { ChatMessage } from "../types/chat";
-import type { EncodingType } from "../utils/modelEncodings";
 import {
   decode as decodeCl100k,
   encode as encodeCl100k,
@@ -17,6 +15,10 @@ import {
   decode as decodeR50k,
   encode as encodeR50k,
 } from "gpt-tokenizer/encoding/r50k_base";
+import type { ChatMessage } from "../types/chat";
+import type { TokenizerModule } from "../utils/dynamicTokenizers";
+import { getTokenizerConfig } from "../utils/dynamicTokenizers";
+import type { EncodingType } from "../utils/modelEncodings";
 
 // Define encoders/decoders strategy map
 const ENCODING_STRATEGIES = {
@@ -28,17 +30,70 @@ const ENCODING_STRATEGIES = {
   o200k_harmony: { encode: encode, decode: decode }, // Fallback to standard
 };
 
+// Dynamic tokenizer cache
+const dynamicTokenizerCache = new Map<string, TokenizerModule>();
+
 // Helper to get strategy
 const getEncodingStrategy = (model: EncodingType) => {
-  return ENCODING_STRATEGIES[model] || ENCODING_STRATEGIES["o200k_base"];
+  // Only use GPT strategies for GPT encodings
+  const gptEncodings = ["o200k_base", "cl100k_base", "p50k_base", "p50k_edit", "r50k_base", "o200k_harmony"];
+  if (gptEncodings.includes(model)) {
+    return ENCODING_STRATEGIES[model as keyof typeof ENCODING_STRATEGIES] || ENCODING_STRATEGIES["o200k_base"];
+  }
+  // For non-GPT models, return null to force dynamic tokenizer loading
+  return null;
 };
+
+// Load dynamic tokenizer for non-GPT models
+async function loadDynamicTokenizer(
+  modelId: string
+): Promise<TokenizerModule | null> {
+  // Check cache first
+  if (dynamicTokenizerCache.has(modelId)) {
+    return dynamicTokenizerCache.get(modelId)!;
+  }
+
+  const config = getTokenizerConfig(modelId);
+  if (!config || config.isGPT) {
+    return null;
+  }
+
+  try {
+    // Dynamically import the tokenizer package
+    if (!config.packageName) {
+      console.error(`No package name configured for ${modelId}`);
+      return null;
+    }
+    const module = await import(config.packageName);
+    const tokenizerFunc = module[config.exportName || "fromPreTrained"];
+
+    if (typeof tokenizerFunc !== "function") {
+      console.error(`Tokenizer function not found in ${config.packageName}`);
+      return null;
+    }
+
+    const tokenizer = tokenizerFunc();
+    dynamicTokenizerCache.set(modelId, tokenizer);
+
+    return tokenizer;
+  } catch (error) {
+    console.error(`Failed to load tokenizer for ${modelId}:`, error);
+    return null;
+  }
+}
+
+// Helper to check if a model is non-GPT and needs dynamic loading
+function needsDynamicTokenizer(modelId: string): boolean {
+  const config = getTokenizerConfig(modelId);
+  return config !== null && !config.isGPT;
+}
 
 // Re-export EncodingType for other modules
 export type { EncodingType };
 
 export interface TokenizerMessage {
   text: string;
-  model?: EncodingType;
+  model?: string; // Can be EncodingType or model ID
   chunkSize?: number;
   chatMessages?: ChatMessage[];
   isChatMode?: boolean;
@@ -104,9 +159,30 @@ function splitIntoChunks(text: string, chunkSize: number = 1000): string[] {
 }
 
 // Decode individual tokens to their text representation
-function decodeTokens(tokens: number[], model: EncodingType): string[] {
-  const decoder = getEncodingStrategy(model).decode;
+async function decodeTokens(
+  tokens: number[],
+  model: string,
+  dynamicTokenizer?: TokenizerModule
+): Promise<string[]> {
+  if (dynamicTokenizer?.decode) {
+    return tokens.map((token) => {
+      try {
+        return dynamicTokenizer.decode([token]);
+      } catch (error) {
+        console.error("Decoding error:", error);
+        return `[${token}]`;
+      }
+    });
+  }
 
+  // Fallback to GPT tokenizer
+  const strategy = getEncodingStrategy(model as EncodingType);
+  if (!strategy) {
+    // No strategy available, return token IDs as fallback
+    return tokens.map((token) => `[${token}]`);
+  }
+
+  const decoder = strategy.decode;
   return tokens.map((token) => {
     try {
       return decoder([token]);
@@ -121,14 +197,26 @@ function decodeTokens(tokens: number[], model: EncodingType): string[] {
 // Tokenize text with chunking for better performance on large documents
 async function tokenizeWithChunks(
   text: string,
-  model: EncodingType,
-  onProgress?: (progress: ChunkProgressResponse) => void,
+  model: string,
+  dynamicTokenizer?: TokenizerModule,
+  onProgress?: (progress: ChunkProgressResponse) => void
 ): Promise<{ tokens: number[]; tokenTexts: string[] }> {
   // For small texts, use direct tokenization
   if (text.length <= 5000) {
-    const encoder = getEncodingStrategy(model).encode;
-    const tokens = encoder(text);
-    const tokenTexts = decodeTokens(tokens, model);
+    let tokens: number[];
+
+    if (dynamicTokenizer && dynamicTokenizer.encode) {
+      tokens = dynamicTokenizer.encode(text);
+    } else {
+      const strategy = getEncodingStrategy(model as EncodingType);
+      if (!strategy) {
+        throw new Error(`No encoding strategy available for model: ${model}`);
+      }
+      const encoder = strategy.encode;
+      tokens = encoder(text);
+    }
+
+    const tokenTexts = await decodeTokens(tokens, model, dynamicTokenizer);
     return { tokens, tokenTexts };
   }
 
@@ -140,7 +228,7 @@ async function tokenizeWithChunks(
   const totalProgressUpdates = Math.min(5, chunks.length);
   const progressInterval = Math.max(
     1,
-    Math.floor(chunks.length / totalProgressUpdates),
+    Math.floor(chunks.length / totalProgressUpdates)
   );
 
   // Process chunks in batches with yielding
@@ -148,14 +236,22 @@ async function tokenizeWithChunks(
   for (let i = 0; i < chunks.length; i += batchSize) {
     const batchEnd = Math.min(i + batchSize, chunks.length);
 
-    // Get the encoder once per batch for efficiency
-    const encoder = getEncodingStrategy(model).encode;
-
     for (let j = i; j < batchEnd; j++) {
       const chunk = chunks[j];
 
-      // Tokenize this chunk using strategy
-      const chunkTokens = encoder(chunk);
+      // Tokenize this chunk using the appropriate tokenizer
+      let chunkTokens: number[];
+      if (dynamicTokenizer && dynamicTokenizer.encode) {
+        chunkTokens = dynamicTokenizer.encode(chunk);
+      } else {
+        const strategy = getEncodingStrategy(model as EncodingType);
+        if (!strategy) {
+          throw new Error(`No encoding strategy available for model: ${model}`);
+        }
+        const encoder = strategy.encode;
+        chunkTokens = encoder(chunk);
+      }
+
       allTokens.push(...chunkTokens);
     }
 
@@ -176,7 +272,7 @@ async function tokenizeWithChunks(
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
-  const tokenTexts = decodeTokens(allTokens, model);
+  const tokenTexts = await decodeTokens(allTokens, model, dynamicTokenizer);
   return { tokens: allTokens, tokenTexts };
 }
 
@@ -184,27 +280,46 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
   const { text, model = "o200k_base", chatMessages, isChatMode } = e.data;
 
   try {
+    // Check if we need to load a dynamic tokenizer
+    let dynamicTokenizer: TokenizerModule | null = null;
+    if (needsDynamicTokenizer(model)) {
+      dynamicTokenizer = await loadDynamicTokenizer(model);
+    }
+
     // Handle chat mode
     if (isChatMode && chatMessages && chatMessages.length > 0) {
-      // For chat mode, we need to use a model name that supports chat
-      // Common chat-enabled models that use different encodings
-      let chatModel = "gpt-4o"; // Default to gpt-4o which uses o200k_base
+      let tokens: number[];
 
-      // Map the encoding to a compatible chat model
-      if (model === "cl100k_base") {
-        chatModel = "gpt-3.5-turbo";
-      } else if (model === "o200k_base" || model === "o200k_harmony") {
-        chatModel = "gpt-4o";
-      } else if (model === "p50k_base") {
-        chatModel = "text-davinci-003";
-      } else if (model === "p50k_edit") {
-        chatModel = "code-davinci-edit-001";
-      } else if (model === "r50k_base") {
-        chatModel = "text-davinci-001";
+      // For non-GPT models with chat template support
+      if (dynamicTokenizer && dynamicTokenizer.apply_chat_template) {
+        tokens = dynamicTokenizer.apply_chat_template(chatMessages) as number[];
+      } else {
+        // For GPT models, use existing logic
+        // For chat mode, we need to use a model name that supports chat
+        // Common chat-enabled models that use different encodings
+        let chatModel = "gpt-4o"; // Default to gpt-4o which uses o200k_base
+
+        // Map the encoding to a compatible chat model
+        if (model === "cl100k_base") {
+          chatModel = "gpt-3.5-turbo";
+        } else if (model === "o200k_base" || model === "o200k_harmony") {
+          chatModel = "gpt-4o";
+        } else if (model === "p50k_base") {
+          chatModel = "text-davinci-003";
+        } else if (model === "p50k_edit") {
+          chatModel = "code-davinci-edit-001";
+        } else if (model === "r50k_base") {
+          chatModel = "text-davinci-001";
+        }
+
+        tokens = encodeChat(chatMessages as any, chatModel as any);
       }
 
-      const tokens = encodeChat(chatMessages as any, chatModel as any);
-      const tokenTexts = decodeTokens(tokens, model);
+      const tokenTexts = await decodeTokens(
+        tokens,
+        model,
+        dynamicTokenizer || undefined
+      );
 
       const tokensArray = new Uint32Array(tokens);
 
@@ -217,7 +332,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           isChatMode: true,
           chatMessages,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] },
+        { transfer: [tokensArray.buffer] }
       );
       return;
     }
@@ -228,9 +343,10 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       const { tokens, tokenTexts } = await tokenizeWithChunks(
         text,
         model,
+        dynamicTokenizer || undefined,
         (progress) => {
           self.postMessage(progress as ChunkProgressResponse);
-        },
+        }
       );
 
       // Send final result
@@ -243,13 +359,28 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           tokenTexts,
           isChatMode: false,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
+        { transfer: [tokensArray.buffer] } // Transferable: zero-copy
       );
     } else {
       // Direct tokenization for small texts
-      const encoder = getEncodingStrategy(model).encode;
-      const tokens = encoder(text);
-      const tokenTexts = decodeTokens(tokens, model);
+      let tokens: number[];
+
+      if (dynamicTokenizer && dynamicTokenizer.encode) {
+        tokens = dynamicTokenizer.encode(text);
+      } else {
+        const strategy = getEncodingStrategy(model as EncodingType);
+        if (!strategy) {
+          throw new Error(`No encoding strategy available for model: ${model}`);
+        }
+        const encoder = strategy.encode;
+        tokens = encoder(text);
+      }
+
+      const tokenTexts = await decodeTokens(
+        tokens,
+        model,
+        dynamicTokenizer || undefined
+      );
 
       const tokensArray = new Uint32Array(tokens);
       self.postMessage(
@@ -260,7 +391,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           tokenTexts,
           isChatMode: false,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
+        { transfer: [tokensArray.buffer] } // Transferable: zero-copy
       );
     }
   } catch (error) {
