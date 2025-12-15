@@ -1,5 +1,5 @@
 import styles from "../../styles/components/TokenDisplay.module.css";
-import { MODEL_DISPLAY_NAMES } from "../../utils/modelEncodings";
+import { getModelDisplayName } from "../../utils/models";
 import {
   getModelLimitStatus,
   getUsageStatusColor,
@@ -23,7 +23,7 @@ export function TokenLimitIndicator({
       <span
         className={styles.statValue}
         style={{ color: statusColor }}
-        title={`${MODEL_DISPLAY_NAMES[modelName] || modelName}: ${modelStatus.remaining.toLocaleString()} tokens remaining`}
+        title={`${getModelDisplayName(modelName)}: ${modelStatus.remaining.toLocaleString()} tokens remaining`}
       >
         {modelStatus.percentage.toFixed(1)}%
       </span>

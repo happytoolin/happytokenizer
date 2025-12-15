@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { MODEL_ENCODINGS, MODEL_DISPLAY_NAMES } from '../utils/modelEncodings';
+import { MODEL_ENCODINGS } from '../utils/modelEncodings';
+import { getModelDisplayName, getModelsByEncoding } from '../utils/models';
 
 // Reconstruct the category logic here in server-side JS
 const MODEL_CATEGORIES = [
@@ -11,9 +12,7 @@ const MODEL_CATEGORIES = [
     encoding: "o200k_base",
     description: "Latest encoding for modern models",
     color: "#FF6600", // Orange
-    models: MODEL_ENCODINGS.o200k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("o200k_base").map(m => m.displayName),
   },
   {
     id: "chat",
@@ -22,9 +21,7 @@ const MODEL_CATEGORIES = [
     encoding: "cl100k_base",
     description: "Standard encoding for chat models",
     color: "#00CC99", // Mint
-    models: MODEL_ENCODINGS.cl100k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("cl100k_base").map(m => m.displayName),
   },
   {
     id: "oss",
@@ -33,9 +30,7 @@ const MODEL_CATEGORIES = [
     encoding: "o200k_harmony",
     description: "Special encoding for open-source",
     color: "#CCFF00", // Volt
-    models: MODEL_ENCODINGS.o200k_harmony.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("o200k_harmony").map(m => m.displayName),
   },
   {
     id: "code",
@@ -44,9 +39,7 @@ const MODEL_CATEGORIES = [
     encoding: "p50k_base",
     description: "Optimized for code generation",
     color: "#0066FF", // Blue
-    models: MODEL_ENCODINGS.p50k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("p50k_base").map(m => m.displayName),
   },
   {
     id: "edit",
@@ -55,9 +48,7 @@ const MODEL_CATEGORIES = [
     encoding: "p50k_edit",
     description: "Designed for text editing tasks",
     color: "#FF3366", // Red
-    models: MODEL_ENCODINGS.p50k_edit.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("p50k_edit").map(m => m.displayName),
   },
   {
     id: "legacy",
@@ -66,9 +57,7 @@ const MODEL_CATEGORIES = [
     encoding: "r50k_base",
     description: "Original GPT-3 encoding",
     color: "#666666", // Grey
-    models: MODEL_ENCODINGS.r50k_base.map(
-      (model) => MODEL_DISPLAY_NAMES[model] || model,
-    ),
+    models: getModelsByEncoding("r50k_base").map(m => m.displayName),
   },
 ].map((category) => ({
   ...category,

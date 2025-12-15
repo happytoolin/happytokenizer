@@ -1,9 +1,8 @@
 import styles from "../../styles/components/TokenDisplay.module.css";
 import { getContextWindowLimit } from "../../utils/contextLimits";
-import { MODEL_DISPLAY_NAMES } from "../../utils/modelEncodings";
+import { getModelDisplayName } from "../../utils/models";
 
 interface TotalContextProps {
-  tokenCount: number;
   modelName: string;
 }
 
@@ -15,7 +14,7 @@ export function TotalContext({ modelName }: TotalContextProps) {
       <span className={styles.statLabel}>Total Context</span>
       <span
         className={styles.statValue}
-        title={`${MODEL_DISPLAY_NAMES[modelName] || modelName} context window limit`}
+        title={`${getModelDisplayName(modelName)} context window limit`}
       >
         {contextLimit.toLocaleString()}
       </span>

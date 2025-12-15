@@ -137,10 +137,7 @@ export function TokenDisplay({
                   tokenCount={tokens.length}
                   modelName={modelName}
                 />
-                <TotalContext
-                  tokenCount={tokens.length}
-                  modelName={modelName}
-                />
+                <TotalContext modelName={modelName} />
                 <CostEstimator
                   tokenCount={tokens.length}
                   modelName={modelName}
@@ -170,10 +167,7 @@ export function TokenDisplay({
                   tokenCount={tokens.length}
                   modelName={modelName}
                 />
-                <TotalContext
-                  tokenCount={tokens.length}
-                  modelName={modelName}
-                />
+                <TotalContext modelName={modelName} />
                 <CostEstimator
                   tokenCount={tokens.length}
                   modelName={modelName}
