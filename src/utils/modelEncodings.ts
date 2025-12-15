@@ -1,7 +1,5 @@
-// Model encodings derived from centralized models
 import { MODELS, getModelsByEncoding, type EncodingType } from "./models";
 
-// Get model lists by encoding type from centralized models
 export const MODEL_ENCODINGS = {
   cl100k_base: getModelsByEncoding("cl100k_base").map((m) => m.id),
   o200k_base: getModelsByEncoding("o200k_base").map((m) => m.id),

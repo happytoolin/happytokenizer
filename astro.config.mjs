@@ -31,7 +31,6 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks: (id) => {
-            // Split vendor libraries for better caching
             if (id.includes("react") || id.includes("react-dom")) {
               return "vendor-react";
             }
@@ -54,7 +53,6 @@ export default defineConfig({
             if (id.includes("gpt-tokenizer")) {
               return "vendor-tokenizer";
             }
-            // Handle components separately
             if (id.includes("components/react/TokenizerApp")) {
               return "components-critical";
             }

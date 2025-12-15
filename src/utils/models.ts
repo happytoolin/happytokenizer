@@ -1,15 +1,15 @@
 export interface ModelPricing {
-  input: number; // USD per 1K input tokens
-  output: number; // USD per 1K output tokens
-  cached: number; // USD per 1K cached tokens
+  input: number;
+  output: number;
+  cached: number;
 }
 
 export interface ModelData {
-  id: string; // Model identifier
-  displayName: string; // Human-readable display name
-  encoding: EncodingType; // Token encoding type
-  contextWindow: number; // Context window limit
-  pricing: ModelPricing; // API pricing information
+  id: string;
+  displayName: string;
+  encoding: EncodingType;
+  contextWindow: number;
+  pricing: ModelPricing;
 }
 
 export type EncodingType =
@@ -20,7 +20,6 @@ export type EncodingType =
   | "r50k_base"
   | "o200k_harmony";
 
-// Default pricing by encoding type (USD per 1K tokens)
 const DEFAULT_PRICING: Record<EncodingType, ModelPricing> = {
   o200k_base: { input: 0.0025, output: 0.01, cached: 0.00125 },
   cl100k_base: { input: 0.01, output: 0.03, cached: 0.005 },
@@ -30,7 +29,6 @@ const DEFAULT_PRICING: Record<EncodingType, ModelPricing> = {
   o200k_harmony: { input: 0.0025, output: 0.01, cached: 0.00125 },
 };
 
-// Default context limits by encoding type
 const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
   o200k_base: 128000,
   cl100k_base: 8192,
@@ -40,9 +38,7 @@ const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
   o200k_harmony: 128000,
 };
 
-// Model registry with all data
 export const MODELS: Record<string, ModelData> = {
-  // GPT-5 series
   "gpt-5": {
     id: "gpt-5",
     displayName: "GPT-5",

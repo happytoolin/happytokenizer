@@ -203,19 +203,9 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         chatModel = "text-davinci-001";
       }
 
-      console.log(
-        "Tokenizing chat with model:",
-        chatModel,
-        "from encoding:",
-        model,
-      );
-
-      // Cast chatMessages to handle type mismatch between our interface and library's interface
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tokens = encodeChat(chatMessages as any, chatModel as any);
       const tokenTexts = decodeTokens(tokens, model);
 
-      // Convert to Uint32Array for zero-copy transfer
       const tokensArray = new Uint32Array(tokens);
 
       self.postMessage(
@@ -227,17 +217,14 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           isChatMode: true,
           chatMessages,
         } as TokenizerResponse,
-        { transfer: [tokensArray.buffer] }, // Transferable: zero-copy
+        { transfer: [tokensArray.buffer] },
       );
       return;
     }
 
-    // Regular text tokenization
-    // Check if we should use chunked processing
-    const shouldChunk = text.length > 20000; // Increased threshold to match chunk size
+    const shouldChunk = text.length > 20000;
 
     if (shouldChunk) {
-      // Process with chunks and report progress
       const { tokens, tokenTexts } = await tokenizeWithChunks(
         text,
         model,
