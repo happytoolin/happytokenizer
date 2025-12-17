@@ -1,0 +1,8 @@
+{
+  "timezone": "America/New_York",
+  "schedule": ["before 5am on the first day of the month"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["after 10pm on the first sunday of the month"]
+  }
+}
