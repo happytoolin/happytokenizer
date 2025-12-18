@@ -1,5 +1,6 @@
 import React from "react";
 import { VERSION } from "../../utils/version";
+import { getEncodingDisplayName, type EncodingType } from "../../utils/modelEncodings";
 import { ComboboxShadcn, type ComboboxOption } from "../ui/combobox-shadcn";
 
 export interface SidebarProps {
@@ -107,7 +108,7 @@ export function Sidebar({
             Encoding
           </span>
           <span className="font-mono text-xs text-brand-black font-semibold">
-            {encoding}
+            {getEncodingDisplayName(encoding as EncodingType)}
           </span>
         </div>
 

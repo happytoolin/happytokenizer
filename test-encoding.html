@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Encoding Display Test</title>
+</head>
+<body>
+    <h1>Encoding Display Test</h1>
+    <p>This test verifies that the encoding display is working for non-GPT models.</p>
+
+    <h2>Expected Encoding Display Names:</h2>
+    <ul>
+        <li><strong>o200k_base</strong> should display as: "O200K Base (GPT-4o)"</li>
+        <li><strong>cl100k_base</strong> should display as: "CL100K Base (GPT-4)"</li>
+        <li><strong>llama3</strong> should display as: "Llama 3"</li>
+        <li><strong>deepseek</strong> should display as: "DeepSeek"</li>
+        <li><strong>qwen</strong> should display as: "Qwen"</li>
+        <li><strong>gemini</strong> should display as: "Gemini"</li>
+        <li><strong>gemma</strong> should display as: "Gemma"</li>
+        <li><strong>baichuan</strong> should display as: "Baichuan"</li>
+    </ul>
+
+    <h2>How to Test:</h2>
+    <ol>
+        <li>Start the development server with <code>pnpm dev</code></li>
+        <li>Open http://localhost:4323 in your browser</li>
+        <li>Select different non-GPT models from the dropdown (Llama 3, DeepSeek, Qwen, etc.)</li>
+        <li>Check the "Encoding" field in the sidebar - it should show human-readable names</li>
+        <li>Test both text and chat modes</li>
+    </ol>
+
+    <h2>Non-GPT Models to Test:</h2>
+    <ul>
+        <li>Llama 3.2 (should show: "Llama 3")</li>
+        <li>DeepSeek V3 (should show: "DeepSeek")</li>
+        <li>Qwen 2.5 (should show: "Qwen")</li>
+        <li>Gemma 2 (should show: "Gemma")</li>
+        <li>Gemini 1.5 Pro (should show: "Gemini")</li>
+        <li>Claude 3.5 Sonnet (should show: "CL100K Base (GPT-4)")</li>
+    </ul>
+</body>
+</html>
