@@ -1,7 +1,6 @@
 ---
-import { ModelTokenizerWithStats } from "../../components/react/ModelTokenizerWithStats";
-import { LeapOCRPromotion } from "../../components/react/LeapOCRPromotion";
 import Navbar from "../../components/Navbar.astro";
+import { LeapOCRPromotion } from "../../components/react/LeapOCRPromotion";
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getEncodingForModel } from "../../utils/modelEncodings";
 import { getPricing, MODELS } from "../../utils/models";
@@ -76,7 +75,7 @@ const structuredData = {
     set:html={JSON.stringify(structuredData)}
   />
 
-  <div class="min-h-screen w-full relative overflow-hidden bg-[var(--c-paper)]">
+  <div class="min-h-screen w-full relative overflow-hidden bg-(--c-paper)">
     <!-- Background Grid -->
     <div
       class="absolute inset-0 opacity-[0.03] happytokenizer-grid pointer-events-none z-0"
@@ -93,12 +92,12 @@ const structuredData = {
         <!-- Title Block -->
         <div class="relative group">
           <h1
-            class="font-display text-6xl md:text-8xl lg:text-9xl font-black uppercase leading-[0.85] tracking-tighter text-[var(--c-black)] mix-blend-multiply mb-4"
+            class="font-display text-6xl md:text-8xl lg:text-9xl font-black uppercase leading-[0.85] tracking-tighter text-(--c-black) mix-blend-multiply mb-4"
           >
             {model.displayName}
           </h1>
           <div
-            class="absolute top-0 right-0 md:right-20 transform -translate-y-1/2 rotate-12 bg-[var(--c-orange)] text-white font-mono text-xs font-bold px-4 py-2 border border-black shadow-[4px_4px_0px_#000] badge-rotate cursor-help z-20"
+            class="absolute top-0 right-0 md:right-20 transform -translate-y-1/2 rotate-12 bg-(--c-orange) text-white font-mono text-xs font-bold px-4 py-2 border border-black shadow-[4px_4px_0px_#000] badge-rotate cursor-help z-20"
           >
             {encodingType}
           </div>
@@ -107,17 +106,17 @@ const structuredData = {
         <!-- Description & Tags -->
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-end">
           <p
-            class="font-body text-lg md:text-xl leading-relaxed text-gray-800 max-w-2xl border-l-4 border-[var(--c-orange)] pl-6"
+            class="font-body text-lg md:text-xl leading-relaxed text-gray-800 max-w-2xl border-l-4 border-(--c-orange) pl-6"
           >
             Structural tokenization analysis engine. Optimized for <strong
-              class="bg-[var(--c-orange)]/20 px-1">{model.displayName}</strong
+              class="bg-(--c-orange)/20 px-1">{model.displayName}</strong
             > inputs. Calibrate context windows and compute precise API economics
             in real-time.
           </p>
 
           <!-- Quick Stats Mini-Grid -->
           <div class="grid grid-cols-2 gap-px bg-black border border-black">
-            <div class="bg-white p-3 hover:bg-[var(--c-paper)] transition-colors">
+            <div class="bg-white p-3 hover:bg-(--c-paper) transition-colors">
               <div class="font-mono text-[10px] uppercase text-gray-500 mb-1">
                 Context
               </div>
@@ -129,7 +128,7 @@ const structuredData = {
                 }
               </div>
             </div>
-            <div class="bg-white p-3 hover:bg-[var(--c-paper)] transition-colors">
+            <div class="bg-white p-3 hover:bg-(--c-paper) transition-colors">
               <div class="font-mono text-[10px] uppercase text-gray-500 mb-1">
                 Type
               </div>
@@ -141,32 +140,8 @@ const structuredData = {
 
       <!-- MAIN WORKSPACE -->
       <main class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
-        <!-- LEFT COL: Tokenizer -->
-        <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <h2
-              class="font-mono text-sm font-bold uppercase tracking-widest flex items-center gap-2"
-            >
-              <span class="w-2 h-2 rounded-full bg-[var(--c-orange)] animate-pulse"
-              ></span>
-              Live Input Stream
-            </h2>
-            <div class="hidden md:flex gap-2">
-              <span
-                class="font-mono text-[10px] border border-black px-2 py-0.5 bg-white"
-                >SECURE</span
-              >
-              <span
-                class="font-mono text-[10px] border border-black px-2 py-0.5 bg-white"
-                >CLIENT-SIDE</span
-              >
-            </div>
-          </div>
-
-          <div id="tokenizer-root" class="relative z-20">
-            <ModelTokenizerWithStats client:idle selectedModel={modelId} />
-          </div>
-        </div>
+        <!-- LEFT COL: Model Overview -->
+        <div class="flex flex-col gap-4"></div>
 
         <!-- RIGHT COL: Specs & Data -->
         <div class="flex flex-col gap-8">
@@ -175,7 +150,7 @@ const structuredData = {
             class="bg-white border-2 border-black shadow-[8px_8px_0px_var(--c-black)] p-6 relative overflow-hidden group"
           >
             <div
-              class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--c-orange)] to-[var(--c-black)]"
+              class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-(--c-orange) to--(--c-black)"
             >
             </div>
 
@@ -184,7 +159,7 @@ const structuredData = {
             >
               Cost Manifest
               <svg
-                class="w-5 h-5 text-[var(--c-orange)]"
+                class="w-5 h-5 text-(--c-orange)"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -220,11 +195,11 @@ const structuredData = {
 
               <!-- Cached -->
               <div class="flex justify-between items-end pb-2">
-                <span class="text-[var(--c-orange)] uppercase font-bold"
+                <span class="text-(--c-orange) uppercase font-bold"
                   >Cached Write</span
                 >
                 <span
-                  class="text-base font-bold text-[var(--c-orange)] bg-[var(--c-orange)]/10 px-1"
+                  class="text-base font-bold text-(--c-orange) bg-(--c-orange)/10 px-1"
                   >${(pricing.cached * 1000).toFixed(2)}</span
                 >
               </div>
@@ -240,9 +215,9 @@ const structuredData = {
           </div>
 
           <!-- Technical Specs -->
-          <div class="border border-black bg-[var(--c-black)] text-white p-6">
+          <div class="border border-black bg--(--c-black) text-white p-6">
             <h3
-              class="font-mono text-xs font-bold uppercase tracking-widest text-[var(--c-orange)] mb-4"
+              class="font-mono text-xs font-bold uppercase tracking-widest text-(--c-orange) mb-4"
             >
               // Technical Specifications
             </h3>
@@ -279,7 +254,7 @@ const structuredData = {
       <!-- RELATED MODELS FOOTER -->
       <footer class="border-t-2 border-black pt-12 pb-24">
         <h3 class="font-display text-3xl font-bold uppercase mb-8">
-          Related Architectures <span class="text-[var(--c-orange)]"
+          Related Architectures <span class="text-(--c-orange)"
             >({encodingType})</span
           >
         </h3>
@@ -293,7 +268,7 @@ const structuredData = {
               .map(([id, m]) => (
                 <a
                   href={`/models/${id}`}
-                  class="group block bg-white border border-gray-300 p-4 hover:border-black hover:bg-[var(--c-orange)] hover:text-white transition-all duration-200"
+                  class="group block bg-white border border-gray-300 p-4 hover:border-black hover:bg-(--c-orange) hover:text-white transition-all duration-200"
                 >
                   <div class="font-mono text-[10px] text-gray-400 group-hover:text-white/70 mb-2">
                     {m.id}
