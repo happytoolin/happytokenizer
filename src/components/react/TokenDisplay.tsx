@@ -5,9 +5,7 @@ import { VirtualizedCompactTokenDisplay } from "./VirtualizedCompactTokenDisplay
 import { VirtualizedInlineTokenDisplay } from "./VirtualizedInlineTokenDisplay";
 import { VirtualTokenDisplay } from "./VirtualTokenDisplay";
 import { VirtualErrorBoundary } from "../ui/VirtualErrorBoundary";
-import { TokenLimitIndicator } from "./TokenLimitIndicator";
-import { CostEstimator } from "./CostEstimator";
-import { TotalContext } from "./TotalContext";
+import { TokenStats } from "./TokenStats";
 import type { ChatMessage } from "../../types/chat";
 
 interface TokenDisplayProps {
@@ -112,71 +110,14 @@ export function TokenDisplay({
         )}
       </div>
 
-      <div className={styles.stats}>
-        {isChatMode ? (
-          <>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Mode</span>
-              <span className={styles.statValue} style={{ color: "#ea580c" }}>
-                CHAT
-              </span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Messages</span>
-              <span className={styles.statValue}>
-                {chatMessages?.length || 0}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Total Tokens</span>
-              <span className={styles.statValue}>{tokens.length}</span>
-            </div>
-            {showLimitAndCost && (
-              <>
-                <TokenLimitIndicator
-                  tokenCount={tokens.length}
-                  modelName={modelName}
-                />
-                <TotalContext modelName={modelName} />
-                <CostEstimator
-                  tokenCount={tokens.length}
-                  modelName={modelName}
-                />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Token Count</span>
-              <span className={styles.statValue}>{tokens.length}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Char Count</span>
-              <span className={styles.statValue}>{text.length}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Density</span>
-              <span className={styles.statValue}>
-                {(text.length / tokens.length).toFixed(2)}
-              </span>
-            </div>
-            {showLimitAndCost && (
-              <>
-                <TokenLimitIndicator
-                  tokenCount={tokens.length}
-                  modelName={modelName}
-                />
-                <TotalContext modelName={modelName} />
-                <CostEstimator
-                  tokenCount={tokens.length}
-                  modelName={modelName}
-                />
-              </>
-            )}
-          </>
-        )}
-      </div>
+      <TokenStats
+        tokenCount={tokens.length}
+        charCount={text.length}
+        modelName={modelName}
+        isChatMode={isChatMode}
+        chatMessages={chatMessages}
+        showLimitAndCost={showLimitAndCost}
+      />
     </div>
   );
 }
