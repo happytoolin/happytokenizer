@@ -1,5 +1,5 @@
 import type { ChatMessage } from "../types/chat";
-import type { EncodingType } from "../utils/modelEncodings";
+import { getEncodingForModel, isEncodingType, type EncodingType } from "../utils/modelEncodings";
 import type { TokenizerModule } from "../utils/dynamicTokenizers";
 import { getTokenizerConfig } from "../utils/dynamicTokenizers";
 import {
@@ -215,6 +215,7 @@ async function decodeTokens(
   }
 
   // Fallback to GPT tokenizer
+  // Note: For decodeTokens, we still pass the model parameter as is, since it handles both model IDs and encoding types
   const strategy = await getEncodingStrategy(model as EncodingType);
   if (!strategy) {
     // No strategy available, return token IDs as fallback
@@ -237,6 +238,7 @@ async function decodeTokens(
 async function tokenizeWithChunks(
   text: string,
   model: string,
+  encoding: EncodingType,
   dynamicTokenizer?: TokenizerModule,
   onProgress?: (progress: ChunkProgressResponse) => void
 ): Promise<{ tokens: number[]; tokenTexts: string[] }> {
@@ -247,7 +249,7 @@ async function tokenizeWithChunks(
     if (dynamicTokenizer && dynamicTokenizer.encode) {
       tokens = dynamicTokenizer.encode(text);
     } else {
-      const strategy = await getEncodingStrategy(model as EncodingType);
+      const strategy = await getEncodingStrategy(encoding);
       if (!strategy) {
         throw new Error(`No encoding strategy available for model: ${model}`);
       }
@@ -283,7 +285,7 @@ async function tokenizeWithChunks(
       if (dynamicTokenizer && dynamicTokenizer.encode) {
         chunkTokens = dynamicTokenizer.encode(chunk);
       } else {
-        const strategy = await getEncodingStrategy(model as EncodingType);
+        const strategy = await getEncodingStrategy(encoding);
         if (!strategy) {
           throw new Error(`No encoding strategy available for model: ${model}`);
         }
@@ -325,6 +327,9 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       dynamicTokenizer = await loadDynamicTokenizer(model);
     }
 
+    // Get the actual encoding type for display purposes
+    const actualEncoding = isEncodingType(model) ? model : getEncodingForModel(model);
+
     // Handle chat mode
     if (isChatMode && chatMessages && chatMessages.length > 0) {
       let tokens: number[];
@@ -339,15 +344,15 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         let chatModel = "gpt-4o"; // Default to gpt-4o which uses o200k_base
 
         // Map the encoding to a compatible chat model
-        if (model === "cl100k_base") {
+        if (actualEncoding === "cl100k_base") {
           chatModel = "gpt-3.5-turbo";
-        } else if (model === "o200k_base" || model === "o200k_harmony") {
+        } else if (actualEncoding === "o200k_base" || actualEncoding === "o200k_harmony") {
           chatModel = "gpt-4o";
-        } else if (model === "p50k_base") {
+        } else if (actualEncoding === "p50k_base") {
           chatModel = "text-davinci-003";
-        } else if (model === "p50k_edit") {
+        } else if (actualEncoding === "p50k_edit") {
           chatModel = "code-davinci-edit-001";
-        } else if (model === "r50k_base") {
+        } else if (actualEncoding === "r50k_base") {
           chatModel = "text-davinci-001";
         }
 
@@ -390,6 +395,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       const { tokens, tokenTexts } = await tokenizeWithChunks(
         text,
         model,
+        actualEncoding,
         dynamicTokenizer || undefined,
         (progress) => {
           self.postMessage(progress as ChunkProgressResponse);
@@ -415,7 +421,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       if (dynamicTokenizer && dynamicTokenizer.encode) {
         tokens = dynamicTokenizer.encode(text);
       } else {
-        const strategy = await getEncodingStrategy(model as EncodingType);
+        const strategy = await getEncodingStrategy(actualEncoding);
         if (!strategy) {
           throw new Error(`No encoding strategy available for model: ${model}`);
         }

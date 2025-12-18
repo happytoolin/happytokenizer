@@ -66,14 +66,18 @@ export function ChatTokenizer() {
       const combinedText = debouncedChatMessages
         .map((msg) => `[${msg.role}]: ${msg.content}`)
         .join("\n\n");
-      tokenize(combinedText, encoding, {
+      // For non-GPT models, pass the model ID instead of encoding to get proper tokenizer
+      const tokenizerModel = isEncodingType(model) ? encoding : model;
+      tokenize(combinedText, tokenizerModel, {
         isChatMode: true,
         chatMessages: debouncedChatMessages,
       });
     } else if (debouncedChatMessages.length === 0) {
-      tokenize("", encoding, { isChatMode: true, chatMessages: [] });
+      // For non-GPT models, pass the model ID instead of encoding to get proper tokenizer
+      const tokenizerModel = isEncodingType(model) ? encoding : model;
+      tokenize("", tokenizerModel, { isChatMode: true, chatMessages: [] });
     }
-  }, [debouncedChatMessages, encoding, tokenize]);
+  }, [debouncedChatMessages, encoding, model, tokenize]);
 
   return (
     <TokenizerShell

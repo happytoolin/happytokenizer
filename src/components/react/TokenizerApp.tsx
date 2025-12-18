@@ -42,9 +42,11 @@ export function TokenizerApp() {
 
   useEffect(() => {
     if (debouncedText && encoding) {
-      tokenize(debouncedText, encoding, { isChatMode: false });
+      // For non-GPT models, pass the model ID instead of encoding to get proper tokenizer
+      const tokenizerModel = isEncodingType(model) ? encoding : model;
+      tokenize(debouncedText, tokenizerModel, { isChatMode: false });
     }
-  }, [debouncedText, encoding, tokenize]);
+  }, [debouncedText, encoding, model, tokenize]);
 
   const processFile = (file: File) => {
     setUploadError(null);
