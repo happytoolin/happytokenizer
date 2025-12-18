@@ -1,5 +1,3 @@
-import React from "react";
-
 interface LeapOCRPromotionProps {
   className?: string;
   layout?: "vertical" | "horizontal";

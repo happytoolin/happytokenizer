@@ -1,10 +1,10 @@
 ---
-import Layout from "../layouts/MainLayout.astro";
 import { ChatTokenizer } from "../components/react/ChatTokenizer";
 import { LeapOCRPromotionMobile } from "../components/react/LeapOCRPromotionMobile";
+import Layout from "../layouts/MainLayout.astro";
 ---
 
-<Layout title="Chat Tokenizer - HappyTokenizer">
+<Layout title="Chat Tokenizer - HappyTokenizer" description="Analyze token usage in chat conversations with multi-turn message support. See how GPT models process conversational context and understand token costs for AI chat applications.">
   <ChatTokenizer client:visible />
   <LeapOCRPromotionMobile client:visible />
 </Layout>

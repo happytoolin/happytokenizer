@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useTokenizer } from "../../hooks/useTokenizer";
+import { useEffect, useState } from "react";
 import { useModelOptions } from "../../hooks/useModelOptions";
+import { useTokenizer } from "../../hooks/useTokenizer";
+import type { ChatMessage } from "../../types/chat";
 import {
   getEncodingForModel,
   isEncodingType,
 } from "../../utils/modelEncodings";
-import { ChatMessageEditor } from "./ChatMessageEditor";
-import { TokenDisplay } from "./TokenDisplay";
-import { Sidebar } from "./Sidebar";
-import { TokenizerShell } from "./TokenizerShell";
 import { StatusDisplay } from "../ui/StatusDisplay";
-import type { ChatMessage } from "../../types/chat";
+import { ChatMessageEditor } from "./ChatMessageEditor";
+import { Sidebar } from "./Sidebar";
+import { TokenDisplay } from "./TokenDisplay";
+import { TokenizerShell } from "./TokenizerShell";
 
 const EXAMPLE_CHAT_MESSAGES: ChatMessage[] = [
   {

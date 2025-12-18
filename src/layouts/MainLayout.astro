@@ -91,7 +91,7 @@ const structuredData = {
 		<meta property="twitter:image" content={ogImage} />
 
 		<!-- Structured Data -->
-		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
 		<!-- Preload critical font stylesheets with async loading -->
 		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />

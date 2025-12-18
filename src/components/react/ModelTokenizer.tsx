@@ -6,7 +6,6 @@ import {
 } from "../../utils/modelEncodings";
 import { StatusDisplay } from "../ui/StatusDisplay";
 import { TokenDisplay } from "./TokenDisplay";
-import { TokenStatistics } from "./TokenStatistics";
 
 interface ModelTokenizerProps {
   selectedModel: string;

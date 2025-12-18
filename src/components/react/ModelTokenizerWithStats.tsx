@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ModelTokenizer } from "./ModelTokenizer";
 import { TokenStatistics } from "./TokenStatistics";
 

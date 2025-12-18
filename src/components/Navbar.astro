@@ -1,9 +1,4 @@
 ---
-interface NavbarProps {
-  currentPage?: 'tokenizer' | 'models' | 'model-detail';
-  modelId?: string;
-}
-
 const { currentPage = 'tokenizer', modelId } = Astro.props;
 
 // Determine breadcrumb parts

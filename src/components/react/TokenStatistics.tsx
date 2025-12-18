@@ -1,5 +1,3 @@
-import React from "react";
-import { getEncodingForModel } from "../../utils/modelEncodings";
 import { getContextWindowLimit, getPricing } from "../../utils/contextLimits";
 
 interface TokenStatisticsProps {
