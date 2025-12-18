@@ -1,9 +1,4 @@
-// Lazy loader for models data to reduce startup overhead
-// This file provides async access to the large models dataset
-
 import { type EncodingType, type ModelData } from "./models";
-
-// Dynamic import for models data
 let modelsPromise: Promise<typeof import("./models")> | null = null;
 
 function getModels() {

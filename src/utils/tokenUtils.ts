@@ -7,12 +7,10 @@ export interface PricingInfo {
   cached: number;
 }
 
-// Check if text is within token limit
 export function isWithinTokenLimit(tokenCount: number, limit: number): boolean {
   return tokenCount <= limit;
 }
 
-// Get percentage of context window used
 export function getContextUsagePercentage(
   tokenCount: number,
   limit: number,

@@ -46,7 +46,6 @@ export function ModelTokenizer({
     }
   }, [debouncedText, encoding, tokenize]);
 
-  // Call onTokensChange when tokens are updated
   useEffect(() => {
     if (
       onTokensChange &&
