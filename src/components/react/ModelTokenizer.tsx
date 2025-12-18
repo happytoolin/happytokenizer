@@ -216,7 +216,7 @@ export function ModelTokenizer({
           tokens={Array.from(tokens || [])}
           tokenTexts={tokenTexts || []}
           modelName={selectedModel}
-          showLimitAndCost={false}
+          showLimitAndCost={true}
         />
       )}
     </div>

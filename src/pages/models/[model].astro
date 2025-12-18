@@ -1,6 +1,7 @@
 ---
 import Navbar from "../../components/Navbar.astro";
 import { LeapOCRPromotion } from "../../components/react/LeapOCRPromotion";
+import { ModelTokenizer } from "../../components/react/ModelTokenizer";
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getEncodingForModel } from "../../utils/modelEncodings";
 import { getPricing, MODELS } from "../../utils/models";
@@ -115,7 +116,7 @@ const structuredData = {
           </p>
 
           <!-- Quick Stats Mini-Grid -->
-          <div class="grid grid-cols-2 gap-px bg-black border border-black">
+          <div class="grid grid-cols-3 gap-px bg-black border border-black">
             <div class="bg-white p-3 hover:bg-(--c-paper) transition-colors">
               <div class="font-mono text-[10px] uppercase text-gray-500 mb-1">
                 Context
@@ -134,6 +135,14 @@ const structuredData = {
               </div>
               <div class="font-display text-xl font-bold">LLM</div>
             </div>
+            <div class="bg-white p-3 hover:bg-(--c-paper) transition-colors">
+              <div class="font-mono text-[10px] uppercase text-gray-500 mb-1">
+                Encoding
+              </div>
+              <div class="font-mono text-sm font-bold text-brand-black break-words leading-tight max-w-full">
+                {encodingType.replace('_', ' ').replace(/(\d+)/, ' $1')}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -141,7 +150,13 @@ const structuredData = {
       <!-- MAIN WORKSPACE -->
       <main class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
         <!-- LEFT COL: Model Overview -->
-        <div class="flex flex-col gap-4"></div>
+        <div class="flex flex-col gap-8">
+          <!-- Tokenizer Section -->
+          <ModelTokenizer
+            client:load
+            selectedModel={modelId}
+          />
+        </div>
 
         <!-- RIGHT COL: Specs & Data -->
         <div class="flex flex-col gap-8">
@@ -215,30 +230,30 @@ const structuredData = {
           </div>
 
           <!-- Technical Specs -->
-          <div class="border border-black bg--(--c-black) text-white p-6">
+          <div class="border-2 border-black bg-brand-black text-white p-6 shadow-[4px_4px_0px_#000]">
             <h3
-              class="font-mono text-xs font-bold uppercase tracking-widest text-(--c-orange) mb-4"
+              class="font-mono text-xs font-bold uppercase tracking-widest text-brand-orange mb-4"
             >
               // Technical Specifications
             </h3>
             <dl class="grid grid-cols-1 gap-4 font-mono text-xs">
               <div class="flex flex-col gap-1">
-                <dt class="text-gray-500">ARCHITECTURE ID</dt>
-                <dd class="text-white border-b border-gray-800 pb-2">
+                <dt class="text-gray-400 font-bold">ARCHITECTURE ID</dt>
+                <dd class="text-white border-b border-gray-800 pb-2 font-bold">
                   {modelId}
                 </dd>
               </div>
               <div class="flex flex-col gap-1">
-                <dt class="text-gray-500">TOKEN ENCODING</dt>
-                <dd class="text-white border-b border-gray-800 pb-2">
+                <dt class="text-gray-400 font-bold">TOKEN ENCODING</dt>
+                <dd class="text-white border-b border-gray-800 pb-2 font-bold">
                   {encodingType}
                 </dd>
               </div>
               <div class="flex flex-col gap-1">
-                <dt class="text-gray-500">MAX CONTEXT</dt>
+                <dt class="text-gray-400 font-bold">MAX CONTEXT</dt>
                 <dd class="text-white pb-2 flex items-center gap-2">
-                  {model.contextWindow.toLocaleString()}
-                  <span class="text-[10px] text-gray-500">TOKENS</span>
+                  <span class="font-bold">{model.contextWindow.toLocaleString()}</span>
+                  <span class="text-[10px] text-brand-orange font-bold">TOKENS</span>
                 </dd>
               </div>
             </dl>
