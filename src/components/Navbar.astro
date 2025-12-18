@@ -1,0 +1,86 @@
+---
+interface NavbarProps {
+  currentPage?: 'tokenizer' | 'models' | 'model-detail';
+  modelId?: string;
+}
+
+const { currentPage = 'tokenizer', modelId } = Astro.props;
+
+// Determine breadcrumb parts
+const showTokenizer = true;
+const showModels = currentPage === 'models' || currentPage === 'model-detail';
+const showModelId = currentPage === 'model-detail' && modelId;
+
+// Determine hover color class
+const hoverColorClass = currentPage === 'models' ? 'hover:text-brand-orange' : 'hover:text-[var(--c-orange)]';
+---
+
+<!-- Breadcrumb / Meta -->
+<div class="flex items-center justify-between border-b border-black pb-4">
+  <!-- Left side: Breadcrumb navigation -->
+  <div class="flex items-center gap-2">
+    <span class="inline-block w-2 h-2 bg-black"></span>
+
+    {showTokenizer && (
+      <a
+        href="/"
+        class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
+      >
+        /tokenizer
+      </a>
+    )}
+
+    {showModels && (
+      <>
+        <span class="font-mono text-xs text-gray-500">/</span>
+        {currentPage === 'models' ? (
+          <span class="font-mono text-xs font-bold uppercase tracking-widest">models</span>
+        ) : (
+          <a
+            href="/models"
+            class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
+          >
+            models
+          </a>
+        )}
+      </>
+    )}
+
+    {showModelId && (
+      <>
+        <span class="font-mono text-xs text-gray-500">/</span>
+        <span class="font-mono text-xs font-bold uppercase tracking-widest">{modelId}</span>
+      </>
+    )}
+  </div>
+
+  <!-- Right side: External links -->
+  <div class="flex items-center gap-2">
+    <a
+      href="https://github.com/happytoolin?ref=happytokenizer"
+      target="_blank"
+      rel="noopener noreferrer"
+      class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
+    >
+      Happytoolin
+    </a>
+    <span class="font-mono text-xs text-gray-500">/</span>
+    <a
+      href="https://happyformatter.com?ref=happytokenizer"
+      target="_blank"
+      rel="noopener noreferrer"
+      class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
+    >
+      Happyformatter
+    </a>
+    <span class="font-mono text-xs text-gray-500">/</span>
+    <a
+      href="https://leapocr.com?ref=happytokenizer"
+      target="_blank"
+      rel="noopener noreferrer"
+      class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
+    >
+      LeapOCR
+    </a>
+  </div>
+</div>

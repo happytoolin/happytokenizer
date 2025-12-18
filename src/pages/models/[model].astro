@@ -1,6 +1,7 @@
 ---
 import { ModelTokenizerWithStats } from "../../components/react/ModelTokenizerWithStats";
 import { LeapOCRPromotion } from "../../components/react/LeapOCRPromotion";
+import Navbar from "../../components/Navbar.astro";
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getEncodingForModel } from "../../utils/modelEncodings";
 import { getPricing, MODELS } from "../../utils/models";
@@ -87,19 +88,7 @@ const structuredData = {
     >
       <!-- HEADER SECTION -->
       <header class="flex flex-col gap-6">
-        <!-- Breadcrumb / Meta -->
-        <div
-          class="flex items-center justify-between border-b border-black pb-4"
-        >
-          <a
-            href="/models"
-            class="font-mono text-xs font-bold uppercase tracking-widest hover:text-[var(--c-orange)] transition-colors flex items-center gap-2"
-          >
-            <span class="inline-block w-2 h-2 bg-black"></span>
-            System / Models
-          </a>
-          <span class="font-mono text-xs text-gray-500">REF: {modelId}</span>
-        </div>
+        <Navbar currentPage="model-detail" modelId={modelId} />
 
         <!-- Title Block -->
         <div class="relative group">
