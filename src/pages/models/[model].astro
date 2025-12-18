@@ -99,6 +99,9 @@ const structuredData = {
           </h1>
           <div
             class="absolute top-0 right-0 md:right-20 transform -translate-y-1/2 rotate-12 bg-(--c-orange) text-white font-mono text-xs font-bold px-4 py-2 border border-black shadow-[4px_4px_0px_#000] badge-rotate cursor-help z-20"
+            role="note"
+            aria-label={`Token encoding type: ${encodingType}`}
+            title={`This model uses ${encodingType} token encoding`}
           >
             {encodingType}
           </div>

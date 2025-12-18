@@ -15,17 +15,19 @@ export const getTokenizer = async () => {
       let module;
       try {
         module = await import("gpt-tokenizer");
-      } catch (importError) {
+      } catch (error) {
         try {
           const o200kBase = await import("gpt-tokenizer/encoding/o200k_base");
-          return {
+          const fallbackTokenizer = {
             encode: o200kBase.encode,
             decode: o200kBase.decode,
             encodeChat: () => [],
           };
+          cachedTokenizer = fallbackTokenizer;
+          return fallbackTokenizer;
         } catch (fallbackError) {
           throw new Error(
-            `Failed to load gpt-tokenizer: ${importError.message}`,
+            `Failed to load gpt-tokenizer: ${fallbackError instanceof Error ? fallbackError.message : "Unknown error"}`,
           );
         }
       }
@@ -45,7 +47,9 @@ export const getTokenizer = async () => {
       cachedTokenizer = tokenizerInterface;
       return tokenizerInterface;
     } catch (error) {
-      throw error;
+      throw new Error(
+        `Failed to load gpt-tokenizer: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   })();
 
