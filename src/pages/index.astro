@@ -1,7 +1,7 @@
 ---
-import Footer from '../components/Footer.astro';
-import { TokenizerApp } from '../components/react/TokenizerApp';
 import { LeapOCRPromotionMobile } from '../components/react/LeapOCRPromotionMobile';
+import { TokenizerApp } from '../components/react/TokenizerApp';
+import Navbar from '../components/Navbar.astro';
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
@@ -9,7 +9,47 @@ import MainLayout from '../layouts/MainLayout.astro';
   title="HappyTokenizer - Interactive Tokenizer Visualization Tool"
   description="Visualize how LLM models tokenize your text in real-time. Support for all LLM models including GPT-5, GPT-4o, GPT-3.5, and more. Privacy-focused client-side processing."
 >
-  <TokenizerApp client:idle />
-  <LeapOCRPromotionMobile client:visible />
-  <Footer />
+  <style
+    define:vars={{
+      "c-orange": "#ff6600",
+      "c-black": "#1a1a1a",
+      "c-paper": "#f2f2f0",
+    }}
+  >
+    .happytokenizer-grid {
+      background-image:
+        linear-gradient(var(--c-black) 1px, transparent 1px),
+        linear-gradient(90deg, var(--c-black) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: -1px -1px;
+      mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    }
+  </style>
+
+  <div class="min-h-screen w-full relative overflow-hidden bg-[var(--c-paper)]">
+    <!-- Background Grid -->
+    <div
+      class="absolute inset-0 opacity-[0.03] happytokenizer-grid pointer-events-none z-0"
+    >
+    </div>
+
+    <div
+      class="relative z-10 max-w-[1400px] mx-auto p-4 md:p-8 lg:p-12 flex flex-col gap-8"
+    >
+      <!-- NAVBAR SECTION -->
+      <header class="flex flex-col gap-6">
+        <Navbar currentPage="tokenizer" />
+      </header>
+
+      <!-- MAIN TOKENIZER APP -->
+      <main class="flex-1">
+        <TokenizerApp client:idle />
+      </main>
+
+      <!-- LEAP OCR PROMOTION BANNER -->
+      <div class="px-4 md:px-8 lg:px-12">
+        <LeapOCRPromotionMobile client:visible />
+      </div>
+    </div>
+  </div>
 </MainLayout>

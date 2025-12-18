@@ -7,7 +7,8 @@ import { defineConfig } from "astro/config";
 
 import cloudflare from "@astrojs/cloudflare";
 
-// https://astro.build/config
+import playformCompress from "@playform/compress";
+
 export default defineConfig({
   site: "https://happytokenizer.com",
 
@@ -23,7 +24,10 @@ export default defineConfig({
         forward: ["dataLayer.push", "gtag"],
       },
     }),
+    playformCompress(),
   ],
+
+  prefetch: true,
 
   vite: {
     plugins: [tailwindcss()],
@@ -65,11 +69,15 @@ export default defineConfig({
       chunkSizeWarningLimit: 500, // Lower threshold to catch large chunks
     },
     optimizeDeps: {
-      include: ["react", "react-dom"],
+      include: ["react", "react-dom", "gpt-tokenizer"],
+      force: true,
     },
     // Configure worker handling to avoid tokenizer in server build
     worker: {
       format: "es",
+      rollupOptions: {
+        external: [],
+      },
     },
   },
 

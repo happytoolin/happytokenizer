@@ -1,4 +1,4 @@
-import React, { type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { LeapOCRPromotion } from "./LeapOCRPromotion";
 
 interface TokenizerShellProps {
@@ -15,7 +15,10 @@ export function TokenizerShell({ sidebar, content }: TokenizerShellProps) {
         {sidebar}
 
         {/* LeapOCR Promotion - Below Sidebar */}
-        <LeapOCRPromotion />
+        <LeapOCRPromotion
+          layout="vertical"
+          className="max-w-[320px] mx-auto max-[900px]:hidden"
+        />
       </div>
 
       {/* Main Workspace Area */}

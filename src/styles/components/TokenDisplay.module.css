@@ -52,7 +52,7 @@
 .viewButton {
   background: transparent;
   border: none;
-  color: #888;
+  color: #ccc;
   font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;

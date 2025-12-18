@@ -1,7 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { MODEL_ENCODINGS } from '../utils/modelEncodings';
-import { getModelDisplayName, getModelsByEncoding, getPricing } from '../utils/models';
+import Navbar from '../components/Navbar.astro';
+import { getModelsByEncoding, getPricing } from '../utils/models';
 
 // Reconstruct the category logic here in server-side JS
 const MODEL_CATEGORIES = [
@@ -64,15 +64,22 @@ const MODEL_CATEGORIES = [
   description="Complete system manifest of all GPT models supported by HappyTokenizer with their encodings and technical specifications."
 >
   <div class="max-w-6xl mx-auto p-5">
-    <header class="flex justify-between items-center mb-10 py-5 border-b-2 border-brand-black max-md:flex-col max-md:gap-5 max-md:items-start">
-      <div class="flex items-center gap-5">
-        <a href="/" class="bg-transparent border-none text-sm font-medium text-brand-orange cursor-pointer no-underline px-4 py-2 rounded-xs transition-all duration-200 ease-mechanical hover:text-brand-steel hover:underline">← BACK</a>
+    <!-- NAVBAR SECTION -->
+    <header class="flex flex-col gap-6 mb-10">
+      <Navbar currentPage="models" />
+
+      <!-- Title Block -->
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-6">
         <h1 class="text-xxxl font-bold m-0 font-display">System Manifest</h1>
       </div>
+    </header>
+
+    <!-- SEARCH SECTION -->
+    <div class="mb-8">
       <div class="flex items-center bg-white border-2 border-brand-black px-4 py-2 min-w-[300px] max-md:w-full max-md:min-w-0">
         <input type="text" id="model-search" placeholder="FILTER MODELS..." class="border-none bg-transparent text-sm font-medium outline-none w-full font-body placeholder:text-brand-steel" />
       </div>
-    </header>
+    </div>
 
     <div class="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6" id="model-grid">
       {MODEL_CATEGORIES.map((cat) => (
@@ -97,17 +104,18 @@ const MODEL_CATEGORIES = [
               const outputPrice = (pricing.output * 1000).toFixed(2);
 
               return (
-                <div class="px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem" data-name={model.displayName}>
+                <a href={`/models/${model.id}`} class="block px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem group" data-name={model.displayName}>
                   <div class="flex items-start gap-3">
-                    <div class="w-2 h-2 flex-shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
+                    <div class="w-2 h-2 shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
                     <div class="flex-1 min-w-0">
-                      <div class="text-xs font-medium font-mono break-words">{model.displayName}</div>
+                      <div class="text-xs font-medium font-mono wrap-break-word group-hover:text-brand-orange transition-colors">{model.displayName}</div>
                       <div class="text-xs text-brand-60 font-mono mt-1">
                         ${inputPrice} / ${outputPrice} per M tokens
                       </div>
                     </div>
+                    <div class="text-xs text-brand-40 opacity-0 group-hover:opacity-100 transition-opacity">→</div>
                   </div>
-                </div>
+                </a>
               );
             })}
             {cat.models.length === 0 && (
