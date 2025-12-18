@@ -1,8 +1,10 @@
+import type { ChatMessage } from "../types/chat";
+
 export interface TokenizerModule {
-  fromPreTrained?: () => any;
+  fromPreTrained?: () => TokenizerModule;
   encode?: (text: string) => number[];
   decode: (tokens: number[]) => string;
-  apply_chat_template?: (messages: any[]) => number[];
+  apply_chat_template?: (messages: ChatMessage[]) => number[];
 }
 
 export interface TokenizerConfig {

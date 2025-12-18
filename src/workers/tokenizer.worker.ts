@@ -23,6 +23,22 @@ const ENCODING_STRATEGIES: Record<EncodingType, EncodingStrategy | null> = {
   r50k_base: null,
   o200k_base: null,
   o200k_harmony: null,
+  llama3: null,
+  llama2: null,
+  deepseek: null,
+  qwen: null,
+  gemma: null,
+  gemini: null,
+  gpt2: null,
+  mistral: null,
+  minicpm: null,
+  aya: null,
+  baichuan: null,
+  chatglm: null,
+  commandr: null,
+  internlm: null,
+  yi: null,
+  gptoss: null,
 };
 
 // Dynamic import functions for each encoding using wrapper
@@ -333,17 +349,19 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
           chatModel = "code-davinci-edit-001";
         } else if (model === "r50k_base") {
           chatModel = "text-davinci-001";
-            }
+        }
 
-      // Dynamic import for encodeChat using wrapper
-      const tokenizer = await getTokenizer();
-      const tokens =
-        tokenizer.encodeChat?.(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          chatMessages as any,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          chatModel as any,
-        ) || [];
+        // Dynamic import for encodeChat using wrapper
+        const tokenizer = await getTokenizer();
+        tokens =
+          tokenizer.encodeChat?.(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            chatMessages as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            chatModel as any,
+          ) || [];
+      }
+
       const tokenTexts = await decodeTokens(
         tokens,
         model,
@@ -390,7 +408,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
         } as TokenizerResponse,
         { transfer: [tokensArray.buffer] } // Transferable: zero-copy
       );
-      } else {
+    } else {
       // Direct tokenization for small texts
       let tokens: number[];
 
