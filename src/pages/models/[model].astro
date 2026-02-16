@@ -22,7 +22,10 @@ const { model, modelId } = Astro.props;
 // Generate SEO metadata
 const pageTitle = `${model.displayName} Tokenizer, Token Limits & Pricing | HappyTokenizer`;
 const pageDescription = `Analyze ${model.displayName} tokenization in real time with ${model.encoding} encoding details, context window limits, and token pricing estimates.`;
-const canonicalUrl = `https://happytokenizer.com/models/${modelId}`;
+const canonicalUrl = new URL(
+  Astro.url.pathname,
+  "https://happytokenizer.com/",
+).toString();
 
 const pricing = getPricing(modelId);
 const encodingType = getEncodingForModel(modelId);
@@ -59,7 +62,7 @@ const pageSchema = [
         "@type": "ListItem",
         position: 2,
         name: "System Manifest",
-        item: "https://happytokenizer.com/models",
+        item: "https://happytokenizer.com/models/",
       },
       {
         "@type": "ListItem",

@@ -71,22 +71,6 @@ const defaultSchemaGraph: SchemaNode[] = [
   },
 ];
 
-if (Astro.url.pathname === "/") {
-  defaultSchemaGraph.push({
-    "@type": "SoftwareApplication",
-    name: "HappyTokenizer",
-    url: siteUrl,
-    applicationCategory: "DeveloperApplication",
-    operatingSystem: "Web Browser",
-    description,
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
-  });
-}
-
 const pageSchema = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 
 const structuredData = {

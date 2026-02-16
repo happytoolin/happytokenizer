@@ -69,7 +69,7 @@ const pageSchema = [
   {
     "@type": "CollectionPage",
     name: "HappyTokenizer System Manifest",
-    url: "https://happytokenizer.com/models",
+    url: "https://happytokenizer.com/models/",
     description:
       "Complete model and encoding manifest for tokenization analysis and token-cost estimation.",
     mainEntity: {
@@ -79,7 +79,7 @@ const pageSchema = [
         "@type": "ListItem",
         position: index + 1,
         name: entry.model.displayName,
-        url: `https://happytokenizer.com/models/${entry.model.id}`,
+        url: `https://happytokenizer.com/models/${entry.model.id}/`,
         item: {
           "@type": "SoftwareApplication",
           name: `${entry.model.displayName} Tokenizer`,

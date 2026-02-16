@@ -29,18 +29,16 @@ export function Sidebar({
         <div className="flex items-center gap-3 mb-2">
           <div className="w-2.5 h-2.5 bg-brand-orange rounded-full shadow-[0_0_10px_var(--color-brand-orange)]"></div>
           <a
-            href="https://happytokenizer.com"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/"
             data-analytics-event="sidebar_brand_clicked"
             data-analytics-category="navigation"
             data-analytics-label="happytokenizer"
             data-analytics-location="sidebar"
             className="no-underline inline-block"
           >
-            <h1 className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
+            <p className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
               HappyTokenizer
-            </h1>
+            </p>
           </a>
         </div>
         <div className="flex gap-2 items-center">

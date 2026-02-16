@@ -4,6 +4,5 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 Disallow: /node_modules/
-Disallow: /_astro/
 
 Sitemap: https://happytokenizer.com/sitemap-index.xml

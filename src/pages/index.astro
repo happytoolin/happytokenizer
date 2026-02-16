@@ -1,8 +1,8 @@
 ---
-import { LeapOCRPromotionMobile } from '../components/react/LeapOCRPromotionMobile';
-import { TokenizerApp } from '../components/react/TokenizerApp';
-import Navbar from '../components/Navbar.astro';
-import MainLayout from '../layouts/MainLayout.astro';
+import Navbar from "../components/Navbar.astro";
+import { LeapOCRPromotionMobile } from "../components/react/LeapOCRPromotionMobile";
+import { TokenizerApp } from "../components/react/TokenizerApp";
+import MainLayout from "../layouts/MainLayout.astro";
 
 const pageSchema = [
   {
@@ -59,7 +59,7 @@ const pageSchema = [
 
 <MainLayout
   title="HappyTokenizer - Interactive Tokenizer Visualization Tool"
-  description="Visualize how LLM models tokenize your text in real-time. Support for all LLM models including GPT-5, GPT-4o, GPT-3.5, and more. Privacy-focused client-side processing."
+  description="Visualize how LLMs tokenize text in real time. Compare GPT-5, GPT-4o, and legacy model token counts and costs with privacy-first client-side processing."
   keywords="gpt tokenizer, token counter, token calculator, openai tokenizer, llm tokenization, gpt-5 tokenizer"
   schema={pageSchema}
 >
@@ -80,7 +80,7 @@ const pageSchema = [
     }
   </style>
 
-  <div class="min-h-screen w-full relative overflow-hidden bg-[var(--c-paper)]">
+  <div class="min-h-screen w-full relative overflow-hidden bg-(--c-paper)">
     <!-- Background Grid -->
     <div
       class="absolute inset-0 opacity-[0.03] happytokenizer-grid pointer-events-none z-0"
@@ -93,6 +93,19 @@ const pageSchema = [
       <!-- NAVBAR SECTION -->
       <header class="flex flex-col gap-6">
         <Navbar currentPage="tokenizer" />
+        <div class="bg-white border-2 border-brand-black p-5 md:p-6">
+          <h1
+            class="font-display text-3xl md:text-4xl font-black uppercase mb-3"
+          >
+            GPT Tokenizer And Token Cost Calculator
+          </h1>
+          <p
+            class="font-body text-base md:text-lg leading-relaxed text-brand-black max-w-4xl"
+          >
+            Inspect token boundaries, context impact, and pricing across GPT,
+            O-series, and legacy model families in a browser-based tokenizer.
+          </p>
+        </div>
       </header>
 
       <!-- MAIN TOKENIZER APP -->
@@ -105,11 +118,17 @@ const pageSchema = [
         <LeapOCRPromotionMobile client:visible />
       </div>
 
-      <section class="bg-white border-2 border-brand-black shadow-hard p-6 md:p-8 flex flex-col gap-6">
-        <h2 class="font-display text-2xl md:text-3xl font-bold uppercase leading-tight">
+      <section
+        class="bg-white border-2 border-brand-black shadow-hard p-6 md:p-8 flex flex-col gap-6"
+      >
+        <h2
+          class="font-display text-2xl md:text-3xl font-bold uppercase leading-tight"
+        >
           Tokenizer For GPT, O-Series, And Legacy Models
         </h2>
-        <p class="font-body text-base md:text-lg text-brand-black leading-relaxed">
+        <p
+          class="font-body text-base md:text-lg text-brand-black leading-relaxed"
+        >
           HappyTokenizer is a browser-based token analysis tool for developers,
           prompt engineers, and AI product teams. Use it to inspect token
           boundaries, compare model encodings, and estimate API spend before you
@@ -117,7 +136,9 @@ const pageSchema = [
         </p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <article class="border border-brand-black p-4">
-            <h3 class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2">
+            <h3
+              class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2"
+            >
               Real-Time Analysis
             </h3>
             <p class="font-body text-sm text-brand-black">
@@ -126,7 +147,9 @@ const pageSchema = [
             </p>
           </article>
           <article class="border border-brand-black p-4">
-            <h3 class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2">
+            <h3
+              class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2"
+            >
               Cost Estimation
             </h3>
             <p class="font-body text-sm text-brand-black">
@@ -135,7 +158,9 @@ const pageSchema = [
             </p>
           </article>
           <article class="border border-brand-black p-4">
-            <h3 class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2">
+            <h3
+              class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2"
+            >
               Privacy-First
             </h3>
             <p class="font-body text-sm text-brand-black">
@@ -145,8 +170,59 @@ const pageSchema = [
           </article>
         </div>
         <p class="font-mono text-xs text-brand-steel">
-          Explore more tools: <a href="/chat" class="text-brand-orange hover:underline" data-analytics-event="internal_navigation_clicked" data-analytics-category="navigation" data-analytics-label="chat_tokenizer" data-analytics-location="homepage_content">Chat Tokenizer</a> and <a href="/models" class="text-brand-orange hover:underline" data-analytics-event="internal_navigation_clicked" data-analytics-category="navigation" data-analytics-label="model_manifest" data-analytics-location="homepage_content">System Manifest</a>.
+          Explore more tools: <a
+            href="/chat"
+            class="text-brand-orange hover:underline"
+            data-analytics-event="internal_navigation_clicked"
+            data-analytics-category="navigation"
+            data-analytics-label="chat_tokenizer"
+            data-analytics-location="homepage_content">Chat Tokenizer</a
+          > and <a
+            href="/models"
+            class="text-brand-orange hover:underline"
+            data-analytics-event="internal_navigation_clicked"
+            data-analytics-category="navigation"
+            data-analytics-label="model_manifest"
+            data-analytics-location="homepage_content">System Manifest</a
+          >.
         </p>
+      </section>
+
+      <section
+        class="bg-white border-2 border-brand-black shadow-hard p-6 md:p-8 flex flex-col gap-5"
+      >
+        <h2 class="font-display text-2xl md:text-3xl font-bold uppercase">
+          Frequently Asked Questions
+        </h2>
+        <article class="flex flex-col gap-2">
+          <h3 class="font-display text-xl font-bold">
+            What is HappyTokenizer used for?
+          </h3>
+          <p class="font-body text-base leading-relaxed text-brand-black">
+            HappyTokenizer helps developers analyze how text is split into
+            tokens for different GPT and OpenAI model encodings, and estimate
+            cost impact per model.
+          </p>
+        </article>
+        <article class="flex flex-col gap-2">
+          <h3 class="font-display text-xl font-bold">
+            Does HappyTokenizer send my text to a server?
+          </h3>
+          <p class="font-body text-base leading-relaxed text-brand-black">
+            No. Tokenization runs client-side in your browser, so your input
+            stays local while you inspect token usage.
+          </p>
+        </article>
+        <article class="flex flex-col gap-2">
+          <h3 class="font-display text-xl font-bold">
+            Can I compare multiple model families?
+          </h3>
+          <p class="font-body text-base leading-relaxed text-brand-black">
+            Yes. You can switch between modern GPT models, chat models, code
+            models, and legacy model families to compare token counts and
+            pricing behavior.
+          </p>
+        </article>
       </section>
     </div>
   </div>

@@ -83,6 +83,7 @@ export const getTokenizer = async (): Promise<Tokenizer> => {
         } catch (fallbackError) {
           throw new Error(
             `Failed to load gpt-tokenizer fallback: ${fallbackError instanceof Error ? fallbackError.message : "Unknown error"}`,
+            { cause: fallbackError },
           );
         }
       }
@@ -95,6 +96,7 @@ export const getTokenizer = async (): Promise<Tokenizer> => {
     } catch (error) {
       throw new Error(
         `Failed to load gpt-tokenizer: ${error instanceof Error ? error.message : "Unknown error"}`,
+        { cause: error },
       );
     }
   })();
