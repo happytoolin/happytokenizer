@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTokenizer } from "../../hooks/useTokenizer";
 import { useModelOptions } from "../../hooks/useModelOptions";
+import { trackEvent } from "../../utils/analytics";
 import {
   DEFAULT_ESSAY,
   LARGE_SAMPLE_TEXT,
@@ -32,6 +33,37 @@ export function TokenizerApp() {
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
     useTokenizer();
 
+  const handleModelChange = useCallback((nextModel: string) => {
+    setModel(nextModel);
+    trackEvent("tokenizer_model_selected", {
+      event_category: "tokenizer",
+      mode: "text",
+      model_id: nextModel,
+    });
+  }, []);
+
+  const handleLoadSample = useCallback(
+    (sampleType: "default" | "large" | "essay") => {
+      if (sampleType === "default") {
+        setText(SAMPLE_TEXT);
+      }
+
+      if (sampleType === "large") {
+        setText(LARGE_SAMPLE_TEXT);
+      }
+
+      if (sampleType === "essay") {
+        setText(DEFAULT_ESSAY);
+      }
+
+      trackEvent("tokenizer_sample_loaded", {
+        event_category: "tokenizer",
+        sample_type: sampleType,
+      });
+    },
+    [],
+  );
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedText(text);
@@ -51,8 +83,14 @@ export function TokenizerApp() {
 
     if (file.size > 5 * 1024 * 1024) {
       setUploadError("File is too large (Max 5MB)");
+      trackEvent("tokenizer_file_upload_failed", {
+        event_category: "tokenizer",
+        failure_reason: "file_too_large",
+      });
       return;
     }
+
+    const extension = file.name.split(".").pop()?.toLowerCase() ?? "unknown";
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -60,9 +98,20 @@ export function TokenizerApp() {
       if (typeof content === "string") {
         setText(content);
         setActiveTab("input");
+        trackEvent("tokenizer_file_uploaded", {
+          event_category: "tokenizer",
+          file_extension: extension,
+          file_size_kb: Math.round(file.size / 1024),
+        });
       }
     };
-    reader.onerror = () => setUploadError("Failed to read file");
+    reader.onerror = () => {
+      setUploadError("Failed to read file");
+      trackEvent("tokenizer_file_upload_failed", {
+        event_category: "tokenizer",
+        failure_reason: "read_error",
+      });
+    };
 
     reader.readAsText(file);
   };
@@ -94,6 +143,10 @@ export function TokenizerApp() {
 
   const handleClear = () => {
     setText("");
+    trackEvent("tokenizer_input_cleared", {
+      event_category: "tokenizer",
+      mode: "text",
+    });
   };
 
   return (
@@ -101,7 +154,7 @@ export function TokenizerApp() {
       sidebar={
         <Sidebar
           model={model}
-          onModelChange={setModel}
+          onModelChange={handleModelChange}
           modelOptions={modelOptions}
           encoding={encoding}
           mode="text"
@@ -110,13 +163,13 @@ export function TokenizerApp() {
             <>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setText(SAMPLE_TEXT)}
+                  onClick={() => handleLoadSample("default")}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Sample
                 </button>
                 <button
-                  onClick={() => setText(LARGE_SAMPLE_TEXT)}
+                  onClick={() => handleLoadSample("large")}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Large
@@ -124,7 +177,7 @@ export function TokenizerApp() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setText(DEFAULT_ESSAY)}
+                  onClick={() => handleLoadSample("essay")}
                   className="bg-transparent border border-gray-400 text-gray-600 px-2 py-2 font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:border-brand-black hover:text-brand-black"
                 >
                   Essay
@@ -146,7 +199,13 @@ export function TokenizerApp() {
           <div className="bg-white border border-brand-black shadow-hard">
             <div className="flex border-b border-brand-black bg-brand-paper">
               <button
-                onClick={() => setActiveTab("input")}
+                onClick={() => {
+                  setActiveTab("input");
+                  trackEvent("tokenizer_input_tab_selected", {
+                    event_category: "tokenizer",
+                    tab: "input",
+                  });
+                }}
                 className={`bg-transparent border-none border-r border-brand-black px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
                   activeTab === "input"
                     ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"
@@ -156,7 +215,13 @@ export function TokenizerApp() {
                 Input Stream
               </button>
               <button
-                onClick={() => setActiveTab("upload")}
+                onClick={() => {
+                  setActiveTab("upload");
+                  trackEvent("tokenizer_input_tab_selected", {
+                    event_category: "tokenizer",
+                    tab: "upload",
+                  });
+                }}
                 className={`bg-transparent border-none px-5 py-2.5 font-mono text-xs uppercase font-semibold cursor-pointer relative transition-colors hover:text-brand-black hover:bg-black/2 ${
                   activeTab === "upload"
                     ? "bg-white text-brand-black shadow-[inset_0_2px_0_var(--c-orange)]"

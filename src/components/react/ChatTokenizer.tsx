@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useModelOptions } from "../../hooks/useModelOptions";
 import { useTokenizer } from "../../hooks/useTokenizer";
+import { trackEvent } from "../../utils/analytics";
 import type { ChatMessage } from "../../types/chat";
 import {
   getEncodingForModel,
@@ -45,13 +46,29 @@ export function ChatTokenizer() {
   const { tokens, tokenTexts, isLoading, error, progress, tokenize } =
     useTokenizer();
 
-  const handleExampleChat = () => {
-    setChatMessages(EXAMPLE_CHAT_MESSAGES);
-  };
+  const handleModelChange = useCallback((nextModel: string) => {
+    setModel(nextModel);
+    trackEvent("tokenizer_model_selected", {
+      event_category: "tokenizer",
+      mode: "chat",
+      model_id: nextModel,
+    });
+  }, []);
 
-  const handleClearChat = () => {
+  const handleExampleChat = useCallback(() => {
+    setChatMessages(EXAMPLE_CHAT_MESSAGES);
+    trackEvent("chat_example_loaded", {
+      event_category: "chat",
+      message_count: EXAMPLE_CHAT_MESSAGES.length,
+    });
+  }, []);
+
+  const handleClearChat = useCallback(() => {
     setChatMessages([]);
-  };
+    trackEvent("chat_cleared", {
+      event_category: "chat",
+    });
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -80,7 +97,7 @@ export function ChatTokenizer() {
       sidebar={
         <Sidebar
           model={model}
-          onModelChange={setModel}
+          onModelChange={handleModelChange}
           modelOptions={modelOptions}
           encoding={encoding}
           mode="chat"

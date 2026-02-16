@@ -32,6 +32,10 @@ export function Sidebar({
             href="https://happytokenizer.com"
             target="_blank"
             rel="noopener noreferrer"
+            data-analytics-event="sidebar_brand_clicked"
+            data-analytics-category="navigation"
+            data-analytics-label="happytokenizer"
+            data-analytics-location="sidebar"
             className="no-underline inline-block"
           >
             <h1 className="font-display font-black text-xl uppercase m-0 tracking-[-0.02em] text-white hover:text-brand-orange transition-colors">
@@ -45,6 +49,10 @@ export function Sidebar({
             href="https://happytoolin.com"
             target="_blank"
             rel="noopener noreferrer"
+            data-analytics-event="sidebar_partner_clicked"
+            data-analytics-category="navigation"
+            data-analytics-label="happytoolin"
+            data-analytics-location="sidebar"
           >
             <span className="font-mono text-xxs bg-white text-brand-black px-1 py-0.5 font-bold">
               by happytoolin
@@ -80,6 +88,10 @@ export function Sidebar({
                 </div>
                 <a
                   href="/chat"
+                  data-analytics-event="sidebar_mode_switch_clicked"
+                  data-analytics-category="navigation"
+                  data-analytics-label="chat_mode"
+                  data-analytics-location="sidebar"
                   className="bg-transparent border border-gray-300 text-gray-600 px-3 py-2 text-center font-mono text-xs font-semibold hover:border-brand-black hover:text-brand-black transition-all no-underline block"
                 >
                   Chat
@@ -89,6 +101,10 @@ export function Sidebar({
               <>
                 <a
                   href="/"
+                  data-analytics-event="sidebar_mode_switch_clicked"
+                  data-analytics-category="navigation"
+                  data-analytics-label="text_mode"
+                  data-analytics-location="sidebar"
                   className="bg-transparent border border-gray-300 text-gray-600 px-3 py-2 text-center font-mono text-xs font-semibold hover:border-brand-black hover:text-brand-black transition-all no-underline block"
                 >
                   Text
@@ -159,6 +175,10 @@ export function Sidebar({
           href="https://github.com/happytoolin/happytokenizer"
           target="_blank"
           rel="noopener noreferrer"
+          data-analytics-event="sidebar_partner_clicked"
+          data-analytics-category="navigation"
+          data-analytics-label="github_repository"
+          data-analytics-location="sidebar"
           className="font-mono text-xs text-brand-black no-underline font-semibold text-center block hover:text-brand-orange transition-colors"
         >
           github.com/happytoolin

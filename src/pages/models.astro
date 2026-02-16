@@ -57,11 +57,47 @@ const MODEL_CATEGORIES = [
   ...category,
   models: category.models.sort((a, b) => a.displayName.localeCompare(b.displayName)),
 }));
+
+const modelEntries = MODEL_CATEGORIES.flatMap((category) =>
+  category.models.map((model) => ({
+    categoryTitle: category.title,
+    model,
+  })),
+);
+
+const pageSchema = [
+  {
+    "@type": "CollectionPage",
+    name: "HappyTokenizer System Manifest",
+    url: "https://happytokenizer.com/models",
+    description:
+      "Complete model and encoding manifest for tokenization analysis and token-cost estimation.",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: modelEntries.length,
+      itemListElement: modelEntries.slice(0, 120).map((entry, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: entry.model.displayName,
+        url: `https://happytokenizer.com/models/${entry.model.id}`,
+        item: {
+          "@type": "SoftwareApplication",
+          name: `${entry.model.displayName} Tokenizer`,
+          applicationCategory: "DeveloperApplication",
+          operatingSystem: "Web Browser",
+          additionalType: entry.categoryTitle,
+        },
+      })),
+    },
+  },
+];
 ---
 
 <MainLayout
   title="System Manifest - HappyTokenizer"
   description="Complete system manifest of all GPT models supported by HappyTokenizer with their encodings and technical specifications."
+  keywords="openai model list, gpt model manifest, tokenizer model encodings, model token pricing"
+  schema={pageSchema}
 >
   <div class="max-w-6xl mx-auto p-5">
     <!-- NAVBAR SECTION -->
@@ -72,6 +108,10 @@ const MODEL_CATEGORIES = [
       <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-6">
         <h1 class="text-xxxl font-bold m-0 font-display">System Manifest</h1>
       </div>
+      <p class="font-body text-base md:text-lg text-brand-black leading-relaxed max-w-4xl">
+        Browse every supported model, tokenizer encoding, and token pricing profile in one index.
+        Use this manifest to jump into model-specific token analysis pages and compare API economics.
+      </p>
     </header>
 
     <!-- SEARCH SECTION -->
@@ -104,7 +144,7 @@ const MODEL_CATEGORIES = [
               const outputPrice = (pricing.output * 1000).toFixed(2);
 
               return (
-                <a href={`/models/${model.id}`} class="block px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem group" data-name={model.displayName}>
+                <a href={`/models/${model.id}`} class="block px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem group" data-name={model.displayName} data-analytics-event="model_manifest_item_clicked" data-analytics-category="navigation" data-analytics-label={model.id} data-analytics-location="models_manifest">
                   <div class="flex items-start gap-3">
                     <div class="w-2 h-2 shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
                     <div class="flex-1 min-w-0">
@@ -178,6 +218,15 @@ const MODEL_CATEGORIES = [
       } else {
         noResults.style.display = 'block';
         searchTerm.textContent = e.target.value;
+      }
+
+      const searchValue = e.target.value.trim();
+      if (searchValue.length > 1 && typeof window.trackEvent === 'function') {
+        window.trackEvent('model_manifest_searched', {
+          event_category: 'engagement',
+          event_label: searchValue.slice(0, 60),
+          link_location: '/models',
+        });
       }
     });
   </script>

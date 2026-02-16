@@ -20,31 +20,65 @@ export async function getStaticPaths() {
 const { model, modelId } = Astro.props;
 
 // Generate SEO metadata
-const pageTitle = `${model.displayName} // HappyTokenizer`;
-const pageDescription = `Structural tokenization analysis for ${model.displayName}. Real-time ${model.encoding} visualization, context window physics, and cost computations.`;
+const pageTitle = `${model.displayName} Tokenizer, Token Limits & Pricing | HappyTokenizer`;
+const pageDescription = `Analyze ${model.displayName} tokenization in real time with ${model.encoding} encoding details, context window limits, and token pricing estimates.`;
 const canonicalUrl = `https://happytokenizer.com/models/${modelId}`;
 
 const pricing = getPricing(modelId);
 const encodingType = getEncodingForModel(modelId);
-
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: `${model.displayName} Tokenizer`,
-  description: pageDescription,
-  url: canonicalUrl,
-  applicationCategory: "DeveloperApplication",
-  operatingSystem: "Any",
-  offers: {
-    "@type": "Offer",
-    price: `${pricing.input * 1000}`,
-    priceCurrency: "USD",
-    description: "Input tokens per 1K tokens",
+const pageSchema = [
+  {
+    "@type": "SoftwareApplication",
+    name: `${model.displayName} Tokenizer`,
+    description: pageDescription,
+    url: canonicalUrl,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web Browser",
+    featureList: [
+      "Token-level text visualization",
+      "Model-specific context limit analysis",
+      "Input/output/cached token pricing estimates",
+    ],
+    offers: {
+      "@type": "Offer",
+      price: `${(pricing.input * 1000).toFixed(2)}`,
+      priceCurrency: "USD",
+      description: "Input token price per 1M tokens (USD)",
+    },
   },
-};
+  {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "HappyTokenizer",
+        item: "https://happytokenizer.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "System Manifest",
+        item: "https://happytokenizer.com/models",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: model.displayName,
+        item: canonicalUrl,
+      },
+    ],
+  },
+];
 ---
 
-<MainLayout title={pageTitle} description={pageDescription}>
+<MainLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonicalUrl={canonicalUrl}
+  keywords={`${model.displayName} tokenizer, ${model.displayName} token limit, ${model.displayName} pricing, ${encodingType} encoding`}
+  schema={pageSchema}
+>
   <style
     define:vars={{
       "c-orange": "#ff6600",
@@ -70,12 +104,6 @@ const structuredData = {
       transform: rotate(0deg) scale(1.05);
     }
   </style>
-
-  <script
-    is:inline
-    type="application/ld+json"
-    set:html={JSON.stringify(structuredData)}
-  />
 
   <div class="min-h-screen w-full relative overflow-hidden bg-(--c-paper)">
     <!-- Background Grid -->
@@ -288,6 +316,10 @@ const structuredData = {
               .map(([id, m]) => (
                 <a
                   href={`/models/${id}`}
+                  data-analytics-event="related_model_clicked"
+                  data-analytics-category="navigation"
+                  data-analytics-label={id}
+                  data-analytics-location="model_detail_related_models"
                   class="group block bg-white border border-gray-300 p-4 hover:border-black hover:bg-(--c-orange) hover:text-white transition-all duration-200"
                 >
                   <div class="font-mono text-[10px] text-gray-400 group-hover:text-white/70 mb-2">

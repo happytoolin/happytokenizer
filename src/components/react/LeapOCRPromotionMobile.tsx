@@ -74,6 +74,10 @@ export function LeapOCRPromotionMobile() {
                 href="https://leapocr.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-analytics-event="promo_cta_clicked"
+                data-analytics-category="promotion"
+                data-analytics-label="leapocr_initialize_free_tier_mobile"
+                data-analytics-location="promo_banner_mobile"
                 className="bg-brand-black text-white border-2 border-brand-black px-4 py-3 text-center font-mono text-xs font-bold uppercase cursor-pointer transition-all duration-200 hover:bg-brand-orange hover:border-brand-orange hover:shadow-[4px_4px_0px_rgba(0,0,0,0.2)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none no-underline block"
               >
                 Initialize Free Tier
@@ -83,6 +87,10 @@ export function LeapOCRPromotionMobile() {
                 href="https://leapocr.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-analytics-event="promo_cta_clicked"
+                data-analytics-category="promotion"
+                data-analytics-label="leapocr_request_demo_mobile"
+                data-analytics-location="promo_banner_mobile"
                 className="bg-transparent border-2 border-gray-300 text-gray-500 px-4 py-2.5 text-center font-mono text-xs font-bold uppercase hover:border-brand-black hover:text-brand-black transition-all no-underline block"
               >
                 Request Demo

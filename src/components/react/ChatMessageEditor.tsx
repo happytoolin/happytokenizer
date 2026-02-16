@@ -1,5 +1,6 @@
 import { memo, useCallback } from "react";
 import type { ChatMessage } from "../../types/chat";
+import { trackEvent } from "../../utils/analytics";
 
 interface ChatMessageEditorProps {
   messages: ChatMessage[];
@@ -110,6 +111,10 @@ export function ChatMessageEditor({
       content: "",
     };
     onMessagesChange([...messages, newMessage]);
+    trackEvent("chat_message_added", {
+      event_category: "chat",
+      message_count: messages.length + 1,
+    });
   }, [messages, onMessagesChange]);
 
   const updateMessage = useCallback(
@@ -128,6 +133,11 @@ export function ChatMessageEditor({
     (index: number) => {
       const updatedMessages = messages.filter((_, i) => i !== index);
       onMessagesChange(updatedMessages);
+      trackEvent("chat_message_removed", {
+        event_category: "chat",
+        message_index: index,
+        message_count: updatedMessages.length,
+      });
     },
     [messages, onMessagesChange],
   );
@@ -151,6 +161,11 @@ export function ChatMessageEditor({
       ];
 
       onMessagesChange(updatedMessages);
+      trackEvent("chat_message_reordered", {
+        event_category: "chat",
+        direction,
+        message_index: index,
+      });
     },
     [messages, onMessagesChange],
   );
@@ -172,6 +187,10 @@ export function ChatMessageEditor({
       },
     ];
     onMessagesChange(exampleMessages);
+    trackEvent("chat_example_loaded", {
+      event_category: "chat",
+      message_count: exampleMessages.length,
+    });
   }, [onMessagesChange]);
 
   return (

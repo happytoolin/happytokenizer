@@ -3,11 +3,65 @@ import { LeapOCRPromotionMobile } from '../components/react/LeapOCRPromotionMobi
 import { TokenizerApp } from '../components/react/TokenizerApp';
 import Navbar from '../components/Navbar.astro';
 import MainLayout from '../layouts/MainLayout.astro';
+
+const pageSchema = [
+  {
+    "@type": "SoftwareApplication",
+    name: "HappyTokenizer",
+    url: "https://happytokenizer.com",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web Browser",
+    description:
+      "Interactive tokenizer and token cost calculator for GPT, o-series, and legacy OpenAI model families.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    featureList: [
+      "Real-time token counting",
+      "Model-specific tokenizer selection",
+      "Token cost estimation",
+      "Client-side processing",
+    ],
+  },
+  {
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is HappyTokenizer used for?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "HappyTokenizer helps developers analyze how text is split into tokens for different GPT and OpenAI model encodings, and estimate cost impact per model.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does HappyTokenizer send my text to a server?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "No. Tokenization runs client-side in your browser, so your input stays local while you inspect token usage.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can I compare multiple model families?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. You can switch between modern GPT models, chat models, code models, and legacy model families to compare token counts and pricing behavior.",
+        },
+      },
+    ],
+  },
+];
 ---
 
 <MainLayout
   title="HappyTokenizer - Interactive Tokenizer Visualization Tool"
   description="Visualize how LLM models tokenize your text in real-time. Support for all LLM models including GPT-5, GPT-4o, GPT-3.5, and more. Privacy-focused client-side processing."
+  keywords="gpt tokenizer, token counter, token calculator, openai tokenizer, llm tokenization, gpt-5 tokenizer"
+  schema={pageSchema}
 >
   <style
     define:vars={{
@@ -42,14 +96,58 @@ import MainLayout from '../layouts/MainLayout.astro';
       </header>
 
       <!-- MAIN TOKENIZER APP -->
-      <main class="flex-1">
+      <section class="flex-1" aria-label="Tokenizer workspace">
         <TokenizerApp client:idle />
-      </main>
+      </section>
 
       <!-- LEAP OCR PROMOTION BANNER -->
       <div class="px-4 md:px-8 lg:px-12">
         <LeapOCRPromotionMobile client:visible />
       </div>
+
+      <section class="bg-white border-2 border-brand-black shadow-hard p-6 md:p-8 flex flex-col gap-6">
+        <h2 class="font-display text-2xl md:text-3xl font-bold uppercase leading-tight">
+          Tokenizer For GPT, O-Series, And Legacy Models
+        </h2>
+        <p class="font-body text-base md:text-lg text-brand-black leading-relaxed">
+          HappyTokenizer is a browser-based token analysis tool for developers,
+          prompt engineers, and AI product teams. Use it to inspect token
+          boundaries, compare model encodings, and estimate API spend before you
+          ship prompts to production.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <article class="border border-brand-black p-4">
+            <h3 class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2">
+              Real-Time Analysis
+            </h3>
+            <p class="font-body text-sm text-brand-black">
+              See exactly how text maps to tokens for each supported model in
+              milliseconds.
+            </p>
+          </article>
+          <article class="border border-brand-black p-4">
+            <h3 class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2">
+              Cost Estimation
+            </h3>
+            <p class="font-body text-sm text-brand-black">
+              Compare input, output, and cached pricing to forecast prompt
+              economics more accurately.
+            </p>
+          </article>
+          <article class="border border-brand-black p-4">
+            <h3 class="font-mono text-xs uppercase tracking-wider text-brand-orange mb-2">
+              Privacy-First
+            </h3>
+            <p class="font-body text-sm text-brand-black">
+              Tokenization runs client-side, so your prompt text remains on your
+              machine.
+            </p>
+          </article>
+        </div>
+        <p class="font-mono text-xs text-brand-steel">
+          Explore more tools: <a href="/chat" class="text-brand-orange hover:underline" data-analytics-event="internal_navigation_clicked" data-analytics-category="navigation" data-analytics-label="chat_tokenizer" data-analytics-location="homepage_content">Chat Tokenizer</a> and <a href="/models" class="text-brand-orange hover:underline" data-analytics-event="internal_navigation_clicked" data-analytics-category="navigation" data-analytics-label="model_manifest" data-analytics-location="homepage_content">System Manifest</a>.
+        </p>
+      </section>
     </div>
   </div>
 </MainLayout>

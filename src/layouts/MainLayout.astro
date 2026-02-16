@@ -1,136 +1,247 @@
 ---
-import '../styles/global.css';
-import FontLoader from '../components/FontLoader.astro';
-import Footer from '../components/Footer.astro';
+import FontLoader from "../components/FontLoader.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
 
-export interface Props {
-	title: string;
-	description: string;
-	image?: string;
-	url?: string;
+interface SchemaNode {
+  [key: string]: unknown;
 }
 
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  canonicalUrl?: string;
+  keywords?: string;
+  noindex?: boolean;
+  schema?: SchemaNode | SchemaNode[];
+}
+
+const SITE_URL = "https://happytokenizer.com";
+const GA_TRACKING_ID = "G-F1P9ZDDK7J";
+
 const {
-	title,
-	description,
-	image = "/og-image.png",
-	url = "https://happytokenizer.com"
+  title,
+  description,
+  image = "/og-image.png",
+  canonicalUrl,
+  keywords = "tokenizer, llm tokenizer, gpt tokenizer, token counter, openai token calculator, ai tokenization",
+  noindex = false,
+  schema,
 } = Astro.props;
 
-// Get Google Analytics ID from environment
-const gaId = import.meta.env.PUBLIC_GA_ID || "G-XXXXXXXXXX";
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? SITE_URL;
+const resolvedCanonicalUrl =
+  canonicalUrl ?? new URL(Astro.url.pathname, `${siteUrl}/`).toString();
+const ogImageUrl = image.startsWith("http")
+  ? image
+  : new URL(image, `${siteUrl}/`).toString();
+const robotsContent = noindex
+  ? "noindex, nofollow"
+  : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
-// Open Graph dimensions
-const ogWidth = 1200;
-const ogHeight = 630;
-const ogImage = image;
+const defaultSchemaGraph: SchemaNode[] = [
+  {
+    "@type": "Organization",
+    name: "HappyTokenizer",
+    url: siteUrl,
+    logo: new URL("/logo.svg", `${siteUrl}/`).toString(),
+    sameAs: [
+      "https://github.com/happytoolin/happytokenizer",
+      "https://x.com/happytokenizer",
+    ],
+  },
+  {
+    "@type": "WebSite",
+    name: "HappyTokenizer",
+    url: siteUrl,
+    inLanguage: "en-US",
+  },
+  {
+    "@type": "WebPage",
+    name: title,
+    description,
+    url: resolvedCanonicalUrl,
+    inLanguage: "en-US",
+    isPartOf: {
+      "@type": "WebSite",
+      url: siteUrl,
+    },
+    primaryImageOfPage: ogImageUrl,
+  },
+];
 
-// Structured data for SEO
+if (Astro.url.pathname === "/") {
+  defaultSchemaGraph.push({
+    "@type": "SoftwareApplication",
+    name: "HappyTokenizer",
+    url: siteUrl,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web Browser",
+    description,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  });
+}
+
+const pageSchema = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+
 const structuredData = {
-	"@context": "https://schema.org",
-	"@type": "WebApplication",
-	name: "HappyTokenizer",
-	applicationCategory: "DeveloperApplication",
-	operatingSystem: "Web Browser",
-	description: "Interactive tokenizer visualization tool. Explore how different LLM models tokenize text with real-time visualization.",
-	url: url,
-	image: ogImage,
-	author: {
-		"@type": "Organization",
-		name: "HappyTokenizer"
-	},
-	offers: {
-		"@type": "Offer",
-		price: "0",
-		priceCurrency: "USD"
-	},
-	featureList: [
-		"Real-time tokenization",
-		"Multiple GPT model support",
-		"Interactive visualization",
-		"Performance metrics",
-		"Privacy-focused (client-side only)"
-	]
+  "@context": "https://schema.org",
+  "@graph": [...defaultSchemaGraph, ...pageSchema],
 };
+
+const partytownGtagBootstrap = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag;
+gtag('js', new Date());
+gtag('config', '${GA_TRACKING_ID}', {
+  send_page_view: true,
+  anonymize_ip: false,
+  allow_google_signals: true,
+  page_title: document.title,
+  page_location: window.location.href
+});
+`;
+
+const analyticsRuntime = `
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+window.trackEvent = function(eventName, params) {
+  if (!eventName || typeof eventName !== 'string') return;
+  var payload = params && typeof params === 'object' ? params : {};
+  window.gtag('event', eventName, payload);
+};
+
+document.addEventListener('click', function(event) {
+  var target = event.target;
+  if (!(target instanceof Element)) return;
+
+  var trackedElement = target.closest('[data-analytics-event]');
+  if (trackedElement) {
+    var analyticsEvent = trackedElement.getAttribute('data-analytics-event');
+    if (analyticsEvent) {
+      var analyticsPayload = {
+        event_category: trackedElement.getAttribute('data-analytics-category') || 'engagement',
+        event_label: trackedElement.getAttribute('data-analytics-label') || (trackedElement.textContent || '').trim().slice(0, 80) || 'unknown',
+        link_location: trackedElement.getAttribute('data-analytics-location') || window.location.pathname,
+      };
+      window.trackEvent(analyticsEvent, analyticsPayload);
+    }
+  }
+
+  var anchor = target.closest('a[href]');
+  if (!anchor) return;
+
+  var href = anchor.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('/') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return;
+  }
+
+  try {
+    var url = new URL(href, window.location.origin);
+    if (url.host !== window.location.host) {
+      window.trackEvent('outbound_link_clicked', {
+        event_category: 'outbound',
+        event_label: (anchor.textContent || '').trim().slice(0, 80) || url.host,
+        link_url: url.href,
+        link_host: url.host,
+      });
+    }
+  } catch {
+    // Ignore malformed URLs
+  }
+}, { capture: true });
+`;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content={description} />
-		<meta name="keywords" content="GPT, tokenizer, OpenAI, text analysis, visualization, NLP" />
-		<meta name="author" content="HappyTokenizer" />
-		<meta name="viewport" content="width=device-width" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="HappyTokenizer" />
+    <meta name="robots" content={robotsContent} />
+    <meta name="googlebot" content={robotsContent} />
 
-		<!-- Canonical URL -->
-		<link rel="canonical" href={url} />
+    <link rel="canonical" href={resolvedCanonicalUrl} />
 
-		<!-- Favicon -->
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="HappyTokenizer" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={resolvedCanonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={`${title} preview`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
-		<!-- PWA Manifest -->
-		<link rel="manifest" href="/manifest.json" />
-		<meta name="theme-color" content="#FF6600" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@happytokenizer" />
+    <meta name="twitter:url" content={resolvedCanonicalUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={`${title} preview`} />
 
-		<!-- Open Graph / Facebook -->
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content={url} />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
-		<meta property="og:image" content={ogImage} />
-		<meta property="og:image:width" content={ogWidth.toString()} />
-		<meta property="og:image:height" content={ogHeight.toString()} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
 
-		<!-- Twitter -->
-		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={url} />
-		<meta property="twitter:title" content={title} />
-		<meta property="twitter:description" content={description} />
-		<meta property="twitter:image" content={ogImage} />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#FF6600" />
 
-		<!-- Structured Data -->
-		<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    />
 
-		<!-- Preload critical font stylesheets with async loading -->
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
-		<noscript>
-			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
-		</noscript>
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+      as="style"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
 
-		<!-- DNS prefetch and preconnect for external resources -->
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link rel="dns-prefetch" href="//www.googletagmanager.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="//www.googletagmanager.com" />
 
-		
-		<!-- Include font loader component -->
-		<FontLoader />
+    <FontLoader />
 
-		<title>{title}</title>
+    <title>{title}</title>
 
-		{gaId && gaId !== "G-XXXXXXXXXX" && (
-			<!-- Google Analytics with Partytown -->
-			<script is:inline src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} type="text/partytown"></script>
-			<script is:inline type="text/partytown">
-				window.dataLayer = window.dataLayer || [];
-				function gtag(){dataLayer.push(arguments);}
-				gtag('js', new Date());
-				gtag('config', '{gaId}', {
-					page_title: document.title,
-					page_location: window.location.href,
-				});
-			</script>
-		)}
-	</head>
-	<body class="min-h-screen">
-		<div class="min-h-screen">
-			<main>
-				<slot />
-			</main>
-		</div>
-		<Footer />
-	</body>
+    <script
+      is:inline
+      async
+      src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+      type="text/partytown"></script>
+    <script is:inline type="text/partytown" set:html={partytownGtagBootstrap} />
+    <script is:inline set:html={analyticsRuntime} />
+  </head>
+  <body class="min-h-screen">
+    <div class="min-h-screen">
+      <main>
+        <slot />
+      </main>
+    </div>
+    <Footer />
+  </body>
 </html>
