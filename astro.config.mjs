@@ -82,6 +82,8 @@ export default defineConfig({
   },
 
   adapter: cloudflare({
+    // ponytail: workerd prerender emits "[object Object]" pages; revisit when the failing dep is workerd-compatible
+    prerenderEnvironment: "node",
     imageService: "cloudflare",
   }),
 });

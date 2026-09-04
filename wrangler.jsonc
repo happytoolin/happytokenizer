@@ -10,7 +10,7 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "binding": "ASSETS",
-    "directory": "./dist",
+    "directory": "./dist/client",
   },
   "workers_dev": true,
   "observability": {
