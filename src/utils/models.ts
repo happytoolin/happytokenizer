@@ -79,7 +79,63 @@ export const MODELS: Record<string, ModelData> = {
     displayName: "GPT-5.6 Cyber",
     encoding: "o200k_base",
     contextWindow: 400000,
-    pricing: { input: 0.0125, output: 0.075, cached: 0 }, // $12.50/$75.00 per M → per 1K (no cached)
+    pricing: { input: 0.0125, output: 0.075, cached: 0.00125 }, // $12.50/$75.00/$1.25 per M → per 1K
+  },
+  "gpt-5.5": {
+    id: "gpt-5.5",
+    displayName: "GPT-5.5",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.005, output: 0.03, cached: 0.0005 }, // $5.00/$30.00/$0.50 per M → per 1K
+  },
+  "gpt-5.5-pro": {
+    id: "gpt-5.5-pro",
+    displayName: "GPT-5.5 Pro",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.03, output: 0.18, cached: 0 }, // $30.00/$180.00 per M → per 1K (no cached)
+  },
+  "gpt-5.4": {
+    id: "gpt-5.4",
+    displayName: "GPT-5.4",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.0025, output: 0.015, cached: 0.00025 }, // $2.50/$15.00/$0.25 per M → per 1K
+  },
+  "gpt-5.4-pro": {
+    id: "gpt-5.4-pro",
+    displayName: "GPT-5.4 Pro",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.03, output: 0.18, cached: 0 }, // $30.00/$180.00 per M → per 1K (no cached)
+  },
+  "gpt-5.4-mini": {
+    id: "gpt-5.4-mini",
+    displayName: "GPT-5.4 Mini",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00075, output: 0.0045, cached: 0.000075 }, // $0.75/$4.50/$0.075 per M → per 1K
+  },
+  "gpt-5.4-nano": {
+    id: "gpt-5.4-nano",
+    displayName: "GPT-5.4 Nano",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.0002, output: 0.00125, cached: 0.00002 }, // $0.20/$1.25/$0.02 per M → per 1K
+  },
+  "gpt-5.3-codex": {
+    id: "gpt-5.3-codex",
+    displayName: "GPT-5.3 Codex",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.00175, output: 0.014, cached: 0.000175 }, // $1.75/$14.00/$0.175 per M → per 1K
+  },
+  "gpt-5.3-chat-latest": {
+    id: "gpt-5.3-chat-latest",
+    displayName: "GPT-5.3 Chat Latest",
+    encoding: "o200k_base",
+    contextWindow: 128000,
+    pricing: { input: 0.00175, output: 0.014, cached: 0.000175 }, // deprecated → per 1K
   },
   "gpt-5": {
     id: "gpt-5",
