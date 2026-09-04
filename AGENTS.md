@@ -4,7 +4,6 @@
 pnpm dev          # Start development server
 pnpm build        # Production build
 pnpm typecheck    # TypeScript validation
-pnpm lint         # ESLint with React/TS rules
 pnpm format       # Prettier code formatting
 ```
 

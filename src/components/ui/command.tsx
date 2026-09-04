@@ -24,7 +24,6 @@ Command.displayName = CommandPrimitive.displayName;
 
 type CommandDialogProps = DialogProps;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CommandDialog = (_props: CommandDialogProps) => {
   return <div>{/* Placeholder - we'll use popover instead */}</div>;
 };

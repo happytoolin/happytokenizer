@@ -1,6 +1,5 @@
 ---
 import Navbar from "../../components/Navbar.astro";
-import { LeapOCRPromotion } from "../../components/react/LeapOCRPromotion";
 import { ModelTokenizer } from "../../components/react/ModelTokenizer";
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getEncodingForModel } from "../../utils/modelEncodings";
@@ -296,11 +295,6 @@ const pageSchema = [
           </div>
         </div>
       </main>
-
-      <!-- LEAP OCR PROMOTION BANNER -->
-      <div class="px-4 md:px-8 lg:px-12">
-        <LeapOCRPromotion layout="horizontal" className="w-full" />
-      </div>
 
       <!-- RELATED MODELS FOOTER -->
       <footer class="border-t-2 border-black pt-12 pb-24">

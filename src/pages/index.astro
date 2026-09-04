@@ -1,6 +1,5 @@
 ---
 import Navbar from "../components/Navbar.astro";
-import { LeapOCRPromotionMobile } from "../components/react/LeapOCRPromotionMobile";
 import { TokenizerApp } from "../components/react/TokenizerApp";
 import MainLayout from "../layouts/MainLayout.astro";
 
@@ -112,11 +111,6 @@ const pageSchema = [
       <section class="flex-1" aria-label="Tokenizer workspace">
         <TokenizerApp client:idle />
       </section>
-
-      <!-- LEAP OCR PROMOTION BANNER -->
-      <div class="px-4 md:px-8 lg:px-12">
-        <LeapOCRPromotionMobile client:visible />
-      </div>
 
       <section
         class="bg-white border-2 border-brand-black shadow-hard p-6 md:p-8 flex flex-col gap-6"

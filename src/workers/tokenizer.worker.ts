@@ -239,9 +239,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       const tokenizer = await getTokenizer();
       const tokens =
         tokenizer.encodeChat?.(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           chatMessages as any,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           chatModel as any,
         ) || [];
       const tokenTexts = await decodeTokens(tokens, model);

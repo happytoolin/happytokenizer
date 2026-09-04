@@ -45,7 +45,6 @@ export function getModelSync(id: string): ModelData | undefined {
   // This will throw if called before the module is loaded
   // Only use this when you know the module is already loaded
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { MODELS } = require("./models");
     return MODELS[id];
   } catch {

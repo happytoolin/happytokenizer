@@ -16,7 +16,6 @@ pnpm preview      # Local preview of production build
 
 # Code Quality
 pnpm typecheck    # TypeScript validation
-pnpm lint         # ESLint with React and TypeScript rules
 pnpm format       # Prettier code formatting
 
 # Astro CLI
