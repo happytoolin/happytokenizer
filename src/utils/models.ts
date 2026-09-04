@@ -39,6 +39,48 @@ const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
 };
 
 export const MODELS: Record<string, ModelData> = {
+  "gpt-6-astra": {
+    id: "gpt-6-astra",
+    displayName: "GPT-6 Astra",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.005, output: 0.025, cached: 0.0005 }, // $5.00/$25.00/$0.50 per M → per 1K
+  },
+  "gpt-5.6": {
+    id: "gpt-5.6",
+    displayName: "GPT-5.6",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.002, output: 0.01, cached: 0.0002 }, // alias for GPT-5.6 Sol → per 1K
+  },
+  "gpt-5.6-sol": {
+    id: "gpt-5.6-sol",
+    displayName: "GPT-5.6 Sol",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.002, output: 0.01, cached: 0.0002 }, // $2.00/$10.00/$0.20 per M (promo) → per 1K
+  },
+  "gpt-5.6-terra": {
+    id: "gpt-5.6-terra",
+    displayName: "GPT-5.6 Terra",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.001, output: 0.006, cached: 0.0001 }, // $1.00/$6.00/$0.10 per M → per 1K
+  },
+  "gpt-5.6-luna": {
+    id: "gpt-5.6-luna",
+    displayName: "GPT-5.6 Luna",
+    encoding: "o200k_base",
+    contextWindow: 1050000,
+    pricing: { input: 0.0001, output: 0.0006, cached: 0.00001 }, // $0.10/$0.60/$0.01 per M → per 1K
+  },
+  "gpt-5.6-cyber": {
+    id: "gpt-5.6-cyber",
+    displayName: "GPT-5.6 Cyber",
+    encoding: "o200k_base",
+    contextWindow: 400000,
+    pricing: { input: 0.0125, output: 0.075, cached: 0 }, // $12.50/$75.00 per M → per 1K (no cached)
+  },
   "gpt-5": {
     id: "gpt-5",
     displayName: "GPT-5",
