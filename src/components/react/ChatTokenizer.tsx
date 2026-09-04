@@ -32,7 +32,7 @@ const EXAMPLE_CHAT_MESSAGES: ChatMessage[] = [
 ];
 
 export function ChatTokenizer() {
-  const [model, setModel] = useState<string>("gpt-5");
+  const [model, setModel] = useState<string>("gpt-6-astra");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
     EXAMPLE_CHAT_MESSAGES,
   );

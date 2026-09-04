@@ -26,7 +26,7 @@ export function TokenDisplay({
   error,
   isChatMode = false,
   chatMessages,
-  modelName = "gpt-5",
+  modelName = "gpt-6-astra",
   showLimitAndCost = true,
 }: TokenDisplayProps) {
   const [viewMode, setViewMode] = useState<"inline" | "compact" | "detailed">(

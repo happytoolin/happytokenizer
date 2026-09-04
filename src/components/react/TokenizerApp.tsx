@@ -18,7 +18,7 @@ import { StatusDisplay } from "../ui/StatusDisplay";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<string>("gpt-5");
+  const [model, setModel] = useState<string>("gpt-6-astra");
   const [debouncedText, setDebouncedText] = useState("");
 
   const modelOptions = useModelOptions();
