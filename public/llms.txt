@@ -1,0 +1,28 @@
+# HappyTokenizer
+
+> Free online tokenizer and token cost calculator for 140+ LLMs — GPT, Claude, Kimi, Qwen and GLM. All tokenization runs in your browser; your text never leaves your device.
+
+## Main tools
+
+- [Tokenizer](https://happytokenizer.com/): Real-time token counting, token visualization and cost estimation for 140+ models
+- [Chat Tokenizer](https://happytokenizer.com/chat): Tokenize full chat conversations with per-message and system-prompt cost breakdowns
+- [Model Catalog](https://happytokenizer.com/models): Every supported model with encoding, context window and per-million pricing
+
+## Popular model tokenizers
+
+- [GPT-6 Astra](https://happytokenizer.com/models/gpt-6-astra)
+- [GPT-5.6 Sol](https://happytokenizer.com/models/gpt-5.6-sol)
+- [GPT-5](https://happytokenizer.com/models/gpt-5)
+- [Claude Opus 5](https://happytokenizer.com/models/claude-opus-5)
+- [Claude Sonnet 5](https://happytokenizer.com/models/claude-sonnet-5)
+- [Kimi K3](https://happytokenizer.com/models/kimi-k3)
+- [Qwen3.8 Max](https://happytokenizer.com/models/qwen3.8-max)
+- [GLM-5.3](https://happytokenizer.com/models/glm-5.3)
+- [GPT-5.1 Codex](https://happytokenizer.com/models/gpt-5.1-codex)
+- [GPT-OSS-20B](https://happytokenizer.com/models/gpt-oss-20b)
+
+## Notes
+
+- OpenAI models use real tiktoken vocabularies (o200k_base, cl100k_base and friends), so counts match API-side token usage.
+- Claude, Kimi, Qwen and GLM use each vendor's real tokenizer.
+- Pricing shown per 1M tokens, matching published API rates.

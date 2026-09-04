@@ -1,5 +1,10 @@
 packages:
   - "."
+
 allowBuilds:
   esbuild: true
+  # Browser-only optional deps of @huggingface/transformers; skip native builds.
+  onnxruntime-node: false
+  protobufjs: false
+  sharp: false
   workerd: true

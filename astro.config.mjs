@@ -21,6 +21,7 @@ export default defineConfig({
     }),
     partytown({
       config: {
+        debug: false,
         forward: ["dataLayer.push", "gtag"],
       },
     }),
@@ -68,16 +69,15 @@ export default defineConfig({
       },
       chunkSizeWarningLimit: 500, // Lower threshold to catch large chunks
     },
-    optimizeDeps: {
-      include: ["react", "react-dom", "gpt-tokenizer"],
-      force: true,
-    },
     // Configure worker handling to avoid tokenizer in server build
     worker: {
       format: "es",
       rollupOptions: {
         external: [],
       },
+    },
+    optimizeDeps: {
+      include: ["react", "react-dom", "react-dom/client", "gpt-tokenizer"],
     },
   },
 

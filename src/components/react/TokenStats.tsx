@@ -65,7 +65,7 @@ export function TokenStats({
             <span className={styles.statValue}>{charCount}</span>
           </div>
           <div className={styles.stat}>
-            <span className={styles.statLabel}>Density</span>
+            <span className={styles.statLabel}>Chars / Token</span>
             <span className={styles.statValue}>{density}</span>
           </div>
           {showLimitAndCost && (

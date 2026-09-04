@@ -69,7 +69,7 @@ export function TokenStatistics({
 
         {/* Density */}
         <div className="flex justify-between items-end border-b border-gray-200 pb-2">
-          <span className="text-gray-500 uppercase">Density</span>
+          <span className="text-gray-500 uppercase">Chars / Token</span>
           <span className="text-lg font-bold">{density}</span>
         </div>
 
@@ -113,6 +113,16 @@ export function TokenStatistics({
             </span>
             <span className="text-sm font-medium">
               ${pricing.output.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between items-end">
+            <span className="text-gray-500 text-[10px] uppercase">
+              Cached/M Tokens
+            </span>
+            <span className="text-sm font-medium">
+              {pricing.cached !== undefined
+                ? `$${pricing.cached.toFixed(2)}`
+                : "—"}
             </span>
           </div>
         </div>

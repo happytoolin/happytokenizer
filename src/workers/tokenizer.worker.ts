@@ -1,18 +1,19 @@
 import type { ChatMessage } from "../types/chat";
 import type { EncodingType } from "../utils/modelEncodings";
 import {
+  type EncodingStrategy,
+  loadClaude,
+  loadHuggingFace,
+  loadKimi,
+  serializeChatForFamily,
+} from "./familyTokenizers";
+import {
   getTokenizer,
   loadCl100k,
   loadP50kBase,
   loadP50kEdit,
   loadR50kBase,
 } from "./tokenizerWrapper";
-
-// Dynamic encoding strategy map - load on demand
-interface EncodingStrategy {
-  encode: (text: string) => number[];
-  decode: (tokens: number[]) => string;
-}
 
 const ENCODING_STRATEGIES: Record<EncodingType, EncodingStrategy | null> = {
   cl100k_base: null,
@@ -21,11 +22,16 @@ const ENCODING_STRATEGIES: Record<EncodingType, EncodingStrategy | null> = {
   r50k_base: null,
   o200k_base: null,
   o200k_harmony: null,
+  anthropic: null,
+  kimi: null,
+  qwen: null,
+  glm: null,
 };
 
 // Dynamic import functions for each encoding using wrapper
 const loadEncoding = async (
   encodingType: EncodingType,
+  modelId?: string,
 ): Promise<EncodingStrategy> => {
   switch (encodingType) {
     case "cl100k_base": {
@@ -45,6 +51,13 @@ const loadEncoding = async (
       const tokenizer = await getTokenizer();
       return { encode: tokenizer.encode, decode: tokenizer.decode };
     }
+    case "anthropic":
+      return await loadClaude();
+    case "kimi":
+      return await loadKimi();
+    case "qwen":
+    case "glm":
+      return await loadHuggingFace(encodingType, modelId);
     default:
       throw new Error(`Unknown encoding type: ${encodingType}`);
   }
@@ -53,11 +66,18 @@ const loadEncoding = async (
 // Get or load encoding strategy with caching
 const getEncodingStrategy = async (
   model: EncodingType,
+  modelId?: string,
 ): Promise<EncodingStrategy> => {
-  let strategy = ENCODING_STRATEGIES[model];
+  // GLM models pick their tokenizer repo by model id, so cache per model.
+  const cacheKey = model === "glm" ? `glm:${modelId || ""}` : model;
+  const strategies = ENCODING_STRATEGIES as Record<
+    string,
+    EncodingStrategy | null
+  >;
+  let strategy = strategies[cacheKey];
   if (!strategy) {
-    strategy = await loadEncoding(model);
-    ENCODING_STRATEGIES[model] = strategy;
+    strategy = await loadEncoding(model, modelId);
+    strategies[cacheKey] = strategy;
   }
   return strategy;
 };
@@ -68,6 +88,7 @@ export type { EncodingType };
 export interface TokenizerMessage {
   text: string;
   model?: EncodingType;
+  modelId?: string;
   chunkSize?: number;
   chatMessages?: ChatMessage[];
   isChatMode?: boolean;
@@ -136,8 +157,9 @@ function splitIntoChunks(text: string, chunkSize: number = 1000): string[] {
 async function decodeTokens(
   tokens: number[],
   model: EncodingType,
+  modelId?: string,
 ): Promise<string[]> {
-  const decoder = (await getEncodingStrategy(model)).decode;
+  const decoder = (await getEncodingStrategy(model, modelId)).decode;
 
   return tokens.map((token) => {
     try {
@@ -154,13 +176,14 @@ async function decodeTokens(
 async function tokenizeWithChunks(
   text: string,
   model: EncodingType,
+  modelId?: string,
   onProgress?: (progress: ChunkProgressResponse) => void,
 ): Promise<{ tokens: number[]; tokenTexts: string[] }> {
   // For small texts, use direct tokenization
   if (text.length <= 5000) {
-    const encoder = (await getEncodingStrategy(model)).encode;
+    const encoder = (await getEncodingStrategy(model, modelId)).encode;
     const tokens = encoder(text);
-    const tokenTexts = await decodeTokens(tokens, model);
+    const tokenTexts = await decodeTokens(tokens, model, modelId);
     return { tokens, tokenTexts };
   }
 
@@ -181,7 +204,7 @@ async function tokenizeWithChunks(
     const batchEnd = Math.min(i + batchSize, chunks.length);
 
     // Get the encoder once per batch for efficiency
-    const encoder = (await getEncodingStrategy(model)).encode;
+    const encoder = (await getEncodingStrategy(model, modelId)).encode;
 
     for (let j = i; j < batchEnd; j++) {
       const chunk = chunks[j];
@@ -208,16 +231,50 @@ async function tokenizeWithChunks(
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
-  const tokenTexts = await decodeTokens(allTokens, model);
+  const tokenTexts = await decodeTokens(allTokens, model, modelId);
   return { tokens: allTokens, tokenTexts };
 }
 
 self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
-  const { text, model = "o200k_base", chatMessages, isChatMode } = e.data;
+  const {
+    text,
+    model = "o200k_base",
+    modelId,
+    chatMessages,
+    isChatMode,
+  } = e.data;
 
   try {
     // Handle chat mode
     if (isChatMode && chatMessages && chatMessages.length > 0) {
+      // Non-OpenAI families: serialize with their own chat template tokens.
+      if (
+        model === "anthropic" ||
+        model === "kimi" ||
+        model === "qwen" ||
+        model === "glm"
+      ) {
+        const strategy = await getEncodingStrategy(model, modelId);
+        const tokens = strategy.encode(
+          serializeChatForFamily(model, chatMessages),
+        );
+        const tokenTexts = await decodeTokens(tokens, model, modelId);
+
+        const tokensArray = new Uint32Array(tokens);
+        self.postMessage(
+          {
+            tokens: tokensArray,
+            count: tokensArray.length,
+            model,
+            tokenTexts,
+            isChatMode: true,
+            chatMessages,
+          } as TokenizerResponse,
+          { transfer: [tokensArray.buffer] },
+        );
+        return;
+      }
+
       // For chat mode, we need to use a model name that supports chat
       // Common chat-enabled models that use different encodings
       let chatModel = "gpt-4o"; // Default to gpt-4o which uses o200k_base
@@ -238,11 +295,8 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       // Dynamic import for encodeChat using wrapper
       const tokenizer = await getTokenizer();
       const tokens =
-        tokenizer.encodeChat?.(
-          chatMessages as any,
-          chatModel as any,
-        ) || [];
-      const tokenTexts = await decodeTokens(tokens, model);
+        tokenizer.encodeChat?.(chatMessages as any, chatModel as any) || [];
+      const tokenTexts = await decodeTokens(tokens, model, modelId);
 
       const tokensArray = new Uint32Array(tokens);
 
@@ -266,6 +320,7 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       const { tokens, tokenTexts } = await tokenizeWithChunks(
         text,
         model,
+        modelId,
         (progress) => {
           self.postMessage(progress as ChunkProgressResponse);
         },
@@ -285,9 +340,9 @@ self.onmessage = async (e: MessageEvent<TokenizerMessage>) => {
       );
     } else {
       // Direct tokenization for small texts
-      const encoder = (await getEncodingStrategy(model)).encode;
+      const encoder = (await getEncodingStrategy(model, modelId)).encode;
       const tokens = encoder(text);
-      const tokenTexts = await decodeTokens(tokens, model);
+      const tokenTexts = await decodeTokens(tokens, model, modelId);
 
       const tokensArray = new Uint32Array(tokens);
       self.postMessage(

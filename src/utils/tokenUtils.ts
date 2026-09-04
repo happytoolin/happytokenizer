@@ -56,12 +56,13 @@ export function estimateCost(
   const pricing = getPricing(modelName);
   const inputCost = (tokenCount / 1000) * pricing.input;
   const outputCost = (outputTokenCount / 1000) * pricing.output;
-  const cachedCost = ((tokenCount * cacheHitRate) / 1000) * pricing.cached;
+  const cached = pricing.cached ?? 0;
+  const cachedCost = ((tokenCount * cacheHitRate) / 1000) * cached;
 
   return {
     input: pricing.input,
     output: pricing.output,
-    cached: pricing.cached,
+    cached,
     totalInput: inputCost,
     totalOutput: outputCost,
     totalCached: cachedCost,

@@ -32,7 +32,7 @@ const EXAMPLE_CHAT_MESSAGES: ChatMessage[] = [
 ];
 
 export function ChatTokenizer() {
-  const [model, setModel] = useState<string>("gpt-6-astra");
+  const [model, setModel] = useState<string>("gpt-5.6-sol");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
     EXAMPLE_CHAT_MESSAGES,
   );
@@ -86,9 +86,14 @@ export function ChatTokenizer() {
       tokenize(combinedText, encoding, {
         isChatMode: true,
         chatMessages: debouncedChatMessages,
+        modelId: model,
       });
     } else if (debouncedChatMessages.length === 0) {
-      tokenize("", encoding, { isChatMode: true, chatMessages: [] });
+      tokenize("", encoding, {
+        isChatMode: true,
+        chatMessages: [],
+        modelId: model,
+      });
     }
   }, [debouncedChatMessages, encoding, tokenize]);
 

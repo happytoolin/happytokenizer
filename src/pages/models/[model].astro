@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar.astro";
 import { ModelTokenizer } from "../../components/react/ModelTokenizer";
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getEncodingForModel } from "../../utils/modelEncodings";
-import { getPricing, MODELS } from "../../utils/models";
+import { getModelInsights, getPricing, MODELS } from "../../utils/models";
 
 export async function getStaticPaths() {
   const paths = Object.entries(MODELS).map(([modelId, modelData]) => ({
@@ -28,6 +28,41 @@ const canonicalUrl = new URL(
 
 const pricing = getPricing(modelId);
 const encodingType = getEncodingForModel(modelId);
+const insights = getModelInsights(modelId);
+
+const encodingLabels: Record<string, string> = {
+  o200k_base: "OpenAI's o200k_base encoding",
+  cl100k_base: "the cl100k_base encoding (GPT-4 / GPT-3.5)",
+  p50k_base: "the p50k_base encoding (GPT-3.5 completion models)",
+  p50k_edit: "the p50k_edit encoding",
+  r50k_base: "the r50k_base encoding (legacy GPT-3)",
+  o200k_harmony: "the o200k_harmony encoding (OpenAI open-weight models)",
+  anthropic: "Anthropic's Claude tokenizer",
+  kimi: "Moonshot's Kimi tokenizer",
+  qwen: "Alibaba's Qwen tokenizer",
+  glm: "Z.ai's GLM tokenizer",
+};
+
+const cachedClause =
+  pricing.cached !== undefined
+    ? `, with cached input at \$${(pricing.cached * 1000).toFixed(2)} per million`
+    : "";
+const priceAnswer = `${model.displayName} costs \$${(pricing.input * 1000).toFixed(2)} per million input tokens and \$${(pricing.output * 1000).toFixed(2)} per million output tokens${cachedClause}.`;
+
+const faq = [
+  {
+    q: `What is the ${model.displayName} token limit?`,
+    a: `${model.displayName} supports a ${model.contextWindow.toLocaleString("en-US")} token context window. Paste your text above to see how much of that window your prompt fills.`,
+  },
+  {
+    q: `What tokenizer does ${model.displayName} use?`,
+    a: `${model.displayName} uses ${encodingLabels[encodingType] ?? "a BPE tokenizer"}. This page counts tokens with the vendor's real vocabulary, so the numbers match what the API sees.`,
+  },
+  {
+    q: `How much does ${model.displayName} cost per million tokens?`,
+    a: priceAnswer,
+  },
+];
 const pageSchema = [
   {
     "@type": "SoftwareApplication",
@@ -70,6 +105,17 @@ const pageSchema = [
         item: canonicalUrl,
       },
     ],
+  },
+  {
+    "@type": "FAQPage",
+    mainEntity: faq.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.a,
+      },
+    })),
   },
 ];
 ---
@@ -190,10 +236,155 @@ const pageSchema = [
             client:load
             selectedModel={modelId}
           />
+
+          <!-- FAQ -->
+          <section
+            aria-label="Frequently asked questions"
+            class="bg-white border-2 border-black shadow-[8px_8px_0px_var(--c-black)] p-6"
+          >
+            <h3
+              class="font-display text-2xl font-bold uppercase mb-6 flex items-center gap-2"
+            >
+              Quick Answers
+              <svg
+                class="w-5 h-5 text-(--c-orange)"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+                ><path
+                  stroke-linecap="square"
+                  stroke-linejoin="miter"
+                  stroke-width="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path></svg
+            >
+            </h3>
+            <div class="flex flex-col gap-4">
+              {
+                faq.map((f) => (
+                  <details class="group border border-black">
+                    <summary class="cursor-pointer select-none font-mono text-xs font-bold uppercase px-4 py-3 bg-(--c-paper) hover:bg-(--c-orange) hover:text-white transition-colors flex items-center justify-between gap-4">
+                      {f.q}
+                      <span
+                        class="text-(--c-orange) group-hover:text-white text-base leading-none transition-transform duration-200 group-open:rotate-45"
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                    </summary>
+                    <p class="font-body text-sm leading-relaxed text-gray-800 px-4 py-3 border-t border-gray-300">
+                      {f.a}
+                    </p>
+                  </details>
+                ))
+              }
+            </div>
+          </section>
         </div>
 
         <!-- RIGHT COL: Specs & Data -->
         <div class="flex flex-col gap-8">
+          <!-- Model Insights -->
+          <div
+            class="bg-white border-2 border-black shadow-[8px_8px_0px_var(--c-black)] p-6 relative overflow-hidden"
+          >
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-(--c-orange) to--(--c-black)"
+            >
+            </div>
+
+            <h3
+              class="font-display text-2xl font-bold uppercase mb-6 flex items-center gap-2"
+            >
+              Model Insights
+              <svg
+                class="w-5 h-5 text-(--c-orange)"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+                ><path
+                  stroke-linecap="square"
+                  stroke-linejoin="miter"
+                  stroke-width="2"
+                  d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"
+                ></path></svg
+            >
+            </h3>
+
+            <div class="space-y-5 font-mono text-xs">
+              <!-- Modalities -->
+              <div>
+                <div
+                  class="text-gray-500 uppercase text-[10px] tracking-wider mb-2"
+                >
+                  Modalities
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-gray-500 uppercase w-12">In</span>
+                    {insights.inputModalities.map((m) => (
+                      <span
+                        class="border border-black bg-(--c-paper) px-1.5 py-0.5 text-[10px] font-semibold uppercase"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-gray-500 uppercase w-12">Out</span>
+                    {insights.outputModalities.map((m) => (
+                      <span
+                        class="border border-black bg-(--c-paper) px-1.5 py-0.5 text-[10px] font-semibold uppercase"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Features -->
+              <div>
+                <div
+                  class="text-gray-500 uppercase text-[10px] tracking-wider mb-2"
+                >
+                  Supported Features
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                  {insights.features.length > 0 ? insights.features.map((f) => (
+                    <span
+                      class="border border-black bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase"
+                    >
+                      {f}
+                    </span>
+                  )) : (
+                    <span class="text-gray-500">Standard classification only</span>
+                  )}
+                </div>
+              </div>
+
+              <!-- Endpoints -->
+              <div>
+                <div
+                  class="text-gray-500 uppercase text-[10px] tracking-wider mb-2"
+                >
+                  Supported Endpoints
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                  {insights.endpoints.map((e) => (
+                    <span
+                      class="border border-(--c-orange) text-(--c-orange) bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                    >
+                      {e}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Pricing Manifest -->
           <div
             class="bg-white border-2 border-black shadow-[8px_8px_0px_var(--c-black)] p-6 relative overflow-hidden group"
@@ -250,7 +441,7 @@ const pageSchema = [
                 >
                 <span
                   class="text-base font-bold text-(--c-orange) bg-(--c-orange)/10 px-1"
-                  >${(pricing.cached * 1000).toFixed(2)}</span
+                  >{pricing.cached !== undefined ? `$${(pricing.cached * 1000).toFixed(2)}` : "—"}</span
                 >
               </div>
             </div>

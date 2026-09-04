@@ -40,6 +40,17 @@ export function CostEstimator({ tokenCount, modelName }: CostEstimatorProps) {
           ${(costData.output * 1000).toFixed(2)}
         </span>
       </div>
+      <div className={styles.stat}>
+        <span className={styles.statLabel}>Cached/M Tokens</span>
+        <span
+          className={styles.statValue}
+          title={`${getModelDisplayName(modelName)}: Cached input pricing per million tokens`}
+        >
+          {costData.cached > 0
+            ? `$${(costData.cached * 1000).toFixed(2)}`
+            : "—"}
+        </span>
+      </div>
     </>
   );
 }

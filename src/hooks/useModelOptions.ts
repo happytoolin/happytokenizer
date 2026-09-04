@@ -8,8 +8,12 @@ export function useModelOptions() {
     const options: ComboboxOption[] = [];
 
     const groupNames: Record<string, string> = {
-      o200k_base: "Modern Models",
-      cl100k_base: "Chat Models",
+      o200k_base: "Latest Models",
+      anthropic: "Anthropic (Claude)",
+      kimi: "Moonshot (Kimi)",
+      qwen: "Alibaba (Qwen)",
+      glm: "Z.ai (GLM)",
+      cl100k_base: "Legacy Chat (GPT-4 / 3.5)",
       p50k_base: "Completion Models",
       p50k_edit: "Edit Models",
       r50k_base: "Legacy Models",

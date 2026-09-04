@@ -1,80 +1,108 @@
 ---
 const { currentPage = 'tokenizer', modelId } = Astro.props;
 
-// Determine breadcrumb parts
-const showTokenizer = true;
+const showChat = currentPage === 'chat';
 const showModels = currentPage === 'models' || currentPage === 'model-detail';
 const showModelId = currentPage === 'model-detail' && modelId;
 
-// Determine hover color class
-const hoverColorClass = currentPage === 'models' ? 'hover:text-brand-orange' : 'hover:text-[var(--c-orange)]';
+const linkClass =
+  'font-mono text-xs font-bold uppercase tracking-widest hover:text-brand-orange transition-colors';
+const crumbClass =
+  'font-mono text-xs font-bold uppercase tracking-widest hover:text-brand-orange transition-colors';
+const sepClass = 'font-mono text-xs text-gray-500 select-none';
 ---
 
-<!-- Breadcrumb / Meta -->
-<div class="flex items-center justify-between border-b border-black pb-4">
-  <!-- Left side: Breadcrumb navigation -->
-  <div class="flex items-center gap-2">
-    <span class="inline-block w-2 h-2 bg-black"></span>
-
-    {showTokenizer && (
+<header class="bg-white border-2 border-brand-black shadow-hard">
+  <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 md:px-5 py-3">
+    <!-- Left: brand + breadcrumb -->
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0">
       <a
         href="/"
-        class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
+        class="flex items-center gap-2.5 shrink-0"
+        data-analytics-event="internal_navigation_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="brand_home"
+        data-analytics-location="navbar"
+        aria-label="HappyTokenizer home"
       >
-        /tokenizer
+        <span class="inline-block w-3 h-3 bg-brand-orange border border-brand-black" aria-hidden="true"></span>
+        <span class="font-mono text-xs font-bold uppercase tracking-widest text-brand-black hover:text-brand-orange transition-colors">
+          HappyTokenizer
+        </span>
       </a>
-    )}
 
-    {showModels && (
-      <>
-        <span class="font-mono text-xs text-gray-500">/</span>
-        {currentPage === 'models' ? (
-          <span class="font-mono text-xs font-bold uppercase tracking-widest">models</span>
-        ) : (
-          <a
-            href="/models"
-            class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
-          >
-            models
-          </a>
+      <span class="hidden sm:inline-block w-px h-4 bg-brand-concrete" aria-hidden="true"></span>
+
+      <nav class="flex items-center gap-2 min-w-0" aria-label="Breadcrumb">
+        <a href="/" class={crumbClass}>/tokenizer</a>
+
+        {showChat && (
+          <>
+            <span class={sepClass}>/</span>
+            <span class="font-mono text-xs font-bold uppercase tracking-widest">chat</span>
+          </>
         )}
-      </>
-    )}
 
-    {showModelId && (
-      <>
-        <span class="font-mono text-xs text-gray-500">/</span>
-        <span class="font-mono text-xs font-bold uppercase tracking-widest">{modelId}</span>
-      </>
-    )}
-  </div>
+        {showModels && (
+          <>
+            <span class={sepClass}>/</span>
+            {currentPage === 'models' ? (
+              <span class="font-mono text-xs font-bold uppercase tracking-widest">models</span>
+            ) : (
+              <a href="/models" class={crumbClass}>models</a>
+            )}
+          </>
+        )}
 
-  <!-- Right side: External links -->
-  <div class="flex items-center gap-2">
-    <a
-      href="https://github.com/happytoolin?ref=happytokenizer"
-      target="_blank"
-      rel="noopener noreferrer"
-      data-analytics-event="partner_link_clicked"
-      data-analytics-category="navigation"
-      data-analytics-label="happytoolin_profile"
-      data-analytics-location="navbar"
-      class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
-    >
-      Happytoolin
-    </a>
-    <span class="font-mono text-xs text-gray-500">/</span>
-    <a
-      href="https://happyformatter.com?ref=happytokenizer"
-      target="_blank"
-      rel="noopener noreferrer"
-      data-analytics-event="partner_link_clicked"
-      data-analytics-category="navigation"
-      data-analytics-label="happyformatter"
-      data-analytics-location="navbar"
-      class={`font-mono text-xs font-bold uppercase tracking-widest ${hoverColorClass} transition-colors`}
-    >
-      Happyformatter
-    </a>
+        {showModelId && (
+          <>
+            <span class={sepClass}>/</span>
+            <span class="font-mono text-xs font-bold uppercase tracking-widest truncate max-w-[30vw]">{modelId}</span>
+          </>
+        )}
+      </nav>
+    </div>
+
+    <!-- Right: external links -->
+    <div class="flex items-center gap-2 shrink-0">
+      <a
+        href="https://github.com/happytoolin?ref=happytokenizer"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-analytics-event="partner_link_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="happytoolin_profile"
+        data-analytics-location="navbar"
+        class={linkClass}
+      >
+        Happytoolin
+      </a>
+      <span class={sepClass}>/</span>
+      <a
+        href="https://happyformatter.com?ref=happytokenizer"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-analytics-event="partner_link_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="happyformatter"
+        data-analytics-location="navbar"
+        class={linkClass}
+      >
+        Happyformatter
+      </a>
+      <span class={sepClass}>/</span>
+      <a
+        href="https://github.com/happytokenizer/happytokenizer"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-analytics-event="partner_link_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="github_repository"
+        data-analytics-location="navbar"
+        class={linkClass}
+      >
+        GitHub
+      </a>
+    </div>
   </div>
-</div>
+</header>

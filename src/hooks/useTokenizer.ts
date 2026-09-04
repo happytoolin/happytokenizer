@@ -114,6 +114,7 @@ export function useTokenizer() {
       options?: {
         isChatMode?: boolean;
         chatMessages?: ChatMessage[];
+        modelId?: string;
       },
     ) => {
       if (!workerRef.current) return;
@@ -135,6 +136,7 @@ export function useTokenizer() {
         const message: TokenizerMessage = {
           text,
           model,
+          modelId: options?.modelId,
           isChatMode: options?.isChatMode || false,
           chatMessages: options?.chatMessages,
         };

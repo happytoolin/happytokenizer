@@ -18,7 +18,7 @@ import { StatusDisplay } from "../ui/StatusDisplay";
 
 export function TokenizerApp() {
   const [text, setText] = useState(DEFAULT_ESSAY);
-  const [model, setModel] = useState<string>("gpt-6-astra");
+  const [model, setModel] = useState<string>("gpt-5.6-sol");
   const [debouncedText, setDebouncedText] = useState("");
 
   const modelOptions = useModelOptions();
@@ -74,7 +74,7 @@ export function TokenizerApp() {
 
   useEffect(() => {
     if (debouncedText && encoding) {
-      tokenize(debouncedText, encoding, { isChatMode: false });
+      tokenize(debouncedText, encoding, { isChatMode: false, modelId: model });
     }
   }, [debouncedText, encoding, tokenize]);
 

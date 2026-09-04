@@ -28,7 +28,7 @@ export async function getModelDisplayName(id: string): Promise<string> {
 
 export async function getModelPricing(
   id: string,
-): Promise<{ input: number; output: number; cached: number } | undefined> {
+): Promise<{ input: number; output: number; cached?: number } | undefined> {
   const { getPricing } = await getModels();
   return getPricing(id);
 }

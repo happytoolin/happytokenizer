@@ -1,7 +1,7 @@
 export interface ModelPricing {
   input: number;
   output: number;
-  cached: number;
+  cached?: number; // omitted when the vendor publishes no cache price
 }
 
 export interface ModelData {
@@ -12,8 +12,173 @@ export interface ModelData {
   pricing: ModelPricing;
 }
 
+export interface ModelInsights {
+  inputModalities: string[];
+  outputModalities: string[];
+  features: string[];
+  endpoints: string[];
+}
+
+// Family-level defaults; per-model overrides below fix the exceptions
+// (audio/media models, vision-capable variants). Sources: vendor model pages.
+const DEFAULT_INSIGHTS: Record<EncodingType, ModelInsights> = {
+  o200k_base: {
+    inputModalities: ["Text", "Image"],
+    outputModalities: ["Text"],
+    features: [
+      "Streaming",
+      "Structured Outputs",
+      "Function Calling",
+      "Web Search",
+      "Prompt Caching",
+      "Reasoning Tokens",
+    ],
+    endpoints: ["Responses", "Batch"],
+  },
+  cl100k_base: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming", "Function Calling"],
+    endpoints: ["Chat Completions"],
+  },
+  p50k_base: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming"],
+    endpoints: ["Completions"],
+  },
+  p50k_edit: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming"],
+    endpoints: ["Edits"],
+  },
+  r50k_base: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming"],
+    endpoints: ["Completions"],
+  },
+  o200k_harmony: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming", "Function Calling", "Reasoning Tokens"],
+    endpoints: ["Chat Completions", "Responses"],
+  },
+  anthropic: {
+    inputModalities: ["Text", "Image"],
+    outputModalities: ["Text"],
+    features: ["Streaming", "Function Calling", "Prompt Caching"],
+    endpoints: ["Messages", "Batch"],
+  },
+  kimi: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming", "Function Calling", "Prompt Caching"],
+    endpoints: ["Chat Completions"],
+  },
+  qwen: {
+    inputModalities: ["Text"],
+    outputModalities: ["Text"],
+    features: ["Streaming", "Function Calling", "Structured Outputs"],
+    endpoints: ["Chat Completions"],
+  },
+  glm: {
+    inputModalities: ["Text"], // GLM-5.3 is text-only per docs.z.ai
+    outputModalities: ["Text"],
+    features: ["Streaming", "Function Calling", "Prompt Caching"],
+    endpoints: ["Chat Completions", "Batch"],
+  },
+};
+
+const INSIGHT_OVERRIDES: Record<string, Partial<ModelInsights>> = {
+  "kimi-k2.6": { inputModalities: ["Text", "Image"] }, // multimodal repo
+  "whisper-1": {
+    inputModalities: ["Audio"],
+    outputModalities: ["Text"],
+    features: ["Timestamps"],
+    endpoints: ["Transcriptions"],
+  },
+  "tts-1": {
+    inputModalities: ["Text"],
+    outputModalities: ["Audio"],
+    features: ["Streaming"],
+    endpoints: ["Speech"],
+  },
+  "tts-1-hd": {
+    inputModalities: ["Text"],
+    outputModalities: ["Audio"],
+    features: ["Streaming"],
+    endpoints: ["Speech"],
+  },
+  "dall-e-2": {
+    inputModalities: ["Text"],
+    outputModalities: ["Image"],
+    features: ["Multiple Resolutions"],
+    endpoints: ["Images"],
+  },
+  "dall-e-3": {
+    inputModalities: ["Text"],
+    outputModalities: ["Image"],
+    features: ["Prompt Rewriting", "Quality Presets"],
+    endpoints: ["Images"],
+  },
+  "gpt-audio": {
+    inputModalities: ["Text", "Audio"],
+    outputModalities: ["Text", "Audio"],
+    features: ["Streaming", "Function Calling"],
+    endpoints: ["Responses"],
+  },
+  "gpt-audio-mini": {
+    inputModalities: ["Text", "Audio"],
+    outputModalities: ["Text", "Audio"],
+    features: ["Streaming", "Function Calling"],
+    endpoints: ["Responses"],
+  },
+  "sora-2": {
+    inputModalities: ["Text", "Image"],
+    outputModalities: ["Video"],
+    features: ["Streaming"],
+    endpoints: ["Videos"],
+  },
+  "sora-2-pro": {
+    inputModalities: ["Text", "Image"],
+    outputModalities: ["Video"],
+    features: ["Streaming"],
+    endpoints: ["Videos"],
+  },
+  "text-moderation-007": {
+    inputModalities: ["Text"],
+    outputModalities: ["Classification"],
+    features: [],
+    endpoints: ["Moderations"],
+  },
+  "text-moderation-latest": {
+    inputModalities: ["Text"],
+    outputModalities: ["Classification"],
+    features: [],
+    endpoints: ["Moderations"],
+  },
+  "text-moderation-stable": {
+    inputModalities: ["Text"],
+    outputModalities: ["Classification"],
+    features: [],
+    endpoints: ["Moderations"],
+  },
+};
+
+export function getModelInsights(modelId: string): ModelInsights {
+  const model = MODELS[modelId];
+  const base = DEFAULT_INSIGHTS[model?.encoding || "o200k_base"];
+  return { ...base, ...(INSIGHT_OVERRIDES[modelId] || {}) };
+}
+
 export type EncodingType =
   | "o200k_base"
+  | "anthropic"
+  | "kimi"
+  | "qwen"
+  | "glm"
   | "cl100k_base"
   | "p50k_base"
   | "p50k_edit"
@@ -27,6 +192,10 @@ const DEFAULT_PRICING: Record<EncodingType, ModelPricing> = {
   p50k_edit: { input: 0.002, output: 0.002, cached: 0.001 },
   r50k_base: { input: 0.002, output: 0.002, cached: 0.001 },
   o200k_harmony: { input: 0.0025, output: 0.01, cached: 0.00125 },
+  anthropic: { input: 0.002, output: 0.01, cached: 0.0002 },
+  kimi: { input: 0.00095, output: 0.004 },
+  qwen: { input: 0.002, output: 0.006 },
+  glm: { input: 0.0014, output: 0.0044, cached: 0.00026 },
 };
 
 const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
@@ -36,6 +205,10 @@ const DEFAULT_CONTEXT_LIMITS: Record<EncodingType, number> = {
   p50k_edit: 2049,
   r50k_base: 2049,
   o200k_harmony: 128000,
+  anthropic: 1000000,
+  kimi: 262144,
+  qwen: 1000000,
+  glm: 1048576,
 };
 
 export const MODELS: Record<string, ModelData> = {
@@ -137,6 +310,106 @@ export const MODELS: Record<string, ModelData> = {
     contextWindow: 128000,
     pricing: { input: 0.00175, output: 0.014, cached: 0.000175 }, // deprecated → per 1K
   },
+
+  // Anthropic — pricing from docs.claude.com (per 1K = per-M ÷ 1000)
+  "claude-fable-5.1": {
+    id: "claude-fable-5.1",
+    displayName: "Claude Fable 5.1",
+    encoding: "anthropic",
+    contextWindow: 1000000,
+    pricing: { input: 0.01, output: 0.05, cached: 0.00025 }, // $10/$50/$0.25 per M
+  },
+  "claude-opus-5": {
+    id: "claude-opus-5",
+    displayName: "Claude Opus 5",
+    encoding: "anthropic",
+    contextWindow: 1000000,
+    pricing: { input: 0.005, output: 0.025, cached: 0.0005 }, // $5/$25/$0.50 per M
+  },
+  "claude-sonnet-5": {
+    id: "claude-sonnet-5",
+    displayName: "Claude Sonnet 5",
+    encoding: "anthropic",
+    contextWindow: 1000000,
+    pricing: { input: 0.002, output: 0.01, cached: 0.0002 }, // $2/$10/$0.20 per M
+  },
+  "claude-haiku-4.5": {
+    id: "claude-haiku-4.5",
+    displayName: "Claude Haiku 4.5",
+    encoding: "anthropic",
+    contextWindow: 200000,
+    pricing: { input: 0.001, output: 0.005, cached: 0.0001 }, // $1/$5/$0.10 per M
+  },
+
+  // Moonshot Kimi — pricing via OpenRouter (per 1K); same tokenizer for K2.6/K2.7-Code/K3
+  "kimi-k3": {
+    id: "kimi-k3",
+    displayName: "Kimi K3",
+    encoding: "kimi",
+    contextWindow: 1048576,
+    pricing: { input: 0.003, output: 0.015 }, // $3/$15 per M
+  },
+  "kimi-k2.7-code": {
+    id: "kimi-k2.7-code",
+    displayName: "Kimi K2.7 Code",
+    encoding: "kimi",
+    contextWindow: 262144,
+    pricing: { input: 0.00066, output: 0.0034 }, // $0.66/$3.40 per M
+  },
+  "kimi-k2.6": {
+    id: "kimi-k2.6",
+    displayName: "Kimi K2.6",
+    encoding: "kimi",
+    contextWindow: 262144,
+    pricing: { input: 0.00095, output: 0.004 }, // $0.95/$4 per M
+  },
+
+  // Alibaba Qwen — pricing via OpenRouter/Model Studio (per 1K)
+  "qwen3.8-max": {
+    id: "qwen3.8-max",
+    displayName: "Qwen3.8 Max",
+    encoding: "qwen",
+    contextWindow: 1000000,
+    pricing: { input: 0.002, output: 0.006 }, // $2/$6 per M
+  },
+  "qwen3.8-2.4t-a95b": {
+    id: "qwen3.8-2.4t-a95b",
+    displayName: "Qwen3.8 2.4T A95B (Open)",
+    encoding: "qwen",
+    contextWindow: 1048576,
+    pricing: { input: 0.002, output: 0.006 }, // $2/$6 per M
+  },
+  "qwen3.8-flash": {
+    id: "qwen3.8-flash",
+    displayName: "Qwen3.8 Flash",
+    encoding: "qwen",
+    contextWindow: 1000000,
+    pricing: { input: 0.00015, output: 0.00047 }, // $0.15/$0.47 per M
+  },
+
+  // Z.ai GLM — pricing from docs.z.ai (per 1K)
+  "glm-5.3": {
+    id: "glm-5.3",
+    displayName: "GLM-5.3",
+    encoding: "glm",
+    contextWindow: 1048576, // 1M context, 128K max output (docs.z.ai)
+    pricing: { input: 0.0014, output: 0.0044, cached: 0.00026 }, // $1.4/$4.4/$0.26 per M
+  },
+  "glm-5.3-flash": {
+    id: "glm-5.3-flash",
+    displayName: "GLM-5.3 Flash",
+    encoding: "glm",
+    contextWindow: 1048576,
+    pricing: { input: 0.000075, output: 0.00025, cached: 0.000015 }, // $0.075/$0.25/$0.015 per M (promo)
+  },
+  "glm-4.7": {
+    id: "glm-4.7",
+    displayName: "GLM-4.7",
+    encoding: "glm",
+    contextWindow: 204800,
+    pricing: { input: 0.0006, output: 0.0022, cached: 0.00011 }, // $0.6/$2.2/$0.11 per M
+  },
+
   "gpt-5": {
     id: "gpt-5",
     displayName: "GPT-5",
