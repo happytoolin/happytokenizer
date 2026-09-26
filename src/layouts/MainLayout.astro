@@ -36,6 +36,36 @@ const resolvedCanonicalUrl =
 const ogImageUrl = image.startsWith("http")
   ? image
   : new URL(image, `${siteUrl}/`).toString();
+
+/** Google truncates titles near 60 characters and descriptions near 160. */
+const TITLE_LIMIT = 60;
+const DESCRIPTION_LIMIT = 160;
+const BRAND = "HappyTokenizer";
+
+function clampTitle(value: string): string {
+  const trimmed = value.replace(/\s+/g, " ").trim();
+  if (trimmed.length <= TITLE_LIMIT) return trimmed;
+  const brandSplit = trimmed.split(/\s+\|\s+/);
+  if (brandSplit.length > 1 && brandSplit[0].trim().length <= TITLE_LIMIT) {
+    return brandSplit[0].trim();
+  }
+  const clipped = trimmed.slice(0, TITLE_LIMIT + 1);
+  const wordEnd = clipped.lastIndexOf(" ");
+  return clipped.slice(0, wordEnd > 0 ? wordEnd : TITLE_LIMIT).trim();
+}
+
+function clampDescription(value: string): string {
+  const trimmed = value.replace(/\s+/g, " ").trim();
+  if (trimmed.length <= DESCRIPTION_LIMIT) return trimmed;
+  const clipped = trimmed.slice(0, DESCRIPTION_LIMIT + 1);
+  const sentenceEnd = clipped.lastIndexOf(".");
+  if (sentenceEnd >= 70) return clipped.slice(0, sentenceEnd + 1).trim();
+  const wordEnd = clipped.lastIndexOf(" ");
+  return `${clipped.slice(0, wordEnd > 0 ? wordEnd : DESCRIPTION_LIMIT).trim()}.`;
+}
+
+const finalTitle = clampTitle(title);
+const finalDescription = clampDescription(description);
 const robotsContent = noindex
   ? "noindex, nofollow"
   : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
@@ -67,7 +97,10 @@ const defaultSchemaGraph: SchemaNode[] = [
       "@type": "WebSite",
       url: siteUrl,
     },
-    primaryImageOfPage: ogImageUrl,
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: ogImageUrl,
+    },
   },
 ];
 
@@ -148,7 +181,7 @@ document.addEventListener('click', function(event) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
+    <meta name="description" content={finalDescription} />
     <meta name="keywords" content={keywords} />
     <meta name="author" content="HappyTokenizer" />
     <meta name="robots" content={robotsContent} />
@@ -160,8 +193,8 @@ document.addEventListener('click', function(event) {
     <meta property="og:site_name" content="HappyTokenizer" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={resolvedCanonicalUrl} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={finalTitle} />
+    <meta property="og:description" content={finalDescription} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:alt" content={`${title} preview`} />
     <meta property="og:image:width" content="1200" />
@@ -170,8 +203,8 @@ document.addEventListener('click', function(event) {
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@happytokenizer" />
     <meta name="twitter:url" content={resolvedCanonicalUrl} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={finalTitle} />
+    <meta name="twitter:description" content={finalDescription} />
     <meta name="twitter:image" content={ogImageUrl} />
     <meta name="twitter:image:alt" content={`${title} preview`} />
 
@@ -210,7 +243,7 @@ document.addEventListener('click', function(event) {
 
     <FontLoader />
 
-    <title>{title}</title>
+    <title>{finalTitle}</title>
 
     <script
       is:inline

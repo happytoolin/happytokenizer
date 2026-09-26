@@ -85,7 +85,7 @@ export function Sidebar({
                   Text
                 </div>
                 <a
-                  href="/chat"
+                  href="/chat/"
                   data-analytics-event="sidebar_mode_switch_clicked"
                   data-analytics-category="navigation"
                   data-analytics-label="chat_mode"

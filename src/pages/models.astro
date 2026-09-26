@@ -144,7 +144,7 @@ const pageSchema = [
               const outputPrice = (pricing.output * 1000).toFixed(2);
 
               return (
-                <a href={`/models/${model.id}`} class="block px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem group" data-name={model.displayName} data-analytics-event="model_manifest_item_clicked" data-analytics-category="navigation" data-analytics-label={model.id} data-analytics-location="models_manifest">
+                <a href={`/models/${model.id}/`} class="block px-3 py-2 mb-1 transition-colors duration-200 ease-mechanical hover:bg-brand-concrete modelItem group" data-name={model.displayName} data-analytics-event="model_manifest_item_clicked" data-analytics-category="navigation" data-analytics-label={model.id} data-analytics-location="models_manifest">
                   <div class="flex items-start gap-3">
                     <div class="w-2 h-2 shrink-0 mt-0.5" style={`background: ${cat.color}`}></div>
                     <div class="flex-1 min-w-0">

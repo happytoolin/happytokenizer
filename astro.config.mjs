@@ -12,12 +12,15 @@ import playformCompress from "@playform/compress";
 export default defineConfig({
   site: "https://happytokenizer.com",
 
+  // Canonical URLs end with "/". Links are authored with the trailing slash so
+  // crawlers hit prerendered pages instead of 307 redirects.
+  trailingSlash: "always",
+
   integrations: [
     react(),
     sitemap({
       changefreq: "weekly",
       priority: 0.7,
-      lastmod: new Date(),
     }),
     partytown({
       config: {
