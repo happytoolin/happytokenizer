@@ -65,7 +65,7 @@ const faq = [
 ];
 const pageSchema = [
   {
-    "@type": "SoftwareApplication",
+    "@type": "WebApplication",
     name: `${model.displayName} Tokenizer`,
     description: pageDescription,
     url: canonicalUrl,
@@ -503,7 +503,7 @@ const pageSchema = [
               .slice(0, 5)
               .map(([id, m]) => (
                 <a
-                  href={`/models/${id}`}
+                  href={`/models/${id}/`}
                   data-analytics-event="related_model_clicked"
                   data-analytics-category="navigation"
                   data-analytics-label={id}
