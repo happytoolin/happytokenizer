@@ -12,6 +12,49 @@ import { VERSION } from "../utils/version";
       <span class="hidden max-[600px]:inline max-[480px]:text-[10px]">M</span>
     </a>
 
+    {/* Sister sites: hidden on small screens to keep the pill compact */}
+    <div class="flex items-center gap-3 max-[600px]:hidden">
+      <div class="w-px h-3 bg-gray-300" />
+      <a
+        href="https://happyformatter.com/"
+        target="_blank"
+        rel="noopener"
+        data-analytics-event="footer_navigation_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="happyformatter"
+        data-analytics-location="footer"
+        class="font-mono text-xs font-medium text-gray-600 no-underline transition-colors hover:text-brand-orange"
+      >
+        Formatter
+      </a>
+      <div class="w-px h-3 bg-gray-300" />
+      <a
+        href="https://saybackend.com/"
+        target="_blank"
+        rel="noopener"
+        data-analytics-event="footer_navigation_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="saybackend_blog"
+        data-analytics-location="footer"
+        class="font-mono text-xs font-medium text-gray-600 no-underline transition-colors hover:text-brand-orange"
+      >
+        Blog
+      </a>
+      <div class="w-px h-3 bg-gray-300" />
+      <a
+        href="https://kamran.sh/"
+        target="_blank"
+        rel="noopener"
+        data-analytics-event="footer_navigation_clicked"
+        data-analytics-category="navigation"
+        data-analytics-label="portfolio"
+        data-analytics-location="footer"
+        class="font-mono text-xs font-medium text-gray-600 no-underline transition-colors hover:text-brand-orange"
+      >
+        Portfolio
+      </a>
+    </div>
+
     <div class="w-px h-3 bg-gray-300 max-[480px]:h-2.5" />
 
     {/* GitHub Link */}
